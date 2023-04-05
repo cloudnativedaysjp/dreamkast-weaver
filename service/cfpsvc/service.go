@@ -6,18 +6,22 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
+type Cfp struct {
+	weaver.AutoMarshal
+}
+
 // CfpSvc component.
-type Cfp interface {
+type T interface {
 	Vote(context.Context, string) (string, error)
 }
 
 // Implementation of the CfpSvc component.
-type cfp struct {
-	weaver.Implements[Cfp]
+type impl struct {
+	weaver.Implements[T]
 }
 
-func (r *cfp) Vote(_ context.Context, s string) (string, error) {
-	runes := []rune(s)
+func (s *impl) Vote(_ context.Context, str string) (string, error) {
+	runes := []rune(str)
 	n := len(runes)
 	for i := 0; i < n/2; i++ {
 		runes[i], runes[n-i-1] = runes[n-i-1], runes[i]
