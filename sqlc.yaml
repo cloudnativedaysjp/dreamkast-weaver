@@ -1,0 +1,9 @@
+version: "1"
+project:
+  id: ""
+packages: 
+  - name: "mysql"
+    path: "./infrastructure/mysql/"
+    queries: "./db/queries/"
+    schema: "./db/migrations/"
+    engine: "mysql"
