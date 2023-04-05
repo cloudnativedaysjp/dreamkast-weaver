@@ -16,13 +16,13 @@ func main() {
 	root := weaver.Init(ctx)
 
 	// Get a client to the Reverser component.
-	reverser, err := weaver.Get[cfpsvc.Cfp](root)
+	cfpSvc, err := weaver.Get[cfpsvc.Cfp](root)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Call the Reverse method.
-	reversed, err := reverser.Reverse(ctx, "!dlroW ,olleH")
+	reversed, err := cfpSvc.Vote(ctx, "!dlroW ,olleH")
 	if err != nil {
 		log.Fatal(err)
 	}
