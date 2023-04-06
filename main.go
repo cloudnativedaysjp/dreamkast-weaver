@@ -2,12 +2,13 @@ package main
 
 import (
 	"context"
-	"dreamkast-weaver/frontend"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/ServiceWeaver/weaver"
+
+	"dreamkast-weaver/service/frontend"
 )
 
 //go:generate weaver generate ./...
