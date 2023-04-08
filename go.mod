@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.28
 	github.com/ServiceWeaver/weaver v0.1.5
 	github.com/amacneil/dbmate v1.16.2
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0
@@ -30,7 +31,6 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/cel-go v0.12.5 // indirect
 	github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26 // indirect

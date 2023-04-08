@@ -7,10 +7,10 @@ INSERT INTO cfp_votes (
   talk_id,
   dt
 ) VALUES ( 
-  $1, $2, $3
+  ?, ?, ?
 );
 
 -- name: ListCfpVoteByConferenceName :many
 SELECT * FROM cfp_votes
-WHERE conference_name = $1;
+WHERE conference_name = ?;
 

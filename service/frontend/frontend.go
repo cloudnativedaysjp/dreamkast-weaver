@@ -1,7 +1,6 @@
 package frontend
 
 import (
-	"dreamkast-weaver/service/cfpsvc"
 	"fmt"
 	"net"
 	"net/http"
@@ -10,6 +9,9 @@ import (
 
 	"github.com/ServiceWeaver/weaver"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
+	"dreamkast-weaver/service/cfpsvc"
+	"dreamkast-weaver/service/mysqlsvc"
 )
 
 const (
@@ -46,13 +48,18 @@ type Server struct {
 	platform platformDetails
 	hostname string
 
-	cfpSvc cfpsvc.T
+	cfpSvc   cfpsvc.T
+	mySqlSvc mysqlsvc.T
 }
 
 // NewServer returns the new application frontend.
 func NewServer(root weaver.Instance) (*Server, error) {
 	// Setup the services.
 	cfpSvc, err := weaver.Get[cfpsvc.T](root)
+	if err != nil {
+		return nil, err
+	}
+	mySqlSvc, err := weaver.Get[mysqlsvc.T](root)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +94,7 @@ func NewServer(root weaver.Instance) (*Server, error) {
 		platform: platform,
 		hostname: hostname,
 		cfpSvc:   cfpSvc,
+		mySqlSvc: mySqlSvc,
 	}
 
 	r := http.NewServeMux()
@@ -113,6 +121,7 @@ func NewServer(root weaver.Instance) (*Server, error) {
 	const head = http.MethodHead
 
 	r.Handle("/vote", instrument("cfp", s.voteHandler, []string{get, head}))
+	r.Handle("/show", instrument("show", s.showHandler, []string{get, head}))
 	r.Handle("/robots.txt", instrument("robots", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, "User-agent: *\nDisallow: /") }, nil))
 
 	// No instrumentation of /healthz

@@ -3,10 +3,11 @@
 //   sqlc v1.17.2
 // source: query.sql
 
-package db
+package mysql
 
 import (
 	"context"
+	"time"
 )
 
 const insertCfpVote = `-- name: InsertCfpVote :exec
@@ -15,22 +16,28 @@ INSERT INTO cfp_votes (
   talk_id,
   dt
 ) VALUES ( 
-  $1, $2, $3
+  ?, ?, ?
 )
 `
 
-func (q *Queries) InsertCfpVote(ctx context.Context) error {
-	_, err := q.db.ExecContext(ctx, insertCfpVote)
+type InsertCfpVoteParams struct {
+	ConferenceName string
+	TalkID         int32
+	Dt             time.Time
+}
+
+func (q *Queries) InsertCfpVote(ctx context.Context, arg InsertCfpVoteParams) error {
+	_, err := q.db.ExecContext(ctx, insertCfpVote, arg.ConferenceName, arg.TalkID, arg.Dt)
 	return err
 }
 
 const listCfpVoteByConferenceName = `-- name: ListCfpVoteByConferenceName :many
 SELECT conference_name, talk_id, dt FROM cfp_votes
-WHERE conference_name = $1
+WHERE conference_name = ?
 `
 
-func (q *Queries) ListCfpVoteByConferenceName(ctx context.Context) ([]CfpVote, error) {
-	rows, err := q.db.QueryContext(ctx, listCfpVoteByConferenceName)
+func (q *Queries) ListCfpVoteByConferenceName(ctx context.Context, conferenceName string) ([]CfpVote, error) {
+	rows, err := q.db.QueryContext(ctx, listCfpVoteByConferenceName, conferenceName)
 	if err != nil {
 		return nil, err
 	}

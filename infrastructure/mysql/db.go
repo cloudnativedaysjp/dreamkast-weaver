@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.17.2
 
-package db
+package mysql
 
 import (
 	"context"

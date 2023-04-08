@@ -1,0 +1,3 @@
+["dreamkast-weaver/infrastructure/mysql/MySqlSvc"]
+db_driver = "mysql"
+db_uri = "mysql://user:password@127.0.0.1:13306/weaver"
