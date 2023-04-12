@@ -1,3 +1,5 @@
-module github.com/cloudnativedaysjp/dreamkast-weaver.git
+module dreamkast-weaver
 
 go 1.20
+
+require github.com/go-sql-driver/mysql v1.7.0
