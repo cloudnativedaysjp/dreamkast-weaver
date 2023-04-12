@@ -11,22 +11,22 @@ import (
 )
 
 func TestCfpVoteImpl(t *testing.T) {
-	sqlh := sqlhelper.NewTestSqlHelper()
-	ctx := sqlhelper.WithSqlHelper(context.Background(), sqlh)
+	sh := sqlhelper.NewTestSqlHelper()
+	voter := cfp.NewVoter(sh)
+	ctx := context.Background()
 
 	talkID := int32(time.Now().Unix())
 
-	err := cfp.NewVoter().Vote(ctx, cfp.VoteRequest{
+	err := voter.Vote(ctx, cfp.VoteRequest{
 		ConfName: "cndf2023",
 		TalkID:   talkID,
 		GlobalIP: net.ParseIP("127.0.0.1"),
 	})
-
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	resp, err := cfp.NewVoter().GetCount(ctx, cfp.GetCountRequest{
+	resp, err := voter.GetCount(ctx, cfp.GetCountRequest{
 		ConfName: "cndf2023",
 	})
 	if err != nil {

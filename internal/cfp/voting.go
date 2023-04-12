@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log"
 	"net"
 
 	"dreamkast-weaver/internal/cfp/repo"
@@ -41,17 +42,48 @@ type GetCountResponse []VoteCount
 // VoterImpl implements cfp.Voter
 type VoterImpl struct {
 	weaver.Implements[Voter]
+	weaver.WithConfig[config]
+
+	sh *sqlhelper.SqlHelper
 }
 
 var _ Voter = (*VoterImpl)(nil)
 
-func NewVoter() Voter {
-	return &VoterImpl{}
+type config struct {
+	DBUser     string `toml:"db_user"`
+	DBPassword string `toml:"db_password"`
+	DBEndpoint string `toml:"db_endpoint"`
+	DBPort     string `toml:"db_port"`
+	DBName     string `toml:"db_name"`
 }
 
-func (*VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error) {
-	sqlh := sqlhelper.SqlHelperFromContext(ctx)
-	r := repo.New(sqlh.DB())
+func (c *config) SqlOption() *sqlhelper.SqlOption {
+	return &sqlhelper.SqlOption{
+		User:     c.DBUser,
+		Password: c.DBPassword,
+		Endpoint: c.DBEndpoint,
+		Port:     c.DBPort,
+		DbName:   c.DBName,
+	}
+}
+
+func NewVoter(sh *sqlhelper.SqlHelper) Voter {
+	return &VoterImpl{sh: sh}
+}
+
+func (v *VoterImpl) Init(ctx context.Context) error {
+	cfg := v.Config()
+	log.Printf("config: %#v\n", cfg)
+	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
+	if err != nil {
+		return err
+	}
+	v.sh = sh
+	return nil
+}
+
+func (v *VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error) {
+	r := repo.New(v.sh.DB())
 
 	votes, err := r.ListCfpVotes(ctx, req.ConfName)
 	if err != nil {
@@ -75,9 +107,8 @@ func (*VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountRe
 	return resp, nil
 }
 
-func (*VoterImpl) Vote(ctx context.Context, req VoteRequest) error {
-	sqlh := sqlhelper.SqlHelperFromContext(ctx)
-	r := repo.New(sqlh.DB())
+func (v *VoterImpl) Vote(ctx context.Context, req VoteRequest) error {
+	r := repo.New(v.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
 		ConferenceName: req.ConfName,
