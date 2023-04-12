@@ -43,7 +43,7 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName *string) ([]*mo
 	var resp []*model.VoteCount
 	for _, v := range counts {
 		resp = append(resp, &model.VoteCount{
-			TalkID: int(v.TalkId),
+			TalkID: int(v.TalkID),
 			Count:  v.Count,
 		})
 	}

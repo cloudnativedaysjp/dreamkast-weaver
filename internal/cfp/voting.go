@@ -8,6 +8,8 @@ import (
 
 	"dreamkast-weaver/internal/cfp/repo"
 	"dreamkast-weaver/internal/sqlhelper"
+
+	"github.com/ServiceWeaver/weaver"
 )
 
 type Voter interface {
@@ -17,24 +19,29 @@ type Voter interface {
 
 // TODO validate
 type VoteRequest struct {
+	weaver.AutoMarshal
 	ConfName string
 	TalkID   int32
 	GlobalIP net.IP
 }
 
 type GetCountRequest struct {
+	weaver.AutoMarshal
 	ConfName string
 }
 
 type VoteCount struct {
-	TalkId int32
+	weaver.AutoMarshal
+	TalkID int32
 	Count  int
 }
 
 type GetCountResponse []VoteCount
 
 // VoterImpl implements cfp.Voter
-type VoterImpl struct{}
+type VoterImpl struct {
+	weaver.Implements[Voter]
+}
 
 var _ Voter = (*VoterImpl)(nil)
 
@@ -59,7 +66,10 @@ func (*VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountRe
 
 	var resp GetCountResponse
 	for talkID, count := range counts {
-		resp = append(resp, VoteCount{talkID, count})
+		resp = append(resp, VoteCount{
+			TalkID: talkID,
+			Count:  count,
+		})
 	}
 
 	return resp, nil

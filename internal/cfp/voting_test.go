@@ -35,7 +35,7 @@ func TestCfpVoteImpl(t *testing.T) {
 
 	var ok bool
 	for _, r := range resp {
-		if r.TalkId == talkID {
+		if r.TalkID == talkID {
 			ok = true
 			if r.Count == 0 {
 				t.Errorf("count must be more than 0")
