@@ -16,6 +16,7 @@ func init() {
 		Name:        "dreamkast-weaver/internal/cfp/Voter",
 		Iface:       reflect.TypeOf((*Voter)(nil)).Elem(),
 		New:         func() any { return &VoterImpl{} },
+		ConfigFn:    func(i any) any { return i.(*VoterImpl).WithConfig.Config() },
 		LocalStubFn: func(impl any, tracer trace.Tracer) any { return voter_local_stub{impl: impl.(Voter), tracer: tracer} },
 		ClientStubFn: func(stub codegen.Stub, caller string) any {
 			return voter_client_stub{stub: stub, voteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/cfp/Voter", Method: "Vote"}), getCountMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/cfp/Voter", Method: "GetCount"})}

@@ -14,13 +14,9 @@ test: fmt vet
 build:
 	go build -o serve ./cmd/serve/main.go
 
-.PHONY: repo
-repo:
-	cd internal && sqlc generate
-
-.PHONY: graph
-graph:
-	gqlgen generate
+.PHONY: generate
+generate:
+	go generate ./...
 
 .PHONY: multi-deploy
 multi-deploy:

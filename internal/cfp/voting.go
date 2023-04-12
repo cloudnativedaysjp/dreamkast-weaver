@@ -13,6 +13,8 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
+//go:generate go run github.com/ServiceWeaver/weaver/cmd/weaver generate .
+
 type Voter interface {
 	Vote(ctx context.Context, req VoteRequest) error
 	GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error)
