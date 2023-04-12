@@ -13,3 +13,7 @@ test: fmt vet
 .PHONY: repo
 repo:
 	cd internal && sqlc generate
+
+.PHONY: graph
+graph:
+	gqlgen generate
