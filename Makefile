@@ -21,3 +21,11 @@ repo:
 .PHONY: graph
 graph:
 	gqlgen generate
+
+.PHONY: multi-deploy
+multi-deploy:
+	weaver multi deploy weaver.toml
+
+.PHONY: multi-status
+multi-status:
+	weaver multi status
