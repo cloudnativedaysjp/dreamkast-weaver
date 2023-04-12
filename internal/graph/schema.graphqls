@@ -3,7 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type VoteCount {
-  talkId: ID!
+  talkId: Int!
   count: Int!
 }
 
@@ -13,7 +13,7 @@ type Query {
 
 input NewVote {
   confName: String!
-  talkId: ID!
+  talkId: Int!
   globalIp: String!
 }
 

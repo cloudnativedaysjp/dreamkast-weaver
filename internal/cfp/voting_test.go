@@ -16,7 +16,7 @@ func TestCfpVoteImpl(t *testing.T) {
 
 	talkID := int32(time.Now().Unix())
 
-	err := cfp.NewCfpVote().Vote(ctx, cfp.VoteRequest{
+	err := cfp.NewVoter().Vote(ctx, cfp.VoteRequest{
 		ConfName: "cndf2023",
 		TalkID:   talkID,
 		GlobalIP: net.ParseIP("127.0.0.1"),
@@ -26,7 +26,7 @@ func TestCfpVoteImpl(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	resp, err := cfp.NewCfpVote().GetCount(ctx, cfp.GetCountRequest{
+	resp, err := cfp.NewVoter().GetCount(ctx, cfp.GetCountRequest{
 		ConfName: "cndf2023",
 	})
 	if err != nil {

@@ -10,7 +10,7 @@ import (
 	"dreamkast-weaver/internal/sqlhelper"
 )
 
-type CfpVote interface {
+type Voter interface {
 	Vote(ctx context.Context, req VoteRequest) error
 	GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error)
 }
@@ -33,16 +33,16 @@ type VoteCount struct {
 
 type GetCountResponse []VoteCount
 
-// CfpVoteImpl implements CfpVote
-type CfpVoteImpl struct{}
+// VoterImpl implements cfp.Voter
+type VoterImpl struct{}
 
-var _ CfpVote = (*CfpVoteImpl)(nil)
+var _ Voter = (*VoterImpl)(nil)
 
-func NewCfpVote() CfpVote {
-	return &CfpVoteImpl{}
+func NewVoter() Voter {
+	return &VoterImpl{}
 }
 
-func (*CfpVoteImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error) {
+func (*VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error) {
 	sqlh := sqlhelper.SqlHelperFromContext(ctx)
 	r := repo.New(sqlh.DB())
 
@@ -65,7 +65,7 @@ func (*CfpVoteImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCount
 	return resp, nil
 }
 
-func (*CfpVoteImpl) Vote(ctx context.Context, req VoteRequest) error {
+func (*VoterImpl) Vote(ctx context.Context, req VoteRequest) error {
 	sqlh := sqlhelper.SqlHelperFromContext(ctx)
 	r := repo.New(sqlh.DB())
 

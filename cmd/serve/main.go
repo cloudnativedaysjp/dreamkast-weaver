@@ -1,7 +1,8 @@
 package main
 
 import (
-	"dreamkast-weaver/graph"
+	"dreamkast-weaver/internal/graph"
+	"dreamkast-weaver/internal/sqlhelper"
 	"log"
 	"net/http"
 	"os"
@@ -18,7 +19,12 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{}}))
+	// TODO use non-test sql server and resolve config from env vars
+	sqlh := sqlhelper.NewTestSqlHelper()
+
+	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+		Resolvers: graph.NewResolver(sqlh),
+	}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

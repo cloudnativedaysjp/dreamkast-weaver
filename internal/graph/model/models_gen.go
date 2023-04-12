@@ -4,11 +4,11 @@ package model
 
 type NewVote struct {
 	ConfName string `json:"confName"`
-	TalkID   string `json:"talkId"`
+	TalkID   int    `json:"talkId"`
 	GlobalIP string `json:"globalIp"`
 }
 
 type VoteCount struct {
-	TalkID string `json:"talkId"`
-	Count  int    `json:"count"`
+	TalkID int `json:"talkId"`
+	Count  int `json:"count"`
 }
