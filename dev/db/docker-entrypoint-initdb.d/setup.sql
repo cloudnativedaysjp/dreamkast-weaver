@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS `cfp`;
+CREATE DATABASE IF NOT EXISTS `dkui`;
+
+Create USER root@'%';
+GRANT ALL PRIVILEGES ON *.* TO root@'%' WITH GRANT OPTION;
+ALTER USER 'root'@'%' IDENTIFIED BY 'password';
+
+Create USER user@'%';
+GRANT ALL PRIVILEGES ON *.* TO user@'%' WITH GRANT OPTION;
+ALTER USER 'user'@'%' IDENTIFIED BY 'password';
