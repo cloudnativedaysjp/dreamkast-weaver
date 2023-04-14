@@ -50,6 +50,13 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			},
 			shouldStampChallengeAdded: false,
 		},
+		{
+			name: "first event",
+			given: func() *domain.WatchEvents {
+				return &domain.WatchEvents{}
+			},
+			shouldStampChallengeAdded: false,
+		},
 	}
 
 	for _, tt := range tests {
@@ -78,25 +85,29 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 
 	errTests := []struct {
 		name  string
-		given func() *domain.WatchEvents
+		given func() (*domain.WatchEvents, *domain.StampChallenges)
 	}{
 		{
 			name: "too short request",
-			given: func() *domain.WatchEvents {
+			given: func() (*domain.WatchEvents, *domain.StampChallenges) {
 				events := &domain.WatchEvents{}
 				ev := *domain.NewOnlineWatchEvent(newTrackID(11), newTalkID(22), slotID)
 				ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS - 9) * time.Second))
 				events = events.AddImmutable(ev)
-				return events
+				return events, &domain.StampChallenges{}
+			},
+		},
+		{
+			name: "nil given",
+			given: func() (*domain.WatchEvents, *domain.StampChallenges) {
+				return nil, nil
 			},
 		},
 	}
 
 	for _, tt := range errTests {
 		t.Run("err:"+tt.name, func(t *testing.T) {
-			stamps := &domain.StampChallenges{}
-			events := tt.given()
-
+			events, stamps := tt.given()
 			_, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
 			assert.Error(t, err)
 		})
@@ -140,6 +151,12 @@ func TestDkUiService_StampOnline(t *testing.T) {
 				}}
 			},
 		},
+		{
+			name: "nil given",
+			given: func() *domain.StampChallenges {
+				return nil
+			},
+		},
 	}
 
 	for _, tt := range errTests {
@@ -149,8 +166,10 @@ func TestDkUiService_StampOnline(t *testing.T) {
 			err := svc.StampOnline(slotID, stamps)
 
 			assert.Error(t, err)
-			for _, stamp := range stamps.Items {
-				assert.Equal(t, value.StampReady, stamp.Condition)
+			if stamps != nil {
+				for _, stamp := range stamps.Items {
+					assert.Equal(t, value.StampReady, stamp.Condition)
+				}
 			}
 		})
 	}
@@ -225,6 +244,12 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 				}}
 			},
 		},
+		{
+			name: "nil given",
+			given: func() *domain.StampChallenges {
+				return nil
+			},
+		},
 	}
 
 	for _, tt := range errTests {
@@ -234,13 +259,14 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 			_, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
 
 			assert.Error(t, err)
-			for _, stamp := range stamps.Items {
-				if stamp.SlotID == slotID {
-					assert.Equal(t, value.StampStamped, stamp.Condition)
-				} else {
-					assert.Equal(t, value.StampReady, stamp.Condition)
+			if stamps != nil {
+				for _, stamp := range stamps.Items {
+					if stamp.SlotID == slotID {
+						assert.Equal(t, value.StampStamped, stamp.Condition)
+					} else {
+						assert.Equal(t, value.StampReady, stamp.Condition)
+					}
 				}
-
 			}
 		})
 
