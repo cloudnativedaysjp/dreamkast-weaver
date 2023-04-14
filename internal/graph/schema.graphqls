@@ -1,0 +1,22 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type VoteCount {
+  talkId: Int!
+  count: Int!
+}
+
+type Query {
+  voteCounts(confName: String): [VoteCount!]!
+}
+
+input NewVote {
+  confName: String!
+  talkId: Int!
+  globalIp: String!
+}
+
+type Mutation {
+  vote(input: NewVote!): Boolean
+}

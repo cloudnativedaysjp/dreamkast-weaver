@@ -1,0 +1,9 @@
+version: "2"
+sql:
+  - engine: "mysql"
+    queries: "cfp/db/query.sql"
+    schema: "cfp/db/schema.sql"
+    gen:
+      go:
+        package: "repo"
+        out: "cfp/repo"
