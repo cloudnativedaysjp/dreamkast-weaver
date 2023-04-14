@@ -111,13 +111,8 @@ func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *Watch
 }
 
 func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
-	var tgt *StampChallenge
-	for _, sc := range scs.Items {
-		if sc.SlotID == slotID {
-			tgt = &sc
-		}
-	}
-	if tgt == nil || tgt.Condition != value.StampReady {
+	sc := scs.Get(slotID)
+	if sc == nil || sc.Condition != value.StampReady {
 		return fmt.Errorf("stamp is not ready: slotID=%v", slotID)
 	}
 
@@ -134,17 +129,11 @@ func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
 }
 
 func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
-	var tgt *StampChallenge
-	for _, p := range scs.Items {
-		sc := p
-		if sc.SlotID == slotID {
-			tgt = &sc
-		}
-	}
-	if tgt == nil {
+	sc := scs.Get(slotID)
+	if sc == nil {
 		scs.setReadyChallenge(slotID)
 	}
-	if tgt != nil && tgt.Condition == value.StampStamped {
+	if sc != nil && sc.Condition == value.StampStamped {
 		return fmt.Errorf("already stamped: slotID=%v", slotID)
 	}
 
@@ -158,15 +147,20 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 }
 
 func (scs *StampChallenges) setReadyChallenge(slotID value.SlotID) {
-	var found bool
-	for _, sc := range scs.Items {
-		if sc.SlotID == slotID {
-			found = true
-		}
-	}
-	if !found {
+	sc := scs.Get(slotID)
+	if sc == nil {
 		scs.Items = append(scs.Items, *NewStampChallenge(slotID))
 	}
+}
+
+func (scs *StampChallenges) Get(slotID value.SlotID) *StampChallenge {
+	for _, p := range scs.Items {
+		sc := p
+		if sc.SlotID == slotID {
+			return &sc
+		}
+	}
+	return nil
 }
 
 type WatchEvent struct {
