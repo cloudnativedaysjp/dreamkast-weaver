@@ -158,7 +158,15 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 }
 
 func (scs *StampChallenges) setReadyChallenge(slotID value.SlotID) {
-	scs.Items = append(scs.Items, *NewStampChallenge(slotID))
+	var found bool
+	for _, sc := range scs.Items {
+		if sc.SlotID == slotID {
+			found = true
+		}
+	}
+	if !found {
+		scs.Items = append(scs.Items, *NewStampChallenge(slotID))
+	}
 }
 
 type WatchEvent struct {
