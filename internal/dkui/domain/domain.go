@@ -1,23 +1,31 @@
 package domain
 
 import (
-	"context"
 	"dreamkast-weaver/internal/dkui/value"
 	"fmt"
 	"time"
 )
 
-type DkUiRepo interface {
-	ListWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (WatchEvents, error)
-	InsertWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev WatchEvent) error
+var (
+	viewEventGuardSeconds = value.GUARD_SECONDS
+	jst                   *time.Location
+)
 
-	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (StampChallenges, error)
-	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs StampChallenges) error
+func init() {
+	var err error
+	jst, err = time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		panic(err)
+	}
 }
 
-type DkUiService struct{}
+func ChangeGuardSecondsForTest(guardSeconds int) {
+	viewEventGuardSeconds = guardSeconds
+}
 
-func (DkUiService) CreateOnlineWatchEvent(
+type DkUiDomain struct{}
+
+func (DkUiDomain) CreateOnlineWatchEvent(
 	trackID value.TrackID,
 	talkID value.TalkID,
 	slotID value.SlotID,
@@ -27,7 +35,7 @@ func (DkUiService) CreateOnlineWatchEvent(
 	ev := NewOnlineWatchEvent(trackID, talkID, slotID)
 
 	lastCreatedAt := events.LastCreated()
-	if ev.CreatedAt.Sub(lastCreatedAt) < value.GUARD_SECONDS*time.Second {
+	if ev.CreatedAt.Sub(lastCreatedAt) < time.Duration(viewEventGuardSeconds)*time.Second {
 		return nil, fmt.Errorf("too short requests")
 	}
 
@@ -35,14 +43,14 @@ func (DkUiService) CreateOnlineWatchEvent(
 	return ev, nil
 }
 
-func (DkUiService) StampOnline(
+func (DkUiDomain) StampOnline(
 	slotID value.SlotID,
 	stamps *StampChallenges) error {
 
 	return stamps.StampIfReady(slotID)
 }
 
-func (DkUiService) StampOnSite(
+func (DkUiDomain) StampOnSite(
 	trackID value.TrackID,
 	talkID value.TalkID,
 	slotID value.SlotID,
@@ -70,12 +78,12 @@ func NewStampChallenge(slotID value.SlotID) *StampChallenge {
 
 func (sc *StampChallenge) Stamp() {
 	sc.Condition = value.StampStamped
-	sc.UpdatedAt = time.Now()
+	sc.UpdatedAt = nowJST()
 }
 
 func (sc *StampChallenge) Skip() {
 	sc.Condition = value.StampSkipped
-	sc.UpdatedAt = time.Now()
+	sc.UpdatedAt = nowJST()
 }
 
 type StampChallenges struct {
@@ -153,7 +161,7 @@ func NewOnlineWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID valu
 		TalkID:         talkID,
 		SlotID:         slotID,
 		ViewingSeconds: value.ViewingSeconds120,
-		CreatedAt:      time.Now(),
+		CreatedAt:      nowJST(),
 	}
 }
 
@@ -163,7 +171,7 @@ func NewOnSiteWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID valu
 		TalkID:         talkID,
 		SlotID:         slotID,
 		ViewingSeconds: value.ViewingSeconds2400,
-		CreatedAt:      time.Now(),
+		CreatedAt:      nowJST(),
 	}
 }
 
@@ -191,6 +199,15 @@ func (evs *WatchEvents) LastCreated() time.Time {
 	return lastTime
 }
 
+func (evs *WatchEvents) ViewingSeconds() map[value.SlotID]int32 {
+	res := map[value.SlotID]int32{}
+
+	for _, ev := range evs.Items {
+		res[ev.SlotID] += int32(ev.ViewingSeconds.Value())
+	}
+	return res
+}
+
 func (evs *WatchEvents) AddImmutable(ev WatchEvent) *WatchEvents {
 	events := make([]WatchEvent, len(evs.Items)+1)
 	events[0] = ev
@@ -198,4 +215,8 @@ func (evs *WatchEvents) AddImmutable(ev WatchEvent) *WatchEvents {
 	return &WatchEvents{
 		Items: events,
 	}
+}
+
+func nowJST() time.Time {
+	return time.Now().In(jst)
 }

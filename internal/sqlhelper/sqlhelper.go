@@ -26,7 +26,7 @@ type SqlOption struct {
 // NewSqlHelper creates and sets up Database connection and returns it.
 func NewSqlHelper(option *SqlOption) (*SqlHelper, error) {
 	info := fmt.Sprintf(
-		"%s:%s@(%s:%s)/%s?parseTime=true",
+		"%s:%s@(%s:%s)/%s?parseTime=true&loc=Asia%%2FTokyo",
 		option.User,
 		option.Password,
 		option.Endpoint,

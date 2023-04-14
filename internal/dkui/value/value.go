@@ -120,7 +120,7 @@ func NewViewingPeriod(v int32) (ViewingSeconds, error) {
 
 func (v *ViewingSeconds) Validate() error {
 	return validation.Validate(v.Value(),
-		validation.In(INTERVAL_SECONDS, TALK_SECONDS),
+		validation.In(int32(INTERVAL_SECONDS), int32(TALK_SECONDS)),
 	)
 }
 

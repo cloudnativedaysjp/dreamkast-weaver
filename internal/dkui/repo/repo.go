@@ -2,9 +2,11 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
 	"encoding/json"
+	"errors"
 	"time"
 )
 
@@ -25,7 +27,11 @@ func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.Con
 		ProfileID:      profileID.Value(),
 	})
 	if err != nil {
-		return nil, err
+		if err != nil {
+			if !errors.Is(err, sql.ErrNoRows) {
+				return nil, err
+			}
+		}
 	}
 
 	return stampChallengeConv.fromDB(data.Stamps)
@@ -51,7 +57,9 @@ func (r *DkUiRepoImpl) ListWatchEvents(ctx context.Context, confName value.ConfN
 		ProfileID:      profileID.Value(),
 	})
 	if err != nil {
-		return nil, err
+		if !errors.Is(err, sql.ErrNoRows) {
+			return nil, err
+		}
 	}
 
 	return watchEventConv.fromDB(data)
@@ -122,6 +130,10 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 			Condition: cond,
 			UpdatedAt: sc.UpdatedAt,
 		}, nil
+	}
+
+	if v == nil {
+		return &domain.StampChallenges{}, nil
 	}
 
 	var stamps []_stampChallenge

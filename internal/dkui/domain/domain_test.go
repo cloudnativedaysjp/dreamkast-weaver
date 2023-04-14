@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	svc = domain.DkUiService{}
+	svc = domain.DkUiDomain{}
 )
 
 func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
