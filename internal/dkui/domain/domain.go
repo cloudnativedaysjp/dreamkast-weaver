@@ -2,6 +2,7 @@ package domain
 
 import (
 	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/stacktrace"
 	"fmt"
 	"time"
 )
@@ -36,7 +37,7 @@ func (DkUiDomain) CreateOnlineWatchEvent(
 	stamps *StampChallenges,
 	events *WatchEvents) (*WatchEvent, error) {
 	if stamps == nil || events == nil {
-		return nil, fmt.Errorf("missing required params")
+		return nil, stacktrace.With(fmt.Errorf("missing required params"))
 	}
 
 	ev := NewOnlineWatchEvent(trackID, talkID, slotID)
@@ -54,7 +55,7 @@ func (DkUiDomain) StampOnline(
 	slotID value.SlotID,
 	stamps *StampChallenges) error {
 	if stamps == nil {
-		return fmt.Errorf("missing required params")
+		return stacktrace.With(fmt.Errorf("missing required params"))
 	}
 
 	return stamps.StampIfReady(slotID)
@@ -66,7 +67,7 @@ func (DkUiDomain) StampOnSite(
 	slotID value.SlotID,
 	stamps *StampChallenges) (*WatchEvent, error) {
 	if stamps == nil {
-		return nil, fmt.Errorf("missing required params")
+		return nil, stacktrace.With(fmt.Errorf("missing required params"))
 	}
 
 	if err := stamps.ForceStamp(slotID); err != nil {

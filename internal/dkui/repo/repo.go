@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/stacktrace"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -29,7 +31,7 @@ func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.Con
 	if err != nil {
 		if err != nil {
 			if !errors.Is(err, sql.ErrNoRows) {
-				return nil, err
+				return nil, stacktrace.With(fmt.Errorf("get stamp challenges: %w", err))
 			}
 		}
 	}
@@ -46,7 +48,7 @@ func (r *DkUiRepoImpl) InsertWatchEvents(ctx context.Context, confName value.Con
 		SlotID:         ev.SlotID.Value(),
 		ViewingSeconds: ev.ViewingSeconds.Value(),
 	}); err != nil {
-		return err
+		return stacktrace.With(fmt.Errorf("insert watch event: %w", err))
 	}
 	return nil
 }
@@ -58,7 +60,7 @@ func (r *DkUiRepoImpl) ListWatchEvents(ctx context.Context, confName value.ConfN
 	})
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			return nil, err
+			return nil, stacktrace.With(fmt.Errorf("list watch event: %w", err))
 		}
 	}
 
@@ -76,7 +78,7 @@ func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.
 		ProfileID:      profileID.Value(),
 		Stamps:         buf,
 	}); err != nil {
-		return err
+		return stacktrace.With(fmt.Errorf("upsert stamp challenges: %w", err))
 	}
 	return nil
 }
@@ -108,7 +110,7 @@ func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, err
 
 	buf, err := json.Marshal(stamps)
 	if err != nil {
-		return nil, err
+		return nil, stacktrace.With(fmt.Errorf("convert stamp challenges to DB: %w", err))
 	}
 	return json.RawMessage(buf), nil
 }
@@ -138,14 +140,14 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 
 	var stamps []_stampChallenge
 	if err := json.Unmarshal(v, &stamps); err != nil {
-		return nil, err
+		return nil, stacktrace.With(fmt.Errorf("convert stamp challenges from DB: %w", err))
 	}
 
 	var items []domain.StampChallenge
 	for _, st := range stamps {
 		dst, err := conv(&st)
 		if err != nil {
-			return nil, err
+			return nil, stacktrace.With(fmt.Errorf("convert stamp challenges from DB: %w", err))
 		}
 		items = append(items, *dst)
 	}
@@ -190,7 +192,7 @@ func (_watchEventConv) fromDB(v []WatchEvent) (*domain.WatchEvents, error) {
 	for _, ev := range v {
 		dev, err := conv(&ev)
 		if err != nil {
-			return nil, err
+			return nil, stacktrace.With(fmt.Errorf("convert watch event from DB: %w", err))
 		}
 		items = append(items, *dev)
 	}
@@ -198,7 +200,7 @@ func (_watchEventConv) fromDB(v []WatchEvent) (*domain.WatchEvents, error) {
 	return &domain.WatchEvents{Items: items}, nil
 }
 
-func (_watchEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.WatchEvents) ([]WatchEvent, error) {
+func (_watchEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.WatchEvents) []WatchEvent {
 
 	conv := func(dev *domain.WatchEvent) *WatchEvent {
 		return &WatchEvent{
@@ -217,5 +219,5 @@ func (_watchEventConv) toDB(confName value.ConfName, profileID value.ProfileID, 
 		events = append(events, *conv(&ev))
 	}
 
-	return events, nil
+	return events
 }
