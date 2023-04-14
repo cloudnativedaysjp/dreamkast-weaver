@@ -13,6 +13,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.13.0
 )
 
+require github.com/pmezard/go-difflib v1.0.0 // indirect
+
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
@@ -65,6 +67,7 @@ require (
 	github.com/spf13/cobra v1.6.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
+	github.com/stretchr/testify v1.8.2
 	github.com/urfave/cli/v2 v2.24.4 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0 // indirect

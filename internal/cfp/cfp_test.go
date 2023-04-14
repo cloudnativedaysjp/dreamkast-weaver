@@ -8,6 +8,8 @@ import (
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/sqlhelper"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCfpVoteImpl(t *testing.T) {
@@ -22,28 +24,20 @@ func TestCfpVoteImpl(t *testing.T) {
 		TalkID:   talkID,
 		GlobalIP: net.ParseIP("127.0.0.1"),
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	assert.Nil(t, err)
 
 	resp, err := voter.GetCount(ctx, cfp.GetCountRequest{
 		ConfName: "cndf2023",
 	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
+	assert.Nil(t, err)
 
 	var ok bool
 	for _, r := range resp {
 		if r.TalkID == talkID {
 			ok = true
-			if r.Count == 0 {
-				t.Errorf("count must be more than 0")
-			}
+			assert.Greater(t, r.Count, 0)
 		}
 	}
-	if !ok {
-		t.Errorf("talkID not found")
-	}
+	assert.True(t, ok, "talkID not found")
 
 }

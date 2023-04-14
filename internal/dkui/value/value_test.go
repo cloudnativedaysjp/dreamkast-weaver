@@ -3,6 +3,8 @@ package value_test
 import (
 	"dreamkast-weaver/internal/dkui/value"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestConfName(t *testing.T) {
@@ -11,12 +13,8 @@ func TestConfName(t *testing.T) {
 		given := "cicd2023"
 
 		got, err := value.NewConfName(value.ConferenceKind(given))
-		if err != nil {
-			t.Fatalf("unexpected error: %v", err)
-		}
-		if got != value.CICD2023 {
-			t.Errorf("not equal: want=%#v, got=%#v", value.CICD2023, got)
-		}
+		assert.Nil(t, err)
+		assert.Equal(t, value.CICD2023, got)
 	})
 
 	errTests := []struct {
@@ -31,10 +29,8 @@ func TestConfName(t *testing.T) {
 
 	for _, tt := range errTests {
 		t.Run("err: "+tt.name, func(t *testing.T) {
-			got, err := value.NewConfName(value.ConferenceKind(tt.given))
-			if err == nil {
-				t.Errorf("error not raised: %#v", got)
-			}
+			_, err := value.NewConfName(value.ConferenceKind(tt.given))
+			assert.Error(t, err)
 		})
 	}
 

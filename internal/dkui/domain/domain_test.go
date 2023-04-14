@@ -5,6 +5,8 @@ import (
 	"dreamkast-weaver/internal/dkui/value"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func newSlotID(v int32) value.SlotID {
@@ -73,36 +75,18 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 
 			got, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
 
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
-			}
-			if got.TrackID != trackID {
-				t.Errorf("not equal: want=%#v, got=%#v", trackID, got.TrackID)
-			}
-			if got.TalkID != talkID {
-				t.Errorf("not equal: want=%#v, got=%#v", talkID, got.TalkID)
-			}
-			if got.SlotID != slotID {
-				t.Errorf("not equal: want=%#v, got=%#v", slotID, got.SlotID)
-			}
-			if got.ViewingSeconds != value.ViewingSeconds120 {
-				t.Errorf("not equal: want=%#v, got=%#v", value.ViewingSeconds120, got.ViewingSeconds)
-			}
-			if len(events.Items) != evLen {
-				t.Errorf("events mutated: got=%#v", events)
-			}
+			assert.Nil(t, err)
+			assert.Equal(t, trackID, got.TrackID)
+			assert.Equal(t, talkID, got.TalkID)
+			assert.Equal(t, slotID, got.SlotID)
+			assert.Equal(t, value.ViewingSeconds120, got.ViewingSeconds)
+			assert.Equal(t, evLen, len(events.Items))
 			if tt.shouldStampChallengeAdded {
-				if len(stamps.Items) == 0 {
-					t.Fatalf("stamp is not added")
-				}
+				assert.Equal(t, 1, len(stamps.Items))
 				stamp := stamps.Items[0]
-				if stamp.Condition != value.StampReady {
-					t.Fatalf("added stamp is not in ready condition")
-				}
+				assert.Equal(t, value.StampReady, stamp.Condition)
 			} else {
-				if len(stamps.Items) != 0 {
-					t.Fatalf("stamp added unexpectedly")
-				}
+				assert.Equal(t, 0, len(stamps.Items))
 			}
 		})
 	}
@@ -129,9 +113,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			events := tt.given()
 
 			_, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
-			if err == nil {
-				t.Errorf("error not raised")
-			}
+			assert.Error(t, err)
 		})
 	}
 
@@ -148,19 +130,14 @@ func TestDkUiService_StampOnline(t *testing.T) {
 			*domain.NewStampChallenge(newSlotID(43)),
 		}}
 
-		if err := svc.StampOnline(slotID, stamps); err != nil {
-			t.Fatal("unexpected error")
-		}
+		err := svc.StampOnline(slotID, stamps)
+		assert.Nil(t, err)
 
 		for _, stamp := range stamps.Items {
 			if stamp.SlotID == slotID {
-				if stamp.Condition != value.StampStamped {
-					t.Errorf("not equal: want=%#v, got=%#v", value.StampStamped, stamp.Condition)
-				}
+				assert.Equal(t, value.StampStamped, stamp.Condition)
 			} else {
-				if stamp.Condition != value.StampSkipped {
-					t.Errorf("not equal: want=%#v, got=%#v", value.StampSkipped, stamp.Condition)
-				}
+				assert.Equal(t, value.StampSkipped, stamp.Condition)
 			}
 		}
 	})
@@ -184,9 +161,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 		t.Run("err:"+tt.name, func(t *testing.T) {
 			stamps := tt.given()
 			err := svc.StampOnline(slotID, stamps)
-			if err == nil {
-				t.Error("error not raised")
-			}
+			assert.Error(t, err)
 		})
 	}
 }
