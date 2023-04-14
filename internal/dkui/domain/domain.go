@@ -7,6 +7,14 @@ import (
 	"time"
 )
 
+type DkUiRepo interface {
+	ListWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (WatchEvents, error)
+	InsertWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev WatchEvent) error
+
+	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (StampChallenges, error)
+	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs StampChallenges) error
+}
+
 type DkUiService struct{}
 
 func (DkUiService) CreateOnlineWatchEvent(
@@ -34,13 +42,13 @@ func (DkUiService) StampOnline(
 	return stamps.StampIfReady(slotID)
 }
 
-func (DkUiService) StampOnsite(
+func (DkUiService) StampOnSite(
 	trackID value.TrackID,
 	talkID value.TalkID,
 	slotID value.SlotID,
 	stamps *StampChallenges) (*WatchEvent, error) {
 
-	if err := stamps.StampIfReady(slotID); err != nil {
+	if err := stamps.ForceStamp(slotID); err != nil {
 		return nil, err
 	}
 	return NewOnSiteWatchEvent(trackID, talkID, slotID), nil
@@ -105,7 +113,8 @@ func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
 
 func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 	var tgt *StampChallenge
-	for _, sc := range scs.Items {
+	for _, p := range scs.Items {
+		sc := p
 		if sc.SlotID == slotID {
 			tgt = &sc
 		}
@@ -117,12 +126,10 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 		return fmt.Errorf("already stamped: slotID=%v", slotID)
 	}
 
-	for _, sc := range scs.Items {
+	for i, sc := range scs.Items {
 		if sc.SlotID == slotID {
 			sc.Stamp()
-		}
-		if sc.SlotID != slotID && sc.Condition == value.StampReady {
-			sc.Skip()
+			scs.Items[i] = sc
 		}
 	}
 	return nil
@@ -191,12 +198,4 @@ func (evs *WatchEvents) AddImmutable(ev WatchEvent) *WatchEvents {
 	return &WatchEvents{
 		Items: events,
 	}
-}
-
-type DkUiRepo interface {
-	ListWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (WatchEvents, error)
-	InsertWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev WatchEvent) error
-
-	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (StampChallenges, error)
-	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs StampChallenges) error
 }

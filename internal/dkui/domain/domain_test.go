@@ -131,8 +131,8 @@ func TestDkUiService_StampOnline(t *testing.T) {
 		}}
 
 		err := svc.StampOnline(slotID, stamps)
-		assert.Nil(t, err)
 
+		assert.Nil(t, err)
 		for _, stamp := range stamps.Items {
 			if stamp.SlotID == slotID {
 				assert.Equal(t, value.StampStamped, stamp.Condition)
@@ -160,8 +160,105 @@ func TestDkUiService_StampOnline(t *testing.T) {
 	for _, tt := range errTests {
 		t.Run("err:"+tt.name, func(t *testing.T) {
 			stamps := tt.given()
+
 			err := svc.StampOnline(slotID, stamps)
+
 			assert.Error(t, err)
+			for _, stamp := range stamps.Items {
+				assert.Equal(t, value.StampReady, stamp.Condition)
+			}
 		})
 	}
+}
+
+func TestDkUiService_StampOnSite(t *testing.T) {
+
+	slotID := newSlotID(42)
+	trackID := newTrackID(1)
+	talkID := newTalkID(2)
+
+	tests := []struct {
+		name  string
+		given func() *domain.StampChallenges
+	}{
+		{
+			name: "stamp not exist",
+			given: func() *domain.StampChallenges {
+				return &domain.StampChallenges{[]domain.StampChallenge{
+					*domain.NewStampChallenge(newSlotID(41)),
+					*domain.NewStampChallenge(newSlotID(43)),
+				}}
+			},
+		},
+		{
+			name: "ready stamp exists",
+			given: func() *domain.StampChallenges {
+				return &domain.StampChallenges{[]domain.StampChallenge{
+					*domain.NewStampChallenge(newSlotID(41)),
+					*domain.NewStampChallenge(newSlotID(42)),
+					*domain.NewStampChallenge(newSlotID(43)),
+				}}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run("ok"+tt.name, func(t *testing.T) {
+			stamps := tt.given()
+
+			got, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
+
+			assert.Nil(t, err)
+			assert.Equal(t, trackID, got.TrackID)
+			assert.Equal(t, talkID, got.TalkID)
+			assert.Equal(t, slotID, got.SlotID)
+			assert.Equal(t, value.ViewingSeconds2400, got.ViewingSeconds)
+			for _, stamp := range stamps.Items {
+				if stamp.SlotID == slotID {
+					assert.Equal(t, value.StampStamped, stamp.Condition)
+				} else {
+					assert.Equal(t, value.StampReady, stamp.Condition)
+				}
+			}
+		})
+
+	}
+
+	errTests := []struct {
+		name  string
+		given func() *domain.StampChallenges
+	}{
+		{
+			name: "already stamped",
+			given: func() *domain.StampChallenges {
+				sc := domain.NewStampChallenge(newSlotID(42))
+				sc.Stamp()
+				return &domain.StampChallenges{[]domain.StampChallenge{
+					*domain.NewStampChallenge(newSlotID(41)),
+					*sc,
+					*domain.NewStampChallenge(newSlotID(43)),
+				}}
+			},
+		},
+	}
+
+	for _, tt := range errTests {
+		t.Run("err"+tt.name, func(t *testing.T) {
+			stamps := tt.given()
+
+			_, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
+
+			assert.Error(t, err)
+			for _, stamp := range stamps.Items {
+				if stamp.SlotID == slotID {
+					assert.Equal(t, value.StampStamped, stamp.Condition)
+				} else {
+					assert.Equal(t, value.StampReady, stamp.Condition)
+				}
+
+			}
+		})
+
+	}
+
 }
