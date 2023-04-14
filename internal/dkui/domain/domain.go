@@ -84,7 +84,7 @@ type StampChallenges struct {
 
 func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *WatchEvents) {
 	if evs.IsFulfilled(slotID) {
-		scs.setReady(slotID)
+		scs.setReadyChallenge(slotID)
 	}
 }
 
@@ -120,7 +120,7 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 		}
 	}
 	if tgt == nil {
-		scs.setReady(slotID)
+		scs.setReadyChallenge(slotID)
 	}
 	if tgt != nil && tgt.Condition == value.StampStamped {
 		return fmt.Errorf("already stamped: slotID=%v", slotID)
@@ -135,7 +135,7 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 	return nil
 }
 
-func (scs *StampChallenges) setReady(slotID value.SlotID) {
+func (scs *StampChallenges) setReadyChallenge(slotID value.SlotID) {
 	scs.Items = append(scs.Items, *NewStampChallenge(slotID))
 }
 

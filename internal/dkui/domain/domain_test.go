@@ -9,21 +9,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newSlotID(v int32) value.SlotID {
-	id, _ := value.NewSlotID(v)
-	return id
-}
-
-func newTrackID(v int32) value.TrackID {
-	id, _ := value.NewTrackID(v)
-	return id
-}
-
-func newTalkID(v int32) value.TalkID {
-	id, _ := value.NewTalkID(v)
-	return id
-}
-
 var (
 	svc = domain.DkUiService{}
 )
@@ -261,4 +246,28 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 
 	}
 
+}
+
+func mustNil(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func newSlotID(v int32) value.SlotID {
+	id, err := value.NewSlotID(v)
+	mustNil(err)
+	return id
+}
+
+func newTrackID(v int32) value.TrackID {
+	id, err := value.NewTrackID(v)
+	mustNil(err)
+	return id
+}
+
+func newTalkID(v int32) value.TalkID {
+	id, err := value.NewTalkID(v)
+	mustNil(err)
+	return id
 }
