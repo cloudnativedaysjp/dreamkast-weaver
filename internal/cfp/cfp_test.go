@@ -13,7 +13,7 @@ import (
 )
 
 func TestCfpVoteImpl(t *testing.T) {
-	sh := sqlhelper.NewTestSqlHelper()
+	sh := sqlhelper.NewTestSqlHelper("weaver")
 	voter := cfp.NewVoter(sh)
 	ctx := context.Background()
 

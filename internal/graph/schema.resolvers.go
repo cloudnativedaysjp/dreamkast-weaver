@@ -8,14 +8,11 @@ import (
 	"context"
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
-	"dreamkast-weaver/internal/sqlhelper"
 	"log"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.NewVote) (*bool, error) {
-	ctx = sqlhelper.WithSqlHelper(ctx, r.sqlHelper)
-
 	if err := r.CfpVoter.Vote(ctx, cfp.VoteRequest{
 		ConfName: input.ConfName,
 		TalkID:   int32(input.TalkID),
@@ -30,8 +27,6 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.NewVote) (*bool
 
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName *string) ([]*model.VoteCount, error) {
-	ctx = sqlhelper.WithSqlHelper(ctx, r.sqlHelper)
-
 	counts, err := r.CfpVoter.GetCount(ctx, cfp.GetCountRequest{
 		ConfName: *confName,
 	})

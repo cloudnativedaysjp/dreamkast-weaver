@@ -82,18 +82,18 @@ func SqlHelperFromContext(ctx context.Context) *SqlHelper {
 	}
 }
 
-var (
-	TestSqlOption = &SqlOption{
+func testSqlOpt(dbName string) *SqlOption {
+	return &SqlOption{
 		User:     "user",
 		Password: "password",
 		Endpoint: "127.0.0.1",
 		Port:     "13306",
-		DbName:   "weaver",
+		DbName:   dbName,
 	}
-)
+}
 
-func NewTestSqlHelper() *SqlHelper {
-	sqlh, err := NewSqlHelper(TestSqlOption)
+func NewTestSqlHelper(dbName string) *SqlHelper {
+	sqlh, err := NewSqlHelper(testSqlOpt(dbName))
 	if err != nil {
 		log.Fatal(err)
 	}

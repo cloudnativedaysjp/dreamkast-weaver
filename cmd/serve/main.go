@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"dreamkast-weaver/internal/graph"
-	"dreamkast-weaver/internal/sqlhelper"
 	"log"
 	"net/http"
 	"os"
@@ -24,11 +23,8 @@ func main() {
 	// Initialize the Service Weaver application.
 	root := weaver.Init(context.Background())
 
-	// TODO use non-test sql server and resolve config from env vars
-	sqlh := sqlhelper.NewTestSqlHelper()
-
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: graph.NewResolver(sqlh, root),
+		Resolvers: graph.NewResolver(root),
 	}))
 
 	opts := weaver.ListenerOptions{LocalAddress: "localhost:" + port}
