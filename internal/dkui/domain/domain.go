@@ -9,6 +9,7 @@ import (
 
 var (
 	viewEventGuardSeconds = value.GUARD_SECONDS
+	stampReadySeconds     = value.STAMP_READY_SECONDS
 	jst                   *time.Location
 )
 
@@ -20,8 +21,12 @@ func init() {
 	}
 }
 
-func ChangeGuardSecondsForTest(guardSeconds int) {
-	viewEventGuardSeconds = guardSeconds
+func ChangeGuardSecondsForTest(sec int) {
+	viewEventGuardSeconds = sec
+}
+
+func ChangeStampReadySecondsForTest(sec int) {
+	stampReadySeconds = sec
 }
 
 func nowJST() time.Time {
@@ -202,7 +207,7 @@ func (evs *WatchEvents) IsFulfilled(slotID value.SlotID) bool {
 			total += ev.ViewingSeconds.Value()
 		}
 	}
-	return total >= value.STAMP_READY_SECONDS
+	return total >= int32(stampReadySeconds)
 }
 
 func (evs *WatchEvents) LastCreated() time.Time {
