@@ -7,6 +7,45 @@ import (
 	"time"
 )
 
+type DkUiService struct{}
+
+func (DkUiService) CreateOnlineWatchEvent(
+	trackID value.TrackID,
+	talkID value.TalkID,
+	slotID value.SlotID,
+	stamps *StampChallenges,
+	events *WatchEvents) (*WatchEvent, error) {
+
+	ev := NewOnlineWatchEvent(trackID, talkID, slotID)
+
+	lastCreatedAt := events.LastCreated()
+	if ev.CreatedAt.Sub(lastCreatedAt) < value.GUARD_SECONDS*time.Second {
+		return nil, fmt.Errorf("too short requests")
+	}
+
+	stamps.MakeReadyIfFulfilled(slotID, events.AddImmutable(*ev))
+	return ev, nil
+}
+
+func (DkUiService) StampOnline(
+	slotID value.SlotID,
+	stamps *StampChallenges) error {
+
+	return stamps.StampIfReady(slotID)
+}
+
+func (DkUiService) StampOnsite(
+	trackID value.TrackID,
+	talkID value.TalkID,
+	slotID value.SlotID,
+	stamps *StampChallenges) (*WatchEvent, error) {
+
+	if err := stamps.StampIfReady(slotID); err != nil {
+		return nil, err
+	}
+	return NewOnSiteWatchEvent(trackID, talkID, slotID), nil
+}
+
 type StampChallenge struct {
 	SlotID    value.SlotID
 	Condition value.StampCondition
@@ -35,9 +74,8 @@ type StampChallenges struct {
 	Items []StampChallenge
 }
 
-func (scs *StampChallenges) SetReadyIfFulfilled(slotID value.SlotID, evs *WatchEvents) {
+func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *WatchEvents) {
 	if evs.IsFulfilled(slotID) {
-		fmt.Printf("fulfilled\n")
 		scs.setReady(slotID)
 	}
 }
@@ -53,13 +91,14 @@ func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
 		return fmt.Errorf("stamp is not ready: slotID=%v", slotID)
 	}
 
-	for _, sc := range scs.Items {
+	for i, sc := range scs.Items {
 		if sc.SlotID == slotID {
 			sc.Stamp()
 		}
 		if sc.SlotID != slotID && sc.Condition == value.StampReady {
 			sc.Skip()
 		}
+		scs.Items[i] = sc
 	}
 	return nil
 }
@@ -91,7 +130,6 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 
 func (scs *StampChallenges) setReady(slotID value.SlotID) {
 	scs.Items = append(scs.Items, *NewStampChallenge(slotID))
-	fmt.Printf("scs.Items => %+v\n", scs.Items)
 }
 
 type WatchEvent struct {
@@ -161,23 +199,4 @@ type DkUiRepo interface {
 
 	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (StampChallenges, error)
 	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs StampChallenges) error
-}
-
-type DkUiService struct{}
-
-func (DkUiService) CreateOnlineWatchEvent(
-	trackID value.TrackID,
-	talkID value.TalkID,
-	slotID value.SlotID,
-	stamps *StampChallenges,
-	events *WatchEvents) (*WatchEvent, error) {
-
-	ev := NewOnlineWatchEvent(trackID, talkID, slotID)
-	lastCreatedAt := events.LastCreated()
-	if ev.CreatedAt.Sub(lastCreatedAt) < value.GUARD_SECONDS*time.Second {
-		return nil, fmt.Errorf("too short requests")
-	}
-
-	stamps.SetReadyIfFulfilled(slotID, events.AddImmutable(*ev))
-	return ev, nil
 }

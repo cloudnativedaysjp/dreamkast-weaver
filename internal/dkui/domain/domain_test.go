@@ -3,7 +3,6 @@ package domain_test
 import (
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
-	"fmt"
 	"testing"
 	"time"
 )
@@ -23,6 +22,10 @@ func newTalkID(v int32) value.TalkID {
 	return id
 }
 
+var (
+	svc = domain.DkUiService{}
+)
+
 func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 
 	slotID := newSlotID(42)
@@ -30,9 +33,9 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 	talkID := newTalkID(2)
 
 	tests := []struct {
-		name             string
-		given            func() *domain.WatchEvents
-		shouldStampAdded bool
+		name                      string
+		given                     func() *domain.WatchEvents
+		shouldStampChallengeAdded bool
 	}{
 		{
 			name: "stamp condition fulfilled",
@@ -45,7 +48,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 				}
 				return events
 			},
-			shouldStampAdded: true,
+			shouldStampChallengeAdded: true,
 		},
 		{
 			name: "stamp condition not fulfilled",
@@ -58,7 +61,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 				}
 				return events
 			},
-			shouldStampAdded: false,
+			shouldStampChallengeAdded: false,
 		},
 	}
 
@@ -68,7 +71,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			events := tt.given()
 			evLen := len(events.Items)
 
-			got, err := (domain.DkUiService{}).CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
+			got, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
 
 			if err != nil {
 				t.Fatalf("unexpected error: %v", err)
@@ -88,9 +91,8 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			if len(events.Items) != evLen {
 				t.Errorf("events mutated: got=%#v", events)
 			}
-			if tt.shouldStampAdded {
+			if tt.shouldStampChallengeAdded {
 				if len(stamps.Items) == 0 {
-					fmt.Printf("stamps => %+v\n", stamps)
 					t.Fatalf("stamp is not added")
 				}
 				stamp := stamps.Items[0]
@@ -126,11 +128,65 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			stamps := &domain.StampChallenges{}
 			events := tt.given()
 
-			_, err := (domain.DkUiService{}).CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
+			_, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
 			if err == nil {
 				t.Errorf("error not raised")
 			}
 		})
 	}
 
+}
+
+func TestDkUiService_StampOnline(t *testing.T) {
+
+	slotID := newSlotID(42)
+
+	t.Run("ok", func(t *testing.T) {
+		stamps := &domain.StampChallenges{[]domain.StampChallenge{
+			*domain.NewStampChallenge(newSlotID(41)),
+			*domain.NewStampChallenge(newSlotID(42)),
+			*domain.NewStampChallenge(newSlotID(43)),
+		}}
+
+		if err := svc.StampOnline(slotID, stamps); err != nil {
+			t.Fatal("unexpected error")
+		}
+
+		for _, stamp := range stamps.Items {
+			if stamp.SlotID == slotID {
+				if stamp.Condition != value.StampStamped {
+					t.Errorf("not equal: want=%#v, got=%#v", value.StampStamped, stamp.Condition)
+				}
+			} else {
+				if stamp.Condition != value.StampSkipped {
+					t.Errorf("not equal: want=%#v, got=%#v", value.StampSkipped, stamp.Condition)
+				}
+			}
+		}
+	})
+
+	errTests := []struct {
+		name  string
+		given func() *domain.StampChallenges
+	}{
+		{
+			name: "ready stamp not found",
+			given: func() *domain.StampChallenges {
+				return &domain.StampChallenges{[]domain.StampChallenge{
+					*domain.NewStampChallenge(newSlotID(41)),
+					*domain.NewStampChallenge(newSlotID(43)),
+				}}
+			},
+		},
+	}
+
+	for _, tt := range errTests {
+		t.Run("err:"+tt.name, func(t *testing.T) {
+			stamps := tt.given()
+			err := svc.StampOnline(slotID, stamps)
+			if err == nil {
+				t.Error("error not raised")
+			}
+		})
+	}
 }
