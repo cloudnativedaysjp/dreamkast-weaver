@@ -84,7 +84,9 @@ func (s *SqlHelper) RunTX(ctx context.Context, fn func(ctx context.Context, tx *
 		return fmt.Errorf("begin transaction: %w", err)
 	}
 	defer func() {
-		err = errors.Join(err, tx.Rollback())
+		if e := tx.Rollback(); e != nil && !errors.Is(e, sql.ErrTxDone) {
+			err = errors.Join(err, e)
+		}
 	}()
 
 	if err := fn(ctx, tx); err != nil {
