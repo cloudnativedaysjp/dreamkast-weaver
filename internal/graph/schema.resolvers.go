@@ -63,12 +63,12 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName)
 }
 
 // ViewingSlots is the resolver for the viewingSlots field.
-func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfName, profileID string) ([]*model.ViewingSlot, error) {
+func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error) {
 	panic(fmt.Errorf("not implemented: ViewingSlots - viewingSlots"))
 }
 
 // StampChallenges is the resolver for the stampChallenges field.
-func (r *queryResolver) StampChallenges(ctx context.Context, confName model.ConfName, profileID string) ([]*model.StampChallenge, error) {
+func (r *queryResolver) StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error) {
 	panic(fmt.Errorf("not implemented: StampChallenges - stampChallenges"))
 }
 

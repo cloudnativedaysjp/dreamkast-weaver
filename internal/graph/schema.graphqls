@@ -12,8 +12,8 @@ type Query {
   # cfp
   voteCounts(confName: ConfName!): [VoteCount!]!
   # dkui
-  viewingSlots(confName: ConfName!, profileID: String!): [ViewingSlot!]!
-  stampChallenges(confName: ConfName!, profileID: String!): [StampChallenge]!
+  viewingSlots(confName: ConfName!, profileID: Int!): [ViewingSlot!]!
+  stampChallenges(confName: ConfName!, profileID: Int!): [StampChallenge]!
 }
 
 type VoteCount {

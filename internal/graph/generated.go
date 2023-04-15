@@ -53,8 +53,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		StampChallenges func(childComplexity int, confName model.ConfName, profileID string) int
-		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID string) int
+		StampChallenges func(childComplexity int, confName model.ConfName, profileID int) int
+		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int) int
 		VoteCounts      func(childComplexity int, confName model.ConfName) int
 	}
 
@@ -83,8 +83,8 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
-	ViewingSlots(ctx context.Context, confName model.ConfName, profileID string) ([]*model.ViewingSlot, error)
-	StampChallenges(ctx context.Context, confName model.ConfName, profileID string) ([]*model.StampChallenge, error)
+	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
+	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
 }
 
 type executableSchema struct {
@@ -160,7 +160,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.StampChallenges(childComplexity, args["confName"].(model.ConfName), args["profileID"].(string)), true
+		return e.complexity.Query.StampChallenges(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
 
 	case "Query.viewingSlots":
 		if e.complexity.Query.ViewingSlots == nil {
@@ -172,7 +172,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ViewingSlots(childComplexity, args["confName"].(model.ConfName), args["profileID"].(string)), true
+		return e.complexity.Query.ViewingSlots(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
 
 	case "Query.voteCounts":
 		if e.complexity.Query.VoteCounts == nil {
@@ -413,10 +413,10 @@ func (ec *executionContext) field_Query_stampChallenges_args(ctx context.Context
 		}
 	}
 	args["confName"] = arg0
-	var arg1 string
+	var arg1 int
 	if tmp, ok := rawArgs["profileID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -437,10 +437,10 @@ func (ec *executionContext) field_Query_viewingSlots_args(ctx context.Context, r
 		}
 	}
 	args["confName"] = arg0
-	var arg1 string
+	var arg1 int
 	if tmp, ok := rawArgs["profileID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -785,7 +785,7 @@ func (ec *executionContext) _Query_viewingSlots(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ViewingSlots(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(string))
+		return ec.resolvers.Query().ViewingSlots(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -846,7 +846,7 @@ func (ec *executionContext) _Query_stampChallenges(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().StampChallenges(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(string))
+		return ec.resolvers.Query().StampChallenges(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
