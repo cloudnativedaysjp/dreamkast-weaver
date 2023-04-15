@@ -7,6 +7,7 @@ import (
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
+
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
@@ -58,10 +59,10 @@ func TestCfpVoteImpl(t *testing.T) {
 		TalkID:   talkID,
 		GlobalIP: "127.0.0.1",
 	})
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	resp, err := svc.VoteCounts(ctx, "cndf2023")
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	var ok bool
 	for _, r := range resp {

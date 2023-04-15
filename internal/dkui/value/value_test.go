@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"dreamkast-weaver/internal/dkui/value"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +13,7 @@ func TestConfName(t *testing.T) {
 		given := "cicd2023"
 
 		got, err := value.NewConfName(value.ConferenceKind(given))
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		assert.Equal(t, value.CICD2023, got)
 	})
 

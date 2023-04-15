@@ -67,26 +67,26 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 
 	// first time
 	err = svc.CreateViewEvent(ctx, req)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS)
 	assert.Len(t, stamps, 0)
 
 	// second time
 	err = svc.CreateViewEvent(ctx, req)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
 	assert.Len(t, stamps, 1)
@@ -99,13 +99,13 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 		SlotID:    1000,
 	}
 	err = svc.StampOnline(ctx, stampReq)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
 	assert.Len(t, stamps, 1)
@@ -130,13 +130,13 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 	}
 
 	err = svc.StampOnSite(ctx, req)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assertViewingTime(t, slots, 1001, value.TALK_SECONDS)
 	assertStampCondition(t, stamps, 1001, "stamped")

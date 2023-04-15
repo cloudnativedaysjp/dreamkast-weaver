@@ -67,7 +67,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 
 			got, err := svc.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
 
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, trackID, got.TrackID)
 			assert.Equal(t, talkID, got.TalkID)
 			assert.Equal(t, slotID, got.SlotID)
@@ -126,7 +126,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 
 		err := svc.StampOnline(slotID, stamps)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 		for _, stamp := range stamps.Items {
 			if stamp.SlotID == slotID {
 				assert.Equal(t, value.StampStamped, stamp.Condition)
@@ -209,7 +209,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 
 			got, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
 
-			assert.Nil(t, err)
+			assert.NoError(t, err)
 			assert.Equal(t, trackID, got.TrackID)
 			assert.Equal(t, talkID, got.TalkID)
 			assert.Equal(t, slotID, got.SlotID)
