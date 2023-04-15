@@ -8,7 +8,7 @@ vet:
 
 .PHONY: test
 test: fmt vet
-	go test ./... --race -coverprofile cover.out
+	go test ./... -v --race -coverprofile cover.out
 
 .PHONY: build
 build:
@@ -16,7 +16,7 @@ build:
 
 .PHONY: generate
 generate:
-	go generate ./...
+	go generate -x ./...
 
 .PHONY: multi-deploy
 multi-deploy:
