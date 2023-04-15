@@ -10,6 +10,7 @@ import (
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
+
 	"github.com/ServiceWeaver/weaver"
 )
 
@@ -68,17 +69,17 @@ func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewE
 
 	var mErr, err error
 	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	trackID, err := value.NewTrackID(int32(req.TrackID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	talkID, err := value.NewTalkID(int32(req.TalkID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	slotID, err := value.NewSlotID(int32(req.SlotID))
-	errors.Join(mErr, err)
-	if err != nil {
-		return err
+	mErr = errors.Join(mErr, err)
+	if mErr != nil {
+		return mErr
 	}
 
 	devents, err := r.ListViewEvents(ctx, confName, profileID)
@@ -116,9 +117,12 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 
 	var mErr, err error
 	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	profileID, err := value.NewProfileID(int32(_profileID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
+	if mErr != nil {
+		return nil, mErr
+	}
 
 	devents, err := r.ListViewEvents(ctx, confName, profileID)
 	if err != nil {
@@ -141,9 +145,12 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfN
 
 	var mErr, err error
 	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	profileID, err := value.NewProfileID(int32(_profileID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
+	if mErr != nil {
+		return nil, mErr
+	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
 	if err != nil {
@@ -167,13 +174,13 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInpu
 
 	var mErr, err error
 	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	slotID, err := value.NewSlotID(int32(req.SlotID))
-	errors.Join(mErr, err)
-	if err != nil {
-		return err
+	mErr = errors.Join(mErr, err)
+	if mErr != nil {
+		return mErr
 	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
@@ -197,17 +204,17 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInpu
 
 	var mErr, err error
 	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	trackID, err := value.NewTrackID(int32(req.TrackID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	talkID, err := value.NewTalkID(int32(req.TalkID))
-	errors.Join(mErr, err)
+	mErr = errors.Join(mErr, err)
 	slotID, err := value.NewSlotID(int32(req.SlotID))
-	errors.Join(mErr, err)
-	if err != nil {
-		return err
+	mErr = errors.Join(mErr, err)
+	if mErr != nil {
+		return mErr
 	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)

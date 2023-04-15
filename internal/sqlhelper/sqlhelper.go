@@ -3,6 +3,7 @@ package sqlhelper
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -77,18 +78,21 @@ func (s *SqlHelper) DB() *sql.DB {
 // RunTX runs transaction and provides sql.Tx to the given callback.
 // It performs commit only when no errors have occurred in the callback.
 // Rollback will be performed any time but it effects at the failure case only.
-func (s *SqlHelper) RunTX(ctx context.Context, fn func(ctx context.Context, tx *sql.Tx) error) error {
+func (s *SqlHelper) RunTX(ctx context.Context, fn func(ctx context.Context, tx *sql.Tx) error) (err error) {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		err = errors.Join(err, tx.Rollback())
+	}()
 
 	if err := fn(ctx, tx); err != nil {
 		return fmt.Errorf("in transaction: %w", err)
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	return err
 }
 
 type _keySqlHelper struct{}

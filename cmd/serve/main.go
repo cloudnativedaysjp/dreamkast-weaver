@@ -5,8 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"dreamkast-weaver/internal/graph"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/ServiceWeaver/weaver"
@@ -28,7 +30,7 @@ func main() {
 	}))
 
 	opts := weaver.ListenerOptions{LocalAddress: ":" + port}
-	lis, err := root.Listener("hello", opts)
+	lis, err := root.Listener("dreamkast-weaver", opts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,5 +40,8 @@ func main() {
 	http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.Serve(lis, nil))
+	s := http.Server{
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	log.Fatal(s.Serve(lis))
 }

@@ -104,7 +104,8 @@ func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, err
 	}
 
 	var stamps []_stampChallenge
-	for _, st := range v.Items {
+	for _, p := range v.Items {
+		st := p
 		stamps = append(stamps, *conv(&st))
 	}
 
@@ -143,7 +144,8 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 	}
 
 	var items []domain.StampChallenge
-	for _, st := range stamps {
+	for _, p := range stamps {
+		st := p
 		dst, err := conv(&st)
 		if err != nil {
 			return nil, stacktrace.With(fmt.Errorf("convert stamp challenges from DB: %w", err))
@@ -187,7 +189,8 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 
 	var items []domain.ViewEvent
 
-	for _, ev := range v {
+	for _, p := range v {
+		ev := p
 		dev, err := conv(&ev)
 		if err != nil {
 			return nil, stacktrace.With(fmt.Errorf("convert view event from DB: %w", err))
@@ -198,23 +201,23 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 	return &domain.ViewEvents{Items: items}, nil
 }
 
-func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.ViewEvents) []ViewEvent {
-	conv := func(dev *domain.ViewEvent) *ViewEvent {
-		return &ViewEvent{
-			ConferenceName: string(confName.Value()),
-			ProfileID:      profileID.Value(),
-			TrackID:        dev.TrackID.Value(),
-			TalkID:         dev.TalkID.Value(),
-			SlotID:         dev.SlotID.Value(),
-			ViewingSeconds: dev.ViewingSeconds.Value(),
-			CreatedAt:      dev.CreatedAt,
-		}
-	}
-
-	var events []ViewEvent
-	for _, ev := range v.Items {
-		events = append(events, *conv(&ev))
-	}
-
-	return events
-}
+// func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.ViewEvents) []ViewEvent {
+// 	conv := func(dev *domain.ViewEvent) *ViewEvent {
+// 		return &ViewEvent{
+// 			ConferenceName: string(confName.Value()),
+// 			ProfileID:      profileID.Value(),
+// 			TrackID:        dev.TrackID.Value(),
+// 			TalkID:         dev.TalkID.Value(),
+// 			SlotID:         dev.SlotID.Value(),
+// 			ViewingSeconds: dev.ViewingSeconds.Value(),
+// 			CreatedAt:      dev.CreatedAt,
+// 		}
+// 	}
+//
+// 	var events []ViewEvent
+// 	for _, ev := range v.Items {
+// 		events = append(events, *conv(&ev))
+// 	}
+//
+// 	return events
+// }

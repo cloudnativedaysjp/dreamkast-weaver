@@ -225,7 +225,7 @@ func (evs *ViewEvents) ViewingSeconds() map[value.SlotID]int32 {
 	res := map[value.SlotID]int32{}
 
 	for _, ev := range evs.Items {
-		res[ev.SlotID] += int32(ev.ViewingSeconds.Value())
+		res[ev.SlotID] += ev.ViewingSeconds.Value()
 	}
 	return res
 }

@@ -6,6 +6,7 @@ import (
 
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +30,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 				events := &domain.ViewEvents{}
 				for i := 0; i < 9; i++ {
 					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
-					ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS + 1) * time.Second))
+					ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS + 1) * time.Second)
 					events = events.AddImmutable(ev)
 				}
 				return events
@@ -42,7 +43,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 				events := &domain.ViewEvents{}
 				for i := 0; i < 8; i++ {
 					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
-					ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS + 1) * time.Second))
+					ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS + 1) * time.Second)
 					events = events.AddImmutable(ev)
 				}
 				return events
@@ -91,7 +92,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 			given: func() (*domain.ViewEvents, *domain.StampChallenges) {
 				events := &domain.ViewEvents{}
 				ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
-				ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS - 9) * time.Second))
+				ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS - 9) * time.Second)
 				events = events.AddImmutable(ev)
 				return events, &domain.StampChallenges{}
 			},
