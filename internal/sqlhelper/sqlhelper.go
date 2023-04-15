@@ -5,8 +5,17 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+)
+
+const (
+	envDBUser     = "DB_USER"
+	envDBPassword = "DB_PASSWORD"
+	envDBEndpoint = "DB_ENDPOINT"
+	envDBPort     = "DB_PORT"
+	envDBName     = "DB_NAME"
 )
 
 // SqlHelper provides sql helper methods like transaction and batch.
@@ -23,15 +32,30 @@ type SqlOption struct {
 	DbName   string
 }
 
+func NewOptionFromEnv() *SqlOption {
+	return &SqlOption{
+		User:     os.Getenv(envDBUser),
+		Password: os.Getenv(envDBPassword),
+		Endpoint: os.Getenv(envDBEndpoint),
+		Port:     os.Getenv(envDBPort),
+		DbName:   os.Getenv(envDBName),
+	}
+}
+
 // NewSqlHelper creates and sets up Database connection and returns it.
-func NewSqlHelper(option *SqlOption) (*SqlHelper, error) {
+func NewSqlHelper(opt *SqlOption) (*SqlHelper, error) {
+	// defaulting to env vars
+	if opt == nil || opt.Endpoint == "" {
+		opt = NewOptionFromEnv()
+	}
+
 	info := fmt.Sprintf(
 		"%s:%s@(%s:%s)/%s?parseTime=true&loc=Asia%%2FTokyo",
-		option.User,
-		option.Password,
-		option.Endpoint,
-		option.Port,
-		option.DbName,
+		opt.User,
+		opt.Password,
+		opt.Endpoint,
+		opt.Port,
+		opt.DbName,
 	)
 	db, err := sql.Open("mysql", info)
 	if err != nil {
