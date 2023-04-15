@@ -7,7 +7,7 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
-type DkUiService interface {
+type Service interface {
 	CreateWatchEvent(ctx context.Context, req CreateWatchEventInput) error
 	StampOnline(ctx context.Context, req StampOnlineInput) error
 	StampOnSite(ctx context.Context, req StampOnSiteInput) error

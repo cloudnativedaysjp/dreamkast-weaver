@@ -13,15 +13,15 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
-type DkUiServiceImpl struct {
-	weaver.Implements[DkUiService]
+type ServiceImpl struct {
+	weaver.Implements[Service]
 	weaver.WithConfig[config]
 
 	sh     *sqlhelper.SqlHelper
 	domain domain.DkUiDomain
 }
 
-var _ DkUiService = (*DkUiServiceImpl)(nil)
+var _ Service = (*ServiceImpl)(nil)
 
 type config struct {
 	DBUser     string `toml:"db_user"`
@@ -41,11 +41,11 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewDkUiService(sh *sqlhelper.SqlHelper) DkUiService {
-	return &DkUiServiceImpl{sh: sh}
+func NewDkUiService(sh *sqlhelper.SqlHelper) Service {
+	return &ServiceImpl{sh: sh}
 }
 
-func (v *DkUiServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEventInput) error {
+func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEventInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -93,7 +93,7 @@ func (v *DkUiServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchE
 	return nil
 }
 
-func (v *DkUiServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*ViewingSlot, error) {
+func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*ViewingSlot, error) {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -118,7 +118,7 @@ func (v *DkUiServiceImpl) ViewingSlots(ctx context.Context, _confName model.Conf
 	return viewingSlots, nil
 }
 
-func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*StampChallenge, error) {
+func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*StampChallenge, error) {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -144,7 +144,7 @@ func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, _confName model.C
 	return stamps, nil
 }
 
-func (v *DkUiServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput) error {
+func (v *ServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -174,7 +174,7 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput)
 	return nil
 }
 
-func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, req StampOnSiteInput) error {
+func (v *ServiceImpl) StampOnSite(ctx context.Context, req StampOnSiteInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
