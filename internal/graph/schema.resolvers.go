@@ -33,9 +33,9 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 	return nil, nil
 }
 
-// CreateWatchEvent is the resolver for the createWatchEvent field.
-func (r *mutationResolver) CreateWatchEvent(ctx context.Context, input model.CreateWatchEventInput) (*bool, error) {
-	if err := r.DkUiService.CreateWatchEvent(ctx, input); err != nil {
+// CreateViewEvent is the resolver for the createViewEvent field.
+func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error) {
+	if err := r.DkUiService.CreateViewEvent(ctx, input); err != nil {
 		return nil, err
 	}
 	return nil, nil

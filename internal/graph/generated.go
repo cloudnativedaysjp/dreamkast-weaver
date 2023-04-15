@@ -46,10 +46,10 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		CreateWatchEvent func(childComplexity int, input model.CreateWatchEventInput) int
-		StampOnSite      func(childComplexity int, input model.StampOnSiteInput) int
-		StampOnline      func(childComplexity int, input model.StampOnlineInput) int
-		Vote             func(childComplexity int, input model.VoteInput) int
+		CreateViewEvent func(childComplexity int, input model.CreateViewEventInput) int
+		StampOnSite     func(childComplexity int, input model.StampOnSiteInput) int
+		StampOnline     func(childComplexity int, input model.StampOnlineInput) int
+		Vote            func(childComplexity int, input model.VoteInput) int
 	}
 
 	Query struct {
@@ -79,7 +79,7 @@ type MutationResolver interface {
 	Vote(ctx context.Context, input model.VoteInput) (*bool, error)
 	StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error)
 	StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error)
-	CreateWatchEvent(ctx context.Context, input model.CreateWatchEventInput) (*bool, error)
+	CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error)
 }
 type QueryResolver interface {
 	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
@@ -102,17 +102,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
-	case "Mutation.createWatchEvent":
-		if e.complexity.Mutation.CreateWatchEvent == nil {
+	case "Mutation.createViewEvent":
+		if e.complexity.Mutation.CreateViewEvent == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createWatchEvent_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createViewEvent_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateWatchEvent(childComplexity, args["input"].(model.CreateWatchEventInput)), true
+		return e.complexity.Mutation.CreateViewEvent(childComplexity, args["input"].(model.CreateViewEventInput)), true
 
 	case "Mutation.stampOnSite":
 		if e.complexity.Mutation.StampOnSite == nil {
@@ -243,7 +243,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputCreateWatchEventInput,
+		ec.unmarshalInputCreateViewEventInput,
 		ec.unmarshalInputStampOnSiteInput,
 		ec.unmarshalInputStampOnlineInput,
 		ec.unmarshalInputVoteInput,
@@ -326,13 +326,13 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
-func (ec *executionContext) field_Mutation_createWatchEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createViewEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateWatchEventInput
+	var arg0 model.CreateViewEventInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateWatchEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateWatchEventInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateViewEventInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -658,8 +658,8 @@ func (ec *executionContext) fieldContext_Mutation_stampOnSite(ctx context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createWatchEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createWatchEvent(ctx, field)
+func (ec *executionContext) _Mutation_createViewEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createViewEvent(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -672,7 +672,7 @@ func (ec *executionContext) _Mutation_createWatchEvent(ctx context.Context, fiel
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateWatchEvent(rctx, fc.Args["input"].(model.CreateWatchEventInput))
+		return ec.resolvers.Mutation().CreateViewEvent(rctx, fc.Args["input"].(model.CreateViewEventInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -686,7 +686,7 @@ func (ec *executionContext) _Mutation_createWatchEvent(ctx context.Context, fiel
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createWatchEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createViewEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -703,7 +703,7 @@ func (ec *executionContext) fieldContext_Mutation_createWatchEvent(ctx context.C
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createWatchEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createViewEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3105,8 +3105,8 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputCreateWatchEventInput(ctx context.Context, obj interface{}) (model.CreateWatchEventInput, error) {
-	var it model.CreateWatchEventInput
+func (ec *executionContext) unmarshalInputCreateViewEventInput(ctx context.Context, obj interface{}) (model.CreateViewEventInput, error) {
+	var it model.CreateViewEventInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -3358,10 +3358,10 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_stampOnSite(ctx, field)
 			})
 
-		case "createWatchEvent":
+		case "createViewEvent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createWatchEvent(ctx, field)
+				return ec._Mutation_createViewEvent(ctx, field)
 			})
 
 		default:
@@ -3951,8 +3951,8 @@ func (ec *executionContext) marshalNConfName2dreamkastᚑweaverᚋinternalᚋgra
 	return v
 }
 
-func (ec *executionContext) unmarshalNCreateWatchEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateWatchEventInput(ctx context.Context, v interface{}) (model.CreateWatchEventInput, error) {
-	res, err := ec.unmarshalInputCreateWatchEventInput(ctx, v)
+func (ec *executionContext) unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateViewEventInput(ctx context.Context, v interface{}) (model.CreateViewEventInput, error) {
+	res, err := ec.unmarshalInputCreateViewEventInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 

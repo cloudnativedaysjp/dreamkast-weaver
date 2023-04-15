@@ -15,7 +15,7 @@ import (
 )
 
 type Service interface {
-	CreateWatchEvent(ctx context.Context, req model.CreateWatchEventInput) error
+	CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) error
 	StampOnline(ctx context.Context, req model.StampOnlineInput) error
 	StampOnSite(ctx context.Context, req model.StampOnSiteInput) error
 	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
@@ -65,7 +65,7 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req model.CreateWatchEventInput) error {
+func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -83,7 +83,7 @@ func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req model.CreateWatc
 		return err
 	}
 
-	devents, err := r.ListWatchEvents(ctx, confName, profileID)
+	devents, err := r.ListViewEvents(ctx, confName, profileID)
 	if err != nil {
 		return err
 	}
@@ -92,14 +92,14 @@ func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req model.CreateWatc
 		return err
 	}
 
-	ev, err := v.domain.CreateOnlineWatchEvent(trackID, talkID, slotID, dstamps, devents)
+	ev, err := v.domain.CreateOnlineViewEvent(trackID, talkID, slotID, dstamps, devents)
 	if err != nil {
 		return err
 	}
 
 	if err := v.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertWatchEvents(ctx, confName, profileID, ev); err != nil {
+		if err := r.InsertViewEvents(ctx, confName, profileID, ev); err != nil {
 			return err
 		}
 		if err := r.UpsertTrailMapStamps(ctx, confName, profileID, dstamps); err != nil {
@@ -122,7 +122,7 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 	profileID, err := value.NewProfileID(int32(_profileID))
 	errors.Join(mErr, err)
 
-	devents, err := r.ListWatchEvents(ctx, confName, profileID)
+	devents, err := r.ListViewEvents(ctx, confName, profileID)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInpu
 
 	if err := v.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertWatchEvents(ctx, confName, profileID, ev); err != nil {
+		if err := r.InsertViewEvents(ctx, confName, profileID, ev); err != nil {
 			return err
 		}
 		if err := r.UpsertTrailMapStamps(ctx, confName, profileID, dstamps); err != nil {

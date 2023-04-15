@@ -45,7 +45,7 @@ func setup() {
 
 func teardown() {}
 
-func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
+func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	domain.ChangeGuardSecondsForTest(0)
 	domain.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
 
@@ -57,7 +57,7 @@ func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
 	svc, err := weaver.Get[dkui.Service](root)
 	mustNil(err)
 
-	req := model.CreateWatchEventInput{
+	req := model.CreateViewEventInput{
 		ConfName:  "cndf2023",
 		ProfileID: 1,
 		TrackID:   2,
@@ -66,7 +66,7 @@ func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
 	}
 
 	// first time
-	err = svc.CreateWatchEvent(ctx, req)
+	err = svc.CreateViewEvent(ctx, req)
 	assert.Nil(t, err)
 
 	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
@@ -79,7 +79,7 @@ func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
 	assert.Len(t, stamps, 0)
 
 	// second time
-	err = svc.CreateWatchEvent(ctx, req)
+	err = svc.CreateViewEvent(ctx, req)
 	assert.Nil(t, err)
 
 	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)

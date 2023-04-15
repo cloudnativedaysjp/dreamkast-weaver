@@ -35,17 +35,17 @@ func nowJST() time.Time {
 
 type DkUiDomain struct{}
 
-func (DkUiDomain) CreateOnlineWatchEvent(
+func (DkUiDomain) CreateOnlineViewEvent(
 	trackID value.TrackID,
 	talkID value.TalkID,
 	slotID value.SlotID,
 	stamps *StampChallenges,
-	events *WatchEvents) (*WatchEvent, error) {
+	events *ViewEvents) (*ViewEvent, error) {
 	if stamps == nil || events == nil {
 		return nil, stacktrace.With(fmt.Errorf("missing required params"))
 	}
 
-	ev := NewOnlineWatchEvent(trackID, talkID, slotID)
+	ev := NewOnlineViewEvent(trackID, talkID, slotID)
 
 	lastCreatedAt := events.LastCreated()
 	if ev.CreatedAt.Sub(lastCreatedAt) < time.Duration(viewEventGuardSeconds)*time.Second {
@@ -70,7 +70,7 @@ func (DkUiDomain) StampOnSite(
 	trackID value.TrackID,
 	talkID value.TalkID,
 	slotID value.SlotID,
-	stamps *StampChallenges) (*WatchEvent, error) {
+	stamps *StampChallenges) (*ViewEvent, error) {
 	if stamps == nil {
 		return nil, stacktrace.With(fmt.Errorf("missing required params"))
 	}
@@ -78,7 +78,7 @@ func (DkUiDomain) StampOnSite(
 	if err := stamps.ForceStamp(slotID); err != nil {
 		return nil, err
 	}
-	return NewOnSiteWatchEvent(trackID, talkID, slotID), nil
+	return NewOnSiteViewEvent(trackID, talkID, slotID), nil
 }
 
 type StampChallenge struct {
@@ -109,7 +109,7 @@ type StampChallenges struct {
 	Items []StampChallenge
 }
 
-func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *WatchEvents) {
+func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *ViewEvents) {
 	if evs.IsFulfilled(slotID) {
 		scs.setReadyChallenge(slotID)
 	}
@@ -168,7 +168,7 @@ func (scs *StampChallenges) Get(slotID value.SlotID) *StampChallenge {
 	return nil
 }
 
-type WatchEvent struct {
+type ViewEvent struct {
 	TrackID        value.TrackID
 	TalkID         value.TalkID
 	SlotID         value.SlotID
@@ -176,8 +176,8 @@ type WatchEvent struct {
 	CreatedAt      time.Time
 }
 
-func NewOnlineWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID value.SlotID) *WatchEvent {
-	return &WatchEvent{
+func NewOnlineViewEvent(trackID value.TrackID, talkID value.TalkID, slotID value.SlotID) *ViewEvent {
+	return &ViewEvent{
 		TrackID:        trackID,
 		TalkID:         talkID,
 		SlotID:         slotID,
@@ -186,8 +186,8 @@ func NewOnlineWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID valu
 	}
 }
 
-func NewOnSiteWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID value.SlotID) *WatchEvent {
-	return &WatchEvent{
+func NewOnSiteViewEvent(trackID value.TrackID, talkID value.TalkID, slotID value.SlotID) *ViewEvent {
+	return &ViewEvent{
 		TrackID:        trackID,
 		TalkID:         talkID,
 		SlotID:         slotID,
@@ -196,11 +196,11 @@ func NewOnSiteWatchEvent(trackID value.TrackID, talkID value.TalkID, slotID valu
 	}
 }
 
-type WatchEvents struct {
-	Items []WatchEvent
+type ViewEvents struct {
+	Items []ViewEvent
 }
 
-func (evs *WatchEvents) IsFulfilled(slotID value.SlotID) bool {
+func (evs *ViewEvents) IsFulfilled(slotID value.SlotID) bool {
 	var total int32
 	for _, ev := range evs.Items {
 		if ev.SlotID == slotID {
@@ -210,7 +210,7 @@ func (evs *WatchEvents) IsFulfilled(slotID value.SlotID) bool {
 	return total >= int32(stampReadySeconds)
 }
 
-func (evs *WatchEvents) LastCreated() time.Time {
+func (evs *ViewEvents) LastCreated() time.Time {
 	var lastTime time.Time
 	for _, ev := range evs.Items {
 		if ev.CreatedAt.After(lastTime) {
@@ -220,7 +220,7 @@ func (evs *WatchEvents) LastCreated() time.Time {
 	return lastTime
 }
 
-func (evs *WatchEvents) ViewingSeconds() map[value.SlotID]int32 {
+func (evs *ViewEvents) ViewingSeconds() map[value.SlotID]int32 {
 	res := map[value.SlotID]int32{}
 
 	for _, ev := range evs.Items {
@@ -229,11 +229,11 @@ func (evs *WatchEvents) ViewingSeconds() map[value.SlotID]int32 {
 	return res
 }
 
-func (evs *WatchEvents) AddImmutable(ev WatchEvent) *WatchEvents {
-	events := make([]WatchEvent, len(evs.Items)+1)
+func (evs *ViewEvents) AddImmutable(ev ViewEvent) *ViewEvents {
+	events := make([]ViewEvent, len(evs.Items)+1)
 	events[0] = ev
 	copy(events[1:], evs.Items)
-	return &WatchEvents{
+	return &ViewEvents{
 		Items: events,
 	}
 }

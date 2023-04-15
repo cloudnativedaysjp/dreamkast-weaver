@@ -32,14 +32,14 @@ func (q *Queries) GetTrailmapStamps(ctx context.Context, arg GetTrailmapStampsPa
 	return i, err
 }
 
-const insertWatchEvents = `-- name: InsertWatchEvents :exec
+const insertViewEvents = `-- name: InsertViewEvents :exec
 INSERT INTO
-  watch_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
+  view_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
 VALUES
   (?, ?, ?, ?, ?, ?, NOW())
 `
 
-type InsertWatchEventsParams struct {
+type InsertViewEventsParams struct {
 	ProfileID      int32
 	ConferenceName string
 	TrackID        int32
@@ -48,8 +48,8 @@ type InsertWatchEventsParams struct {
 	ViewingSeconds int32
 }
 
-func (q *Queries) InsertWatchEvents(ctx context.Context, arg InsertWatchEventsParams) error {
-	_, err := q.db.ExecContext(ctx, insertWatchEvents,
+func (q *Queries) InsertViewEvents(ctx context.Context, arg InsertViewEventsParams) error {
+	_, err := q.db.ExecContext(ctx, insertViewEvents,
 		arg.ProfileID,
 		arg.ConferenceName,
 		arg.TrackID,
@@ -60,30 +60,30 @@ func (q *Queries) InsertWatchEvents(ctx context.Context, arg InsertWatchEventsPa
 	return err
 }
 
-const listWatchEvents = `-- name: ListWatchEvents :many
+const listViewEvents = `-- name: ListViewEvents :many
 SELECT
   conference_name, profile_id, track_id, talk_id, slot_id, viewing_seconds, created_at
 FROM
-  watch_events
+  view_events
 WHERE
   conference_name = ?
   AND profile_id = ?
 `
 
-type ListWatchEventsParams struct {
+type ListViewEventsParams struct {
 	ConferenceName string
 	ProfileID      int32
 }
 
-func (q *Queries) ListWatchEvents(ctx context.Context, arg ListWatchEventsParams) ([]WatchEvent, error) {
-	rows, err := q.db.QueryContext(ctx, listWatchEvents, arg.ConferenceName, arg.ProfileID)
+func (q *Queries) ListViewEvents(ctx context.Context, arg ListViewEventsParams) ([]ViewEvent, error) {
+	rows, err := q.db.QueryContext(ctx, listViewEvents, arg.ConferenceName, arg.ProfileID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []WatchEvent
+	var items []ViewEvent
 	for rows.Next() {
-		var i WatchEvent
+		var i ViewEvent
 		if err := rows.Scan(
 			&i.ConferenceName,
 			&i.ProfileID,

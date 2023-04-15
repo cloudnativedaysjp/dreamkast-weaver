@@ -14,11 +14,11 @@ import (
 
 // AutoMarshal implementations.
 
-var _ codegen.AutoMarshal = &CreateWatchEventInput{}
+var _ codegen.AutoMarshal = &CreateViewEventInput{}
 
-func (x *CreateWatchEventInput) WeaverMarshal(enc *codegen.Encoder) {
+func (x *CreateViewEventInput) WeaverMarshal(enc *codegen.Encoder) {
 	if x == nil {
-		panic(fmt.Errorf("CreateWatchEventInput.WeaverMarshal: nil receiver"))
+		panic(fmt.Errorf("CreateViewEventInput.WeaverMarshal: nil receiver"))
 	}
 	enc.String((string)(x.ConfName))
 	enc.Int(x.ProfileID)
@@ -27,9 +27,9 @@ func (x *CreateWatchEventInput) WeaverMarshal(enc *codegen.Encoder) {
 	enc.Int(x.SlotID)
 }
 
-func (x *CreateWatchEventInput) WeaverUnmarshal(dec *codegen.Decoder) {
+func (x *CreateViewEventInput) WeaverUnmarshal(dec *codegen.Decoder) {
 	if x == nil {
-		panic(fmt.Errorf("CreateWatchEventInput.WeaverUnmarshal: nil receiver"))
+		panic(fmt.Errorf("CreateViewEventInput.WeaverUnmarshal: nil receiver"))
 	}
 	*(*string)(&x.ConfName) = dec.String()
 	x.ProfileID = dec.Int()

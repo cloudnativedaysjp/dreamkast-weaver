@@ -44,7 +44,7 @@ type Mutation {
   # dkui
   stampOnline(input: StampOnlineInput!): Boolean
   stampOnSite(input: StampOnSiteInput!): Boolean
-  createWatchEvent(input: CreateWatchEventInput!): Boolean
+  createViewEvent(input: CreateViewEventInput!): Boolean
 }
 
 input VoteInput {
@@ -67,7 +67,7 @@ input StampOnSiteInput {
   slotID: Int!
 }
 
-input CreateWatchEventInput {
+input CreateViewEventInput {
   confName: ConfName!
   profileID: Int!
   trackID: Int!

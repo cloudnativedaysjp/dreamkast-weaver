@@ -36,12 +36,12 @@ CREATE TABLE `trailmap_stamps` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `watch_events`
+-- Table structure for table `view_events`
 --
 
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `watch_events` (
+CREATE TABLE `view_events` (
   `conference_name` varchar(32) NOT NULL,
   `profile_id` int NOT NULL,
   `track_id` int NOT NULL,

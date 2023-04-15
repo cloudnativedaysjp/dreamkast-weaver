@@ -1,6 +1,6 @@
 -- migrate:up
 CREATE TABLE
-  watch_events (
+  view_events (
     conference_name VARCHAR(32) NOT NULL,
     profile_id INT NOT NULL,
     track_id INT NOT NULL,
@@ -11,4 +11,4 @@ CREATE TABLE
   );
 
 -- migrate:down
-DROP TABLE watch_events
+DROP TABLE view_events

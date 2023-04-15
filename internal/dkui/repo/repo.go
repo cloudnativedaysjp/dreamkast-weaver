@@ -39,8 +39,8 @@ func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.Con
 	return stampChallengeConv.fromDB(data.Stamps)
 }
 
-func (r *DkUiRepoImpl) InsertWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *domain.WatchEvent) error {
-	if err := r.q.InsertWatchEvents(ctx, InsertWatchEventsParams{
+func (r *DkUiRepoImpl) InsertViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *domain.ViewEvent) error {
+	if err := r.q.InsertViewEvents(ctx, InsertViewEventsParams{
 		ConferenceName: string(confName.Value()),
 		ProfileID:      profileID.Value(),
 		TrackID:        ev.TrackID.Value(),
@@ -48,23 +48,23 @@ func (r *DkUiRepoImpl) InsertWatchEvents(ctx context.Context, confName value.Con
 		SlotID:         ev.SlotID.Value(),
 		ViewingSeconds: ev.ViewingSeconds.Value(),
 	}); err != nil {
-		return stacktrace.With(fmt.Errorf("insert watch event: %w", err))
+		return stacktrace.With(fmt.Errorf("insert view event: %w", err))
 	}
 	return nil
 }
 
-func (r *DkUiRepoImpl) ListWatchEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*domain.WatchEvents, error) {
-	data, err := r.q.ListWatchEvents(ctx, ListWatchEventsParams{
+func (r *DkUiRepoImpl) ListViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*domain.ViewEvents, error) {
+	data, err := r.q.ListViewEvents(ctx, ListViewEventsParams{
 		ConferenceName: string(confName.Value()),
 		ProfileID:      profileID.Value(),
 	})
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
-			return nil, stacktrace.With(fmt.Errorf("list watch event: %w", err))
+			return nil, stacktrace.With(fmt.Errorf("list view event: %w", err))
 		}
 	}
 
-	return watchEventConv.fromDB(data)
+	return viewEventConv.fromDB(data)
 }
 
 func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *domain.StampChallenges) error {
@@ -155,13 +155,13 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 	return &domain.StampChallenges{Items: items}, nil
 }
 
-var watchEventConv _watchEventConv
+var viewEventConv _viewEventConv
 
-type _watchEventConv struct{}
+type _viewEventConv struct{}
 
-func (_watchEventConv) fromDB(v []WatchEvent) (*domain.WatchEvents, error) {
+func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 
-	conv := func(v *WatchEvent) (*domain.WatchEvent, error) {
+	conv := func(v *ViewEvent) (*domain.ViewEvent, error) {
 		trackID, err := value.NewTrackID(v.TrackID)
 		if err != nil {
 			return nil, err
@@ -178,7 +178,7 @@ func (_watchEventConv) fromDB(v []WatchEvent) (*domain.WatchEvents, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &domain.WatchEvent{
+		return &domain.ViewEvent{
 			TrackID:        trackID,
 			TalkID:         talkID,
 			SlotID:         slotID,
@@ -187,23 +187,23 @@ func (_watchEventConv) fromDB(v []WatchEvent) (*domain.WatchEvents, error) {
 		}, nil
 	}
 
-	var items []domain.WatchEvent
+	var items []domain.ViewEvent
 
 	for _, ev := range v {
 		dev, err := conv(&ev)
 		if err != nil {
-			return nil, stacktrace.With(fmt.Errorf("convert watch event from DB: %w", err))
+			return nil, stacktrace.With(fmt.Errorf("convert view event from DB: %w", err))
 		}
 		items = append(items, *dev)
 	}
 
-	return &domain.WatchEvents{Items: items}, nil
+	return &domain.ViewEvents{Items: items}, nil
 }
 
-func (_watchEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.WatchEvents) []WatchEvent {
+func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.ViewEvents) []ViewEvent {
 
-	conv := func(dev *domain.WatchEvent) *WatchEvent {
-		return &WatchEvent{
+	conv := func(dev *domain.ViewEvent) *ViewEvent {
+		return &ViewEvent{
 			ConferenceName: string(confName.Value()),
 			ProfileID:      profileID.Value(),
 			TrackID:        dev.TrackID.Value(),
@@ -214,7 +214,7 @@ func (_watchEventConv) toDB(confName value.ConfName, profileID value.ProfileID, 
 		}
 	}
 
-	var events []WatchEvent
+	var events []ViewEvent
 	for _, ev := range v.Items {
 		events = append(events, *conv(&ev))
 	}

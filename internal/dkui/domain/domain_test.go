@@ -13,7 +13,7 @@ var (
 	svc = domain.DkUiDomain{}
 )
 
-func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
+func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 
 	slotID := newSlotID(42)
 	trackID := newTrackID(1)
@@ -21,15 +21,15 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 
 	tests := []struct {
 		name                      string
-		given                     func() *domain.WatchEvents
+		given                     func() *domain.ViewEvents
 		shouldStampChallengeAdded bool
 	}{
 		{
 			name: "stamp condition fulfilled",
-			given: func() *domain.WatchEvents {
-				events := &domain.WatchEvents{}
+			given: func() *domain.ViewEvents {
+				events := &domain.ViewEvents{}
 				for i := 0; i < 9; i++ {
-					ev := *domain.NewOnlineWatchEvent(newTrackID(11), newTalkID(22), slotID)
+					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 					ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS + 1) * time.Second))
 					events = events.AddImmutable(ev)
 				}
@@ -39,10 +39,10 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 		},
 		{
 			name: "stamp condition not fulfilled",
-			given: func() *domain.WatchEvents {
-				events := &domain.WatchEvents{}
+			given: func() *domain.ViewEvents {
+				events := &domain.ViewEvents{}
 				for i := 0; i < 8; i++ {
-					ev := *domain.NewOnlineWatchEvent(newTrackID(11), newTalkID(22), slotID)
+					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 					ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS + 1) * time.Second))
 					events = events.AddImmutable(ev)
 				}
@@ -52,8 +52,8 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 		},
 		{
 			name: "first event",
-			given: func() *domain.WatchEvents {
-				return &domain.WatchEvents{}
+			given: func() *domain.ViewEvents {
+				return &domain.ViewEvents{}
 			},
 			shouldStampChallengeAdded: false,
 		},
@@ -65,7 +65,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 			events := tt.given()
 			evLen := len(events.Items)
 
-			got, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
+			got, err := svc.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
 
 			assert.Nil(t, err)
 			assert.Equal(t, trackID, got.TrackID)
@@ -85,13 +85,13 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 
 	errTests := []struct {
 		name  string
-		given func() (*domain.WatchEvents, *domain.StampChallenges)
+		given func() (*domain.ViewEvents, *domain.StampChallenges)
 	}{
 		{
 			name: "too short request",
-			given: func() (*domain.WatchEvents, *domain.StampChallenges) {
-				events := &domain.WatchEvents{}
-				ev := *domain.NewOnlineWatchEvent(newTrackID(11), newTalkID(22), slotID)
+			given: func() (*domain.ViewEvents, *domain.StampChallenges) {
+				events := &domain.ViewEvents{}
+				ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 				ev.CreatedAt = ev.CreatedAt.Add(time.Duration(-1 * (value.GUARD_SECONDS - 9) * time.Second))
 				events = events.AddImmutable(ev)
 				return events, &domain.StampChallenges{}
@@ -99,7 +99,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 		},
 		{
 			name: "nil given",
-			given: func() (*domain.WatchEvents, *domain.StampChallenges) {
+			given: func() (*domain.ViewEvents, *domain.StampChallenges) {
 				return nil, nil
 			},
 		},
@@ -108,7 +108,7 @@ func TestDkUiService_CreateOnlineWatchEvent(t *testing.T) {
 	for _, tt := range errTests {
 		t.Run("err:"+tt.name, func(t *testing.T) {
 			events, stamps := tt.given()
-			_, err := svc.CreateOnlineWatchEvent(trackID, talkID, slotID, stamps, events)
+			_, err := svc.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
 			assert.Error(t, err)
 		})
 	}

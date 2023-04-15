@@ -1,15 +1,15 @@
--- name: ListWatchEvents :many
+-- name: ListViewEvents :many
 SELECT
   *
 FROM
-  watch_events
+  view_events
 WHERE
   conference_name = ?
   AND profile_id = ?;
 
--- name: InsertWatchEvents :exec
+-- name: InsertViewEvents :exec
 INSERT INTO
-  watch_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
+  view_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
 VALUES
   (?, ?, ?, ?, ?, ?, NOW());
 

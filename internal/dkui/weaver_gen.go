@@ -21,7 +21,7 @@ func init() {
 			return service_local_stub{impl: impl.(Service), tracer: tracer}
 		},
 		ClientStubFn: func(stub codegen.Stub, caller string) any {
-			return service_client_stub{stub: stub, createWatchEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateWatchEvent"}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline"}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite"}), viewingSlotsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingSlots"}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges"})}
+			return service_client_stub{stub: stub, createViewEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateViewEvent"}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline"}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite"}), viewingSlotsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingSlots"}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges"})}
 		},
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return service_server_stub{impl: impl.(Service), addLoad: addLoad}
@@ -36,11 +36,11 @@ type service_local_stub struct {
 	tracer trace.Tracer
 }
 
-func (s service_local_stub) CreateWatchEvent(ctx context.Context, a0 model.CreateWatchEventInput) (err error) {
+func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 model.CreateViewEventInput) (err error) {
 	span := trace.SpanFromContext(ctx)
 	if span.SpanContext().IsValid() {
 		// Create a child span for this method.
-		ctx, span = s.tracer.Start(ctx, "dkui.Service.CreateWatchEvent", trace.WithSpanKind(trace.SpanKindInternal))
+		ctx, span = s.tracer.Start(ctx, "dkui.Service.CreateViewEvent", trace.WithSpanKind(trace.SpanKindInternal))
 		defer func() {
 			if err != nil {
 				span.RecordError(err)
@@ -50,7 +50,7 @@ func (s service_local_stub) CreateWatchEvent(ctx context.Context, a0 model.Creat
 		}()
 	}
 
-	return s.impl.CreateWatchEvent(ctx, a0)
+	return s.impl.CreateViewEvent(ctx, a0)
 }
 
 func (s service_local_stub) StampOnline(ctx context.Context, a0 model.StampOnlineInput) (err error) {
@@ -124,23 +124,23 @@ func (s service_local_stub) StampChallenges(ctx context.Context, a0 model.ConfNa
 // Client stub implementations.
 
 type service_client_stub struct {
-	stub                    codegen.Stub
-	createWatchEventMetrics *codegen.MethodMetrics
-	stampOnlineMetrics      *codegen.MethodMetrics
-	stampOnSiteMetrics      *codegen.MethodMetrics
-	viewingSlotsMetrics     *codegen.MethodMetrics
-	stampChallengesMetrics  *codegen.MethodMetrics
+	stub                   codegen.Stub
+	createViewEventMetrics *codegen.MethodMetrics
+	stampOnlineMetrics     *codegen.MethodMetrics
+	stampOnSiteMetrics     *codegen.MethodMetrics
+	viewingSlotsMetrics    *codegen.MethodMetrics
+	stampChallengesMetrics *codegen.MethodMetrics
 }
 
-func (s service_client_stub) CreateWatchEvent(ctx context.Context, a0 model.CreateWatchEventInput) (err error) {
+func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 model.CreateViewEventInput) (err error) {
 	// Update metrics.
 	start := time.Now()
-	s.createWatchEventMetrics.Count.Add(1)
+	s.createViewEventMetrics.Count.Add(1)
 
 	span := trace.SpanFromContext(ctx)
 	if span.SpanContext().IsValid() {
 		// Create a child span for this method.
-		ctx, span = s.stub.Tracer().Start(ctx, "dkui.Service.CreateWatchEvent", trace.WithSpanKind(trace.SpanKindClient))
+		ctx, span = s.stub.Tracer().Start(ctx, "dkui.Service.CreateViewEvent", trace.WithSpanKind(trace.SpanKindClient))
 	}
 
 	defer func() {
@@ -153,11 +153,11 @@ func (s service_client_stub) CreateWatchEvent(ctx context.Context, a0 model.Crea
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			s.createWatchEventMetrics.ErrorCount.Add(1)
+			s.createViewEventMetrics.ErrorCount.Add(1)
 		}
 		span.End()
 
-		s.createWatchEventMetrics.Latency.Put(float64(time.Since(start).Microseconds()))
+		s.createViewEventMetrics.Latency.Put(float64(time.Since(start).Microseconds()))
 	}()
 
 	// Encode arguments.
@@ -166,13 +166,13 @@ func (s service_client_stub) CreateWatchEvent(ctx context.Context, a0 model.Crea
 	var shardKey uint64
 
 	// Call the remote method.
-	s.createWatchEventMetrics.BytesRequest.Put(float64(len(enc.Data())))
+	s.createViewEventMetrics.BytesRequest.Put(float64(len(enc.Data())))
 	var results []byte
 	results, err = s.stub.Run(ctx, 0, enc.Data(), shardKey)
 	if err != nil {
 		return
 	}
-	s.createWatchEventMetrics.BytesReply.Put(float64(len(results)))
+	s.createViewEventMetrics.BytesReply.Put(float64(len(results)))
 
 	// Decode the results.
 	dec := codegen.NewDecoder(results)
@@ -386,8 +386,8 @@ type service_server_stub struct {
 // GetStubFn implements the stub.Server interface.
 func (s service_server_stub) GetStubFn(method string) func(ctx context.Context, args []byte) ([]byte, error) {
 	switch method {
-	case "CreateWatchEvent":
-		return s.createWatchEvent
+	case "CreateViewEvent":
+		return s.createViewEvent
 	case "StampOnline":
 		return s.stampOnline
 	case "StampOnSite":
@@ -401,7 +401,7 @@ func (s service_server_stub) GetStubFn(method string) func(ctx context.Context, 
 	}
 }
 
-func (s service_server_stub) createWatchEvent(ctx context.Context, args []byte) (res []byte, err error) {
+func (s service_server_stub) createViewEvent(ctx context.Context, args []byte) (res []byte, err error) {
 	// Catch and return any panics detected during encoding/decoding/rpc.
 	defer func() {
 		if err == nil {
@@ -411,13 +411,13 @@ func (s service_server_stub) createWatchEvent(ctx context.Context, args []byte) 
 
 	// Decode arguments.
 	dec := codegen.NewDecoder(args)
-	var a0 model.CreateWatchEventInput
+	var a0 model.CreateViewEventInput
 	(&a0).WeaverUnmarshal(dec)
 
 	// TODO(rgrandl): The deferred function above will recover from panics in the
 	// user code: fix this.
 	// Call the local method.
-	appErr := s.impl.CreateWatchEvent(ctx, a0)
+	appErr := s.impl.CreateViewEvent(ctx, a0)
 
 	// Encode the results.
 	enc := codegen.NewEncoder()

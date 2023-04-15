@@ -10,7 +10,7 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
-type CreateWatchEventInput struct {
+type CreateViewEventInput struct {
 	weaver.AutoMarshal
 	ConfName  ConfName `json:"confName"`
 	ProfileID int      `json:"profileID"`

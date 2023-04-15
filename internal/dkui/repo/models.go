@@ -19,7 +19,7 @@ type TrailmapStamp struct {
 	Stamps         json.RawMessage
 }
 
-type WatchEvent struct {
+type ViewEvent struct {
 	ConferenceName string
 	ProfileID      int32
 	TrackID        int32
