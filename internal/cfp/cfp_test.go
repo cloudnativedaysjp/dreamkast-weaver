@@ -2,33 +2,67 @@ package cfp_test
 
 import (
 	"context"
-	"net"
+	"net/url"
 	"testing"
-	"time"
 
 	"dreamkast-weaver/internal/cfp"
-	"dreamkast-weaver/internal/sqlhelper"
+	"dreamkast-weaver/internal/graph/model"
 
+	"github.com/ServiceWeaver/weaver"
+	"github.com/ServiceWeaver/weaver/weavertest"
+	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	"github.com/stretchr/testify/assert"
+
+	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
 )
 
+const (
+	weaverConfig = `
+	["dreamkast-weaver/internal/cfp/Service"]
+	db_user = "user"
+	db_password = "password"
+	db_endpoint = "127.0.0.1"
+	db_port = "13306"
+	db_name = "test_cfp"
+	`
+	dbUrl = "mysql://user:password@127.0.0.1:13306/test_cfp"
+)
+
+func TestMain(m *testing.M) {
+	setup()
+	defer teardown()
+	m.Run()
+}
+
+func setup() {
+	u, _ := url.Parse(dbUrl)
+	db := dbmate.New(u)
+
+	mustNil(db.Drop())
+	mustNil(db.CreateAndMigrate())
+}
+
+func teardown() {}
+
 func TestCfpVoteImpl(t *testing.T) {
-	sh := sqlhelper.NewTestSqlHelper("weaver")
-	voter := cfp.NewVoter(sh)
 	ctx := context.Background()
+	root := weavertest.Init(ctx, t, weavertest.Options{
+		SingleProcess: true,
+		Config:        weaverConfig,
+	})
+	svc, err := weaver.Get[cfp.Service](root)
+	mustNil(err)
 
-	talkID := int32(time.Now().Unix())
+	talkID := 3
 
-	err := voter.Vote(ctx, cfp.VoteRequest{
+	err = svc.Vote(ctx, model.VoteInput{
 		ConfName: "cndf2023",
 		TalkID:   talkID,
-		GlobalIP: net.ParseIP("127.0.0.1"),
+		GlobalIP: "127.0.0.1",
 	})
 	assert.Nil(t, err)
 
-	resp, err := voter.GetCount(ctx, cfp.GetCountRequest{
-		ConfName: "cndf2023",
-	})
+	resp, err := svc.VoteCounts(ctx, "cndf2023")
 	assert.Nil(t, err)
 
 	var ok bool
@@ -39,5 +73,10 @@ func TestCfpVoteImpl(t *testing.T) {
 		}
 	}
 	assert.True(t, ok, "talkID not found")
+}
 
+func mustNil(err error) {
+	if err != nil {
+		panic(err)
+	}
 }

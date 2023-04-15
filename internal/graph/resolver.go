@@ -15,12 +15,12 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	CfpVoter    cfp.Voter
+	CfpService  cfp.Service
 	DkUiService dkui.Service
 }
 
 func NewResolver(root weaver.Instance) *Resolver {
-	cfp, err := weaver.Get[cfp.Voter](root)
+	cfp, err := weaver.Get[cfp.Service](root)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +31,7 @@ func NewResolver(root weaver.Instance) *Resolver {
 	}
 
 	return &Resolver{
-		CfpVoter:    cfp,
+		CfpService:  cfp,
 		DkUiService: dkui,
 	}
 }

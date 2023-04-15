@@ -1,7 +1,7 @@
 [serviceweaver]
 binary = "./serve"
 
-["dreamkast-weaver/internal/cfp/Voter"]
+["dreamkast-weaver/internal/cfp/Service"]
 db_user = "user"
 db_password = "password"
 db_endpoint = "127.0.0.1"

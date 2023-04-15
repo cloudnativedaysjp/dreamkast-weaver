@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net"
 
 	"dreamkast-weaver/internal/cfp/repo"
+	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 
 	"github.com/ServiceWeaver/weaver"
@@ -15,41 +15,19 @@ import (
 
 //go:generate go run github.com/ServiceWeaver/weaver/cmd/weaver generate .
 
-type Voter interface {
-	Vote(ctx context.Context, req VoteRequest) error
-	GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error)
+type Service interface {
+	Vote(ctx context.Context, input model.VoteInput) error
+	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
 }
 
-// TODO validate
-type VoteRequest struct {
-	weaver.AutoMarshal
-	ConfName string
-	TalkID   int32
-	GlobalIP net.IP
-}
-
-type GetCountRequest struct {
-	weaver.AutoMarshal
-	ConfName string
-}
-
-type VoteCount struct {
-	weaver.AutoMarshal
-	TalkID int32
-	Count  int
-}
-
-type GetCountResponse []VoteCount
-
-// VoterImpl implements cfp.Voter
-type VoterImpl struct {
-	weaver.Implements[Voter]
+type ServiceImpl struct {
+	weaver.Implements[Service]
 	weaver.WithConfig[config]
 
 	sh *sqlhelper.SqlHelper
 }
 
-var _ Voter = (*VoterImpl)(nil)
+var _ Service = (*ServiceImpl)(nil)
 
 type config struct {
 	DBUser     string `toml:"db_user"`
@@ -69,11 +47,11 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewVoter(sh *sqlhelper.SqlHelper) Voter {
-	return &VoterImpl{sh: sh}
+func NewVoter(sh *sqlhelper.SqlHelper) Service {
+	return &ServiceImpl{sh: sh}
 }
 
-func (v *VoterImpl) Init(ctx context.Context) error {
+func (v *ServiceImpl) Init(ctx context.Context) error {
 	cfg := v.Config()
 	log.Printf("config: %#v\n", cfg)
 	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
@@ -84,10 +62,10 @@ func (v *VoterImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (v *VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCountResponse, error) {
+func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
 	r := repo.New(v.sh.DB())
 
-	votes, err := r.ListCfpVotes(ctx, req.ConfName)
+	votes, err := r.ListCfpVotes(ctx, confName.String())
 	if err != nil {
 		return nil, fmt.Errorf("list cfp vote: %w", err)
 	}
@@ -98,10 +76,10 @@ func (v *VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCount
 		counts[vote.TalkID]++
 	}
 
-	var resp GetCountResponse
+	var resp []*model.VoteCount
 	for talkID, count := range counts {
-		resp = append(resp, VoteCount{
-			TalkID: talkID,
+		resp = append(resp, &model.VoteCount{
+			TalkID: int(talkID),
 			Count:  count,
 		})
 	}
@@ -109,14 +87,14 @@ func (v *VoterImpl) GetCount(ctx context.Context, req GetCountRequest) (GetCount
 	return resp, nil
 }
 
-func (v *VoterImpl) Vote(ctx context.Context, req VoteRequest) error {
+func (v *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) error {
 	r := repo.New(v.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
-		ConferenceName: req.ConfName,
-		TalkID:         req.TalkID,
+		ConferenceName: input.ConfName.String(),
+		TalkID:         int32(input.TalkID),
 		GlobalIp: sql.NullString{
-			String: req.GlobalIP.String(),
+			String: input.GlobalIP,
 			Valid:  true,
 		},
 	}); err != nil {

@@ -6,21 +6,14 @@ package graph
 
 import (
 	"context"
-	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
-	"fmt"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
-	if err := r.CfpVoter.Vote(ctx, cfp.VoteRequest{
-		ConfName: input.ConfName.String(),
-		TalkID:   int32(input.TalkID),
-		GlobalIP: []byte{},
-	}); err != nil {
+	if err := r.CfpService.Vote(ctx, input); err != nil {
 		return nil, err
 	}
-
 	return nil, nil
 }
 
@@ -50,24 +43,11 @@ func (r *mutationResolver) CreateWatchEvent(ctx context.Context, input model.Cre
 
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
-	panic(fmt.Errorf("not implemented"))
-	// counts, err := r.CfpVoter.GetCount(ctx, cfp.GetCountRequest{
-	// 	ConfName: *confName,
-	// })
-	// if err != nil {
-	// 	log.Printf("error: %v", err)
-	// 	return nil, err
-	// }
-
-	// var resp []*model.VoteCount
-	// for _, v := range counts {
-	// 	resp = append(resp, &model.VoteCount{
-	// 		TalkID: int(v.TalkID),
-	// 		Count:  v.Count,
-	// 	})
-	// }
-
-	// return resp, nil
+	resp, err := r.CfpService.VoteCounts(ctx, confName)
+	if err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // ViewingSlots is the resolver for the viewingSlots field.
@@ -76,7 +56,7 @@ func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfNam
 	if err != nil {
 		return nil, err
 	}
-	return resp, err
+	return resp, nil
 }
 
 // StampChallenges is the resolver for the stampChallenges field.
@@ -85,7 +65,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 	if err != nil {
 		return nil, err
 	}
-	return resp, err
+	return resp, nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -43,33 +43,7 @@ func setup() {
 	mustNil(db.CreateAndMigrate())
 }
 
-func teardown() {
-
-}
-
-func assertStampCondition(t *testing.T, stamps []*model.StampChallenge, slotID int, status string) {
-	t.Helper()
-	var found bool
-	for _, sc := range stamps {
-		if sc.SlotID == slotID {
-			found = true
-			assert.Equal(t, status, sc.Condition.String())
-		}
-	}
-	assert.True(t, found)
-}
-
-func assertViewingTime(t *testing.T, slots []*model.ViewingSlot, slotID int, vt int) {
-	t.Helper()
-	var found bool
-	for _, s := range slots {
-		if s.SlotID == slotID {
-			found = true
-			assert.Equal(t, vt, s.ViewingTime)
-		}
-	}
-	assert.True(t, found)
-}
+func teardown() {}
 
 func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
 	domain.ChangeGuardSecondsForTest(0)
@@ -173,4 +147,28 @@ func mustNil(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func assertStampCondition(t *testing.T, stamps []*model.StampChallenge, slotID int, status string) {
+	t.Helper()
+	var found bool
+	for _, sc := range stamps {
+		if sc.SlotID == slotID {
+			found = true
+			assert.Equal(t, status, sc.Condition.String())
+		}
+	}
+	assert.True(t, found)
+}
+
+func assertViewingTime(t *testing.T, slots []*model.ViewingSlot, slotID int, vt int) {
+	t.Helper()
+	var found bool
+	for _, s := range slots {
+		if s.SlotID == slotID {
+			found = true
+			assert.Equal(t, vt, s.ViewingTime)
+		}
+	}
+	assert.True(t, found)
 }
