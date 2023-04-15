@@ -6,38 +6,46 @@ package graph
 
 import (
 	"context"
+	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
 	"fmt"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
-	panic(fmt.Errorf("not implemented"))
-	// if err := r.CfpVoter.Vote(ctx, cfp.VoteRequest{
-	// 	ConfName: input.ConfName,
-	// 	TalkID:   int32(input.TalkID),
-	// 	GlobalIP: []byte{},
-	// }); err != nil {
-	// 	log.Printf("error: %v", err)
-	// 	return nil, err
-	// }
+	if err := r.CfpVoter.Vote(ctx, cfp.VoteRequest{
+		ConfName: input.ConfName.String(),
+		TalkID:   int32(input.TalkID),
+		GlobalIP: []byte{},
+	}); err != nil {
+		return nil, err
+	}
 
-	// return nil, nil
+	return nil, nil
 }
 
 // StampOnline is the resolver for the stampOnline field.
 func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error) {
-	panic(fmt.Errorf("not implemented: StampOnline - stampOnline"))
+	if err := r.DkUiService.StampOnline(ctx, input); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 // StampOnSite is the resolver for the stampOnSite field.
 func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error) {
-	panic(fmt.Errorf("not implemented: StampOnSite - stampOnSite"))
+	if err := r.DkUiService.StampOnSite(ctx, input); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 // CreateWatchEvent is the resolver for the createWatchEvent field.
 func (r *mutationResolver) CreateWatchEvent(ctx context.Context, input model.CreateWatchEventInput) (*bool, error) {
-	panic(fmt.Errorf("not implemented: CreateWatchEvent - createWatchEvent"))
+	if err := r.DkUiService.CreateWatchEvent(ctx, input); err != nil {
+		return nil, err
+	}
+	return nil, nil
 }
 
 // VoteCounts is the resolver for the voteCounts field.
@@ -64,12 +72,20 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName)
 
 // ViewingSlots is the resolver for the viewingSlots field.
 func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error) {
-	panic(fmt.Errorf("not implemented: ViewingSlots - viewingSlots"))
+	resp, err := r.DkUiService.ViewingSlots(ctx, confName, profileID)
+	if err != nil {
+		return nil, err
+	}
+	return resp, err
 }
 
 // StampChallenges is the resolver for the stampChallenges field.
 func (r *queryResolver) StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error) {
-	panic(fmt.Errorf("not implemented: StampChallenges - stampChallenges"))
+	resp, err := r.DkUiService.StampChallenges(ctx, confName, profileID)
+	if err != nil {
+		return nil, err
+	}
+	return resp, err
 }
 
 // Mutation returns MutationResolver implementation.
