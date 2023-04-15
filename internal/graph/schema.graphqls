@@ -2,21 +2,75 @@
 #
 # https://gqlgen.com/getting-started/
 
+enum ConfName {
+  CICD2023
+  CNDF2023
+  CNDT2023
+}
+
+type Query {
+  # cfp
+  voteCounts(confName: ConfName!): [VoteCount!]!
+  # dkui
+  viewingSlots(confName: ConfName!, profileID: String!): [ViewingSlot!]!
+  stampChallenges(confName: ConfName!, profileID: String!): [StampChallenge]!
+}
+
 type VoteCount {
   talkId: Int!
   count: Int!
 }
 
-type Query {
-  voteCounts(confName: String): [VoteCount!]!
+type ViewingSlot {
+  slotId: Int!
+  viewingTime: Int!
 }
 
-input NewVote {
-  confName: String!
+type StampChallenge {
+  slotID: Int!
+  condition: ChallengeCondition!
+  updatedAt: Int!
+}
+
+enum ChallengeCondition {
+  READY
+  STAMPED
+  SKIPPED
+}
+
+type Mutation {
+  # cfp
+  vote(input: VoteInput!): Boolean
+  # dkui
+  stampOnline(input: StampOnlineInput!): Boolean
+  stampOnSite(input: StampOnSiteInput!): Boolean
+  createWatchEvent(input: CreateWatchEventInput!): Boolean
+}
+
+input VoteInput {
+  confName: ConfName!
   talkId: Int!
   globalIp: String!
 }
 
-type Mutation {
-  vote(input: NewVote!): Boolean
+input StampOnlineInput {
+  confName: ConfName!
+  profileID: Int!
+  slotID: Int!
+}
+
+input StampOnSiteInput {
+  confName: ConfName!
+  profileID: Int!
+  trackID: Int!
+  talkID: Int!
+  slotID: Int!
+}
+
+input CreateWatchEventInput {
+  confName: ConfName!
+  profileID: Int!
+  trackID: Int!
+  talkID: Int!
+  slotID: Int!
 }
