@@ -9,6 +9,7 @@ import (
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"errors"
+	"log"
 
 	"github.com/ServiceWeaver/weaver"
 )
@@ -45,7 +46,18 @@ func NewDkUiService(sh *sqlhelper.SqlHelper) Service {
 	return &ServiceImpl{sh: sh}
 }
 
-func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEventInput) error {
+func (s *ServiceImpl) Init(ctx context.Context) error {
+	cfg := s.Config()
+	log.Printf("config: %#v\n", cfg)
+	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
+	if err != nil {
+		return err
+	}
+	s.sh = sh
+	return nil
+}
+
+func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req model.CreateWatchEventInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -93,7 +105,7 @@ func (v *ServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEvent
 	return nil
 }
 
-func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*ViewingSlot, error) {
+func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*model.ViewingSlot, error) {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -107,18 +119,18 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 		return nil, err
 	}
 
-	var viewingSlots []*ViewingSlot
+	var viewingSlots []*model.ViewingSlot
 	for k, v := range devents.ViewingSeconds() {
-		viewingSlots = append(viewingSlots, NewViewingSlot(model.ViewingSlot{
+		viewingSlots = append(viewingSlots, &model.ViewingSlot{
 			SlotID:      int(k.Value()),
 			ViewingTime: int(v),
-		}))
+		})
 	}
 
 	return viewingSlots, nil
 }
 
-func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*StampChallenge, error) {
+func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*model.StampChallenge, error) {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -132,19 +144,19 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfN
 		return nil, err
 	}
 
-	var stamps []*StampChallenge
+	var stamps []*model.StampChallenge
 	for _, dst := range dstamps.Items {
-		stamps = append(stamps, NewStampChallenge(model.StampChallenge{
+		stamps = append(stamps, &model.StampChallenge{
 			SlotID:    int(dst.SlotID.Value()),
 			Condition: model.ChallengeCondition(dst.Condition.Value()),
 			UpdatedAt: int(dst.UpdatedAt.Unix()),
-		}))
+		})
 	}
 
 	return stamps, nil
 }
 
-func (v *ServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput) error {
+func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -174,7 +186,7 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput) err
 	return nil
 }
 
-func (v *ServiceImpl) StampOnSite(ctx context.Context, req StampOnSiteInput) error {
+func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error

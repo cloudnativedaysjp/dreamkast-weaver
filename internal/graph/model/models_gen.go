@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+
+	"github.com/ServiceWeaver/weaver"
 )
 
 type CreateWatchEventInput struct {
+	weaver.AutoMarshal
 	ConfName  ConfName `json:"confName"`
 	ProfileID int      `json:"profileID"`
 	TrackID   int      `json:"trackID"`
@@ -17,12 +20,14 @@ type CreateWatchEventInput struct {
 }
 
 type StampChallenge struct {
+	weaver.AutoMarshal
 	SlotID    int                `json:"slotID"`
 	Condition ChallengeCondition `json:"condition"`
 	UpdatedAt int                `json:"updatedAt"`
 }
 
 type StampOnSiteInput struct {
+	weaver.AutoMarshal
 	ConfName  ConfName `json:"confName"`
 	ProfileID int      `json:"profileID"`
 	TrackID   int      `json:"trackID"`
@@ -31,22 +36,26 @@ type StampOnSiteInput struct {
 }
 
 type StampOnlineInput struct {
+	weaver.AutoMarshal
 	ConfName  ConfName `json:"confName"`
 	ProfileID int      `json:"profileID"`
 	SlotID    int      `json:"slotID"`
 }
 
 type ViewingSlot struct {
+	weaver.AutoMarshal
 	SlotID      int `json:"slotId"`
 	ViewingTime int `json:"viewingTime"`
 }
 
 type VoteCount struct {
+	weaver.AutoMarshal
 	TalkID int `json:"talkId"`
 	Count  int `json:"count"`
 }
 
 type VoteInput struct {
+	weaver.AutoMarshal
 	ConfName ConfName `json:"confName"`
 	TalkID   int      `json:"talkId"`
 	GlobalIP string   `json:"globalIp"`

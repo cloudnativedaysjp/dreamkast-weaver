@@ -2,6 +2,7 @@ package graph
 
 import (
 	"dreamkast-weaver/internal/cfp"
+	"dreamkast-weaver/internal/dkui"
 	"log"
 
 	"github.com/ServiceWeaver/weaver"
@@ -14,16 +15,23 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	CfpVoter cfp.Voter
+	CfpVoter    cfp.Voter
+	DkUiService dkui.Service
 }
 
 func NewResolver(root weaver.Instance) *Resolver {
-	voter, err := weaver.Get[cfp.Voter](root)
+	cfp, err := weaver.Get[cfp.Voter](root)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dkui, err := weaver.Get[dkui.Service](root)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return &Resolver{
-		CfpVoter: voter,
+		CfpVoter:    cfp,
+		DkUiService: dkui,
 	}
 }
