@@ -1,14 +1,13 @@
 package value_test
 
 import (
-	"dreamkast-weaver/internal/dkui/value"
 	"testing"
 
+	"dreamkast-weaver/internal/dkui/value"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestConfName(t *testing.T) {
-
 	t.Run("ok", func(t *testing.T) {
 		given := "cicd2023"
 
@@ -33,5 +32,4 @@ func TestConfName(t *testing.T) {
 			assert.Error(t, err)
 		})
 	}
-
 }

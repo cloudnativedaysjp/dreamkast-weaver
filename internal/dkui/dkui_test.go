@@ -2,19 +2,18 @@ package dkui_test
 
 import (
 	"context"
+	"net/url"
+	"testing"
+
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
-	"net/url"
-	"testing"
-
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
-	"github.com/stretchr/testify/assert"
-
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -113,7 +112,6 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 }
 
 func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
-
 	ctx := context.Background()
 	root := weavertest.Init(ctx, t, weavertest.Options{
 		SingleProcess: true,

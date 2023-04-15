@@ -2,10 +2,10 @@ package stacktrace_test
 
 import (
 	"bytes"
-	"dreamkast-weaver/internal/stacktrace"
 	"regexp"
 	"testing"
 
+	"dreamkast-weaver/internal/stacktrace"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

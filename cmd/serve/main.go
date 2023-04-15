@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"dreamkast-weaver/internal/graph"
 	"log"
 	"net/http"
 	"os"
 
+	"dreamkast-weaver/internal/graph"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/ServiceWeaver/weaver"

@@ -3,13 +3,13 @@ package dkui
 import (
 	"context"
 	"database/sql"
+	"errors"
+
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
-	"errors"
-
 	"github.com/ServiceWeaver/weaver"
 )
 

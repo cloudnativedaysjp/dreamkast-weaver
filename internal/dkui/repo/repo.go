@@ -3,13 +3,14 @@ package repo
 import (
 	"context"
 	"database/sql"
-	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/value"
-	"dreamkast-weaver/internal/stacktrace"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
+
+	"dreamkast-weaver/internal/dkui/domain"
+	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/stacktrace"
 )
 
 type DkUiRepoImpl struct {
@@ -94,7 +95,6 @@ type _stampChallenge struct {
 }
 
 func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, error) {
-
 	conv := func(dsc *domain.StampChallenge) *_stampChallenge {
 		return &_stampChallenge{
 			SlotID:    dsc.SlotID.Value(),
@@ -116,7 +116,6 @@ func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, err
 }
 
 func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, error) {
-
 	conv := func(sc *_stampChallenge) (*domain.StampChallenge, error) {
 		slotID, err := value.NewSlotID(sc.SlotID)
 		if err != nil {
@@ -160,7 +159,6 @@ var viewEventConv _viewEventConv
 type _viewEventConv struct{}
 
 func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
-
 	conv := func(v *ViewEvent) (*domain.ViewEvent, error) {
 		trackID, err := value.NewTrackID(v.TrackID)
 		if err != nil {
@@ -201,7 +199,6 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 }
 
 func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.ViewEvents) []ViewEvent {
-
 	conv := func(dev *domain.ViewEvent) *ViewEvent {
 		return &ViewEvent{
 			ConferenceName: string(confName.Value()),

@@ -1,10 +1,10 @@
 package graph
 
 import (
-	"dreamkast-weaver/internal/cfp"
-	"dreamkast-weaver/internal/dkui"
 	"log"
 
+	"dreamkast-weaver/internal/cfp"
+	"dreamkast-weaver/internal/dkui"
 	"github.com/ServiceWeaver/weaver"
 )
 

@@ -1,11 +1,11 @@
 package domain_test
 
 import (
-	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/value"
 	"testing"
 	"time"
 
+	"dreamkast-weaver/internal/dkui/domain"
+	"dreamkast-weaver/internal/dkui/value"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +14,6 @@ var (
 )
 
 func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
-
 	slotID := newSlotID(42)
 	trackID := newTrackID(1)
 	talkID := newTalkID(2)
@@ -112,11 +111,9 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 			assert.Error(t, err)
 		})
 	}
-
 }
 
 func TestDkUiService_StampOnline(t *testing.T) {
-
 	slotID := newSlotID(42)
 
 	t.Run("ok", func(t *testing.T) {
@@ -176,7 +173,6 @@ func TestDkUiService_StampOnline(t *testing.T) {
 }
 
 func TestDkUiService_StampOnSite(t *testing.T) {
-
 	slotID := newSlotID(42)
 	trackID := newTrackID(1)
 	talkID := newTalkID(2)
@@ -225,7 +221,6 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 				}
 			}
 		})
-
 	}
 
 	errTests := []struct {
@@ -269,9 +264,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 				}
 			}
 		})
-
 	}
-
 }
 
 func mustNil(err error) {

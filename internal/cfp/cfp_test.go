@@ -7,13 +7,11 @@ import (
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
-
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
-	"github.com/stretchr/testify/assert"
-
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
+	"github.com/stretchr/testify/assert"
 )
 
 const (

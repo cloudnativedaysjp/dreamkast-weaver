@@ -1,10 +1,11 @@
 package domain
 
 import (
-	"dreamkast-weaver/internal/dkui/value"
-	"dreamkast-weaver/internal/stacktrace"
 	"fmt"
 	"time"
+
+	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/stacktrace"
 )
 
 var (
