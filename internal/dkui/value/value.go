@@ -15,7 +15,7 @@ func NewConfName(v ConferenceKind) (ConfName, error) {
 }
 
 func (v *ConfName) Validate() error {
-	return validation.Validate(v.Value(),
+	return validation.Validate(v.value,
 		validation.In(cicd2023, cndf2023, cndt2023),
 	)
 }
@@ -85,7 +85,7 @@ func NewStampCondtion(v StampConditionKind) (StampCondition, error) {
 }
 
 func (v *StampCondition) Validate() error {
-	return validation.Validate(v.Value(),
+	return validation.Validate(v.value,
 		validation.In(stampReady, stampStamped, stampSkipped),
 	)
 }
@@ -119,7 +119,7 @@ func NewViewingPeriod(v int32) (ViewingSeconds, error) {
 }
 
 func (v *ViewingSeconds) Validate() error {
-	return validation.Validate(v.Value(),
+	return validation.Validate(v.value,
 		validation.In(int32(INTERVAL_SECONDS), int32(TALK_SECONDS)),
 	)
 }
