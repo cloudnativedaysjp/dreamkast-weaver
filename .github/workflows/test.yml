@@ -1,0 +1,58 @@
+name: test
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - '.github/**'
+      - '!.github/workflows/test.yml'
+      - '**.md'
+    branches:
+      - main
+
+jobs:
+  gotest:
+    name: Format Check, Analysis and Test
+
+    strategy:
+      matrix:
+        go-version: ['1.20']
+        os: [ubuntu-latest]
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Use cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Run go mod tidy
+        run: |
+          go mod tidy
+          git diff --exit-code
+
+      - name: Run database
+        run: |
+          docker compose -f ./dev/docker-compose.yaml up -d db
+          sleep 10
+
+      - name: Run Test
+        run: |
+          make test
+          git diff --exit-code
