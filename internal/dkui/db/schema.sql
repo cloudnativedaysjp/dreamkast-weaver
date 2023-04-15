@@ -53,7 +53,7 @@ CREATE TABLE `watch_events` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'dkui'
+-- Dumping routines for database 'test_dkui'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

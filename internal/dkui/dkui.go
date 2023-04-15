@@ -6,63 +6,12 @@ import (
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"errors"
-	"time"
 
 	"github.com/ServiceWeaver/weaver"
 )
-
-type DkUiService interface {
-	CreateWatchEvent(ctx context.Context, req CreateWatchEventRequest) error
-	StampOnline(ctx context.Context, req StampOnlineRequest) error
-	StampOnSite(ctx context.Context, req StampOnSiteRequest) error
-	GetStatus(ctx context.Context, req GetStatusRequest) (*StatusResponse, error)
-}
-
-type CreateWatchEventRequest struct {
-	weaver.AutoMarshal
-	ConfName  string
-	ProfileID int
-	TrackID   int
-	TalkID    int
-	SlotID    int
-}
-
-type StampOnlineRequest struct {
-	ConfName  string
-	ProfileID int
-	SlotID    int
-}
-
-type StampOnSiteRequest struct {
-	ConfName  string
-	ProfileID int
-	TrackID   int
-	TalkID    int
-	SlotID    int
-}
-
-type GetStatusRequest struct {
-	ConfName  string
-	ProfileID int
-}
-
-type StatusResponse struct {
-	WatchedTalks
-	StampChallenges []StampChallenge
-}
-
-type WatchedTalks struct {
-	WatchingTime  map[int32]int32
-	PrevTimestamp int
-}
-
-type StampChallenge struct {
-	SlotID    int
-	Condition string
-	UpdatedAt time.Time
-}
 
 type DkUiServiceImpl struct {
 	weaver.Implements[DkUiService]
@@ -96,7 +45,7 @@ func NewDkUiService(sh *sqlhelper.SqlHelper) DkUiService {
 	return &DkUiServiceImpl{sh: sh}
 }
 
-func (v *DkUiServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEventRequest) error {
+func (v *DkUiServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchEventInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -144,47 +93,58 @@ func (v *DkUiServiceImpl) CreateWatchEvent(ctx context.Context, req CreateWatchE
 	return nil
 }
 
-func (v *DkUiServiceImpl) GetStatus(ctx context.Context, req GetStatusRequest) (*StatusResponse, error) {
+func (v *DkUiServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*ViewingSlot, error) {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
+	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
 	errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(req.ProfileID))
+	profileID, err := value.NewProfileID(int32(_profileID))
 	errors.Join(mErr, err)
 
 	devents, err := r.ListWatchEvents(ctx, confName, profileID)
 	if err != nil {
 		return nil, err
 	}
+
+	var viewingSlots []*ViewingSlot
+	for k, v := range devents.ViewingSeconds() {
+		viewingSlots = append(viewingSlots, NewViewingSlot(model.ViewingSlot{
+			SlotID:      int(k.Value()),
+			ViewingTime: int(v),
+		}))
+	}
+
+	return viewingSlots, nil
+}
+
+func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*StampChallenge, error) {
+	r := repo.NewDkUiRepo(v.sh.DB())
+
+	var mErr, err error
+	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
+	errors.Join(mErr, err)
+	profileID, err := value.NewProfileID(int32(_profileID))
+	errors.Join(mErr, err)
+
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
 	if err != nil {
 		return nil, err
 	}
 
-	viewingSeconds := map[int32]int32{}
-	for k, v := range devents.ViewingSeconds() {
-		viewingSeconds[k.Value()] = v
-	}
-	var stamps []StampChallenge
+	var stamps []*StampChallenge
 	for _, dst := range dstamps.Items {
-		stamps = append(stamps, StampChallenge{
+		stamps = append(stamps, NewStampChallenge(model.StampChallenge{
 			SlotID:    int(dst.SlotID.Value()),
-			Condition: string(dst.Condition.Value()),
-			UpdatedAt: dst.UpdatedAt,
-		})
+			Condition: model.ChallengeCondition(dst.Condition.Value()),
+			UpdatedAt: int(dst.UpdatedAt.Unix()),
+		}))
 	}
 
-	return &StatusResponse{
-		WatchedTalks: WatchedTalks{
-			WatchingTime:  viewingSeconds,
-			PrevTimestamp: int(devents.LastCreated().Unix()),
-		},
-		StampChallenges: stamps,
-	}, nil
+	return stamps, nil
 }
 
-func (v *DkUiServiceImpl) StampOnline(ctx context.Context, req StampOnlineRequest) error {
+func (v *DkUiServiceImpl) StampOnline(ctx context.Context, req StampOnlineInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error
@@ -214,7 +174,7 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, req StampOnlineReques
 	return nil
 }
 
-func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, req StampOnSiteRequest) error {
+func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, req StampOnSiteInput) error {
 	r := repo.NewDkUiRepo(v.sh.DB())
 
 	var mErr, err error

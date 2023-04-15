@@ -5,6 +5,7 @@ import (
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"net/url"
 	"testing"
@@ -37,13 +38,25 @@ func teardown() {
 
 }
 
-func assertStampStatus(t *testing.T, st *dkui.StatusResponse, slotID int, status string) {
+func assertStampCondition(t *testing.T, stamps []*dkui.StampChallenge, slotID int, status string) {
 	t.Helper()
 	var found bool
-	for _, sc := range st.StampChallenges {
+	for _, sc := range stamps {
 		if sc.SlotID == slotID {
 			found = true
-			assert.Equal(t, status, sc.Condition)
+			assert.Equal(t, status, sc.Condition.String())
+		}
+	}
+	assert.True(t, found)
+}
+
+func assertViewingTime(t *testing.T, slots []*dkui.ViewingSlot, slotID int, vt int) {
+	t.Helper()
+	var found bool
+	for _, s := range slots {
+		if s.SlotID == slotID {
+			found = true
+			assert.Equal(t, vt, s.ViewingTime)
 		}
 	}
 	assert.True(t, found)
@@ -57,52 +70,59 @@ func TestDkUiServiceImpl_CreateWatchEvent(t *testing.T) {
 	svc := dkui.NewDkUiService(sh)
 	ctx := context.Background()
 
-	req := dkui.CreateWatchEventRequest{
+	req := dkui.NewCreateWatchEventInput(model.CreateWatchEventInput{
 		ConfName:  "cndf2023",
 		ProfileID: 1,
 		TrackID:   2,
 		TalkID:    3,
 		SlotID:    1000,
-	}
-	statReq := dkui.GetStatusRequest{
-		ConfName:  "cndf2023",
-		ProfileID: 1,
-	}
+	})
 
 	// first time
-	err := svc.CreateWatchEvent(ctx, req)
+	err := svc.CreateWatchEvent(ctx, *req)
 	assert.Nil(t, err)
 
-	resp, err := svc.GetStatus(ctx, statReq)
+	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
 	assert.Nil(t, err)
 
-	assert.Equal(t, int32(value.INTERVAL_SECONDS), resp.WatchedTalks.WatchingTime[1000])
-	assert.Len(t, resp.StampChallenges, 0)
+	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
+	assert.Nil(t, err)
+
+	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS)
+	assert.Len(t, stamps, 0)
 
 	// second time
-	err = svc.CreateWatchEvent(ctx, req)
+	err = svc.CreateWatchEvent(ctx, *req)
 	assert.Nil(t, err)
 
-	resp, err = svc.GetStatus(ctx, statReq)
+	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
 	assert.Nil(t, err)
 
-	assert.Equal(t, int32(value.INTERVAL_SECONDS*2), resp.WatchedTalks.WatchingTime[1000])
-	assertStampStatus(t, resp, 1000, "ready")
+	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
+	assert.Nil(t, err)
+
+	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
+	assert.Len(t, stamps, 1)
+	assertStampCondition(t, stamps, 1000, "ready")
 
 	// stamp
-	stampReq := dkui.StampOnlineRequest{
+	stampReq := dkui.NewStampOnlineInput(model.StampOnlineInput{
 		ConfName:  "cndf2023",
 		ProfileID: 1,
 		SlotID:    1000,
-	}
-	err = svc.StampOnline(ctx, stampReq)
+	})
+	err = svc.StampOnline(ctx, *stampReq)
 	assert.Nil(t, err)
 
-	resp, err = svc.GetStatus(ctx, statReq)
+	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
 	assert.Nil(t, err)
 
-	assert.Equal(t, int32(value.INTERVAL_SECONDS*2), resp.WatchedTalks.WatchingTime[1000])
-	assertStampStatus(t, resp, 1000, "stamped")
+	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
+	assert.Nil(t, err)
+
+	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
+	assert.Len(t, stamps, 1)
+	assertStampCondition(t, stamps, 1000, "stamped")
 }
 
 func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
@@ -110,26 +130,25 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 	svc := dkui.NewDkUiService(sh)
 	ctx := context.Background()
 
-	req := dkui.StampOnSiteRequest{
+	req := dkui.NewStampOnSiteInput(model.StampOnSiteInput{
 		ConfName:  "cndf2023",
 		ProfileID: 1,
 		TrackID:   2,
 		TalkID:    3,
 		SlotID:    1001,
-	}
-	statReq := dkui.GetStatusRequest{
-		ConfName:  "cndf2023",
-		ProfileID: 1,
-	}
+	})
 
-	err := svc.StampOnSite(ctx, req)
+	err := svc.StampOnSite(ctx, *req)
 	assert.Nil(t, err)
 
-	resp, err := svc.GetStatus(ctx, statReq)
+	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
 	assert.Nil(t, err)
 
-	assert.Equal(t, int32(value.TALK_SECONDS), resp.WatchedTalks.WatchingTime[1001])
-	assertStampStatus(t, resp, 1001, "stamped")
+	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
+	assert.Nil(t, err)
+
+	assertViewingTime(t, slots, 1001, value.TALK_SECONDS)
+	assertStampCondition(t, stamps, 1001, "stamped")
 }
 
 func mustNil(err error) {
