@@ -27,7 +27,7 @@ func main() {
 		Resolvers: graph.NewResolver(root),
 	}))
 
-	opts := weaver.ListenerOptions{LocalAddress: "localhost:" + port}
+	opts := weaver.ListenerOptions{LocalAddress: ":" + port}
 	lis, err := root.Listener("hello", opts)
 	if err != nil {
 		log.Fatal(err)
