@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 
 	"dreamkast-weaver/internal/cfp/repo"
 	"dreamkast-weaver/internal/graph/model"
@@ -53,7 +52,6 @@ func NewVoter(sh *sqlhelper.SqlHelper) Service {
 
 func (v *ServiceImpl) Init(ctx context.Context) error {
 	cfg := v.Config()
-	log.Printf("config: %#v\n", cfg)
 	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
 	if err != nil {
 		return err

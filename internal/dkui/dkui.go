@@ -9,7 +9,6 @@ import (
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"errors"
-	"log"
 
 	"github.com/ServiceWeaver/weaver"
 )
@@ -56,7 +55,6 @@ func NewDkUiService(sh *sqlhelper.SqlHelper) Service {
 
 func (s *ServiceImpl) Init(ctx context.Context) error {
 	cfg := s.Config()
-	log.Printf("config: %#v\n", cfg)
 	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
 	if err != nil {
 		return err
