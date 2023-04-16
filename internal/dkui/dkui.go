@@ -67,13 +67,15 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 }
 
 func (v *ServiceImpl) HandleError(msg string, err error) {
-	if !derrors.IsUserError(err) {
+	if err != nil && !derrors.IsUserError(err) {
 		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
 	}
 }
 
 func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) (err error) {
-	defer v.HandleError("create viewEvent", err)
+	defer func() {
+		v.HandleError("create viewEvent", err)
+	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
@@ -123,7 +125,9 @@ func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewE
 }
 
 func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) (viewingSlots []*model.ViewingSlot, err error) {
-	defer v.HandleError("get viewingSlots", err)
+	defer func() {
+		v.HandleError("get viewingSlots", err)
+	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
@@ -152,7 +156,9 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 }
 
 func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) (stamps []*model.StampChallenge, err error) {
-	defer v.HandleError("get stampChallenges", err)
+	defer func() {
+		v.HandleError("get stampChallenges", err)
+	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
@@ -182,7 +188,9 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfN
 }
 
 func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInput) (err error) {
-	defer v.HandleError("stamp from online", err)
+	defer func() {
+		v.HandleError("stamp from online", err)
+	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
@@ -213,7 +221,9 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInpu
 }
 
 func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInput) (err error) {
-	defer v.HandleError("stamp from onsite", err)
+	defer func() {
+		v.HandleError("stamp from onsite", err)
+	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 

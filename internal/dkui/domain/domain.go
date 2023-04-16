@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"dreamkast-weaver/internal/derrors"
@@ -19,6 +19,8 @@ var (
 	ErrTooShortRequest = derrors.NewUserError("too short requests")
 	ErrStampNotReady   = derrors.NewUserError("stamp is not ready")
 	ErrAlreadyStamped  = derrors.NewUserError("already stamped")
+
+	ErrMissingParams = errors.New("missing required params")
 )
 
 func init() {
@@ -50,7 +52,7 @@ func (DkUiDomain) CreateOnlineViewEvent(
 	stamps *StampChallenges,
 	events *ViewEvents) (*ViewEvent, error) {
 	if stamps == nil || events == nil {
-		return nil, stacktrace.With(fmt.Errorf("missing required params"))
+		return nil, stacktrace.With(ErrMissingParams)
 	}
 	ev := NewOnlineViewEvent(trackID, talkID, slotID)
 
@@ -67,7 +69,7 @@ func (DkUiDomain) StampOnline(
 	slotID value.SlotID,
 	stamps *StampChallenges) error {
 	if stamps == nil {
-		return stacktrace.With(fmt.Errorf("missing required params"))
+		return stacktrace.With(ErrMissingParams)
 	}
 
 	return stamps.StampIfReady(slotID)
@@ -79,7 +81,7 @@ func (DkUiDomain) StampOnSite(
 	slotID value.SlotID,
 	stamps *StampChallenges) (*ViewEvent, error) {
 	if stamps == nil {
-		return nil, stacktrace.With(fmt.Errorf("missing required params"))
+		return nil, stacktrace.With(ErrMissingParams)
 	}
 
 	if err := stamps.ForceStamp(slotID); err != nil {

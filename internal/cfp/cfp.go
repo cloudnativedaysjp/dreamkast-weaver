@@ -63,13 +63,15 @@ func (v *ServiceImpl) Init(ctx context.Context) error {
 }
 
 func (v *ServiceImpl) HandleError(msg string, err error) {
-	if !derrors.IsUserError(err) {
+	if err != nil && !derrors.IsUserError(err) {
 		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
 	}
 }
 
 func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (resp []*model.VoteCount, err error) {
-	defer v.HandleError("get voteCounts", err)
+	defer func() {
+		v.HandleError("get voteCounts", err)
+	}()
 
 	r := repo.New(v.sh.DB())
 
@@ -95,7 +97,9 @@ func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 }
 
 func (v *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err error) {
-	defer v.HandleError("vote", err)
+	defer func() {
+		v.HandleError("vote", err)
+	}()
 
 	r := repo.New(v.sh.DB())
 

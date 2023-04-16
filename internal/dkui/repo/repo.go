@@ -71,7 +71,7 @@ func (r *DkUiRepoImpl) ListViewEvents(ctx context.Context, confName value.ConfNa
 func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *domain.StampChallenges) error {
 	buf, err := stampChallengeConv.toDB(scs)
 	if err != nil {
-		return err
+		return stacktrace.With(err)
 	}
 
 	if err := r.q.UpsertTrailmapStamp(ctx, UpsertTrailmapStampParams{
