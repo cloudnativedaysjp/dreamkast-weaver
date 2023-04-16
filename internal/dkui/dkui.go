@@ -57,8 +57,11 @@ func NewService(sh *sqlhelper.SqlHelper) Service {
 }
 
 func (s *ServiceImpl) Init(ctx context.Context) error {
-	cfg := s.Config()
-	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
+	opt := s.Config().SqlOption()
+	if err := opt.Validate(); err != nil {
+		opt = sqlhelper.NewOptionFromEnv("dkui")
+	}
+	sh, err := sqlhelper.NewSqlHelper(opt)
 	if err != nil {
 		return err
 	}
@@ -66,18 +69,18 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (v *ServiceImpl) HandleError(msg string, err error) {
+func (s *ServiceImpl) HandleError(msg string, err error) {
 	if err != nil && !derrors.IsUserError(err) {
-		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+		s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
 	}
 }
 
-func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) (err error) {
+func (s *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) (err error) {
 	defer func() {
-		v.HandleError("create viewEvent", err)
+		s.HandleError("create viewEvent", err)
 	}()
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+	r := repo.NewDkUiRepo(s.sh.DB())
 
 	var e error
 	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
@@ -103,12 +106,12 @@ func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewE
 		return err
 	}
 
-	ev, err := v.domain.CreateOnlineViewEvent(trackID, talkID, slotID, dstamps, devents)
+	ev, err := s.domain.CreateOnlineViewEvent(trackID, talkID, slotID, dstamps, devents)
 	if err != nil {
 		return err
 	}
 
-	if err := v.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
+	if err := s.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		r := repo.NewDkUiRepo(tx)
 		if err := r.InsertViewEvents(ctx, confName, profileID, ev); err != nil {
 			return err
@@ -137,7 +140,7 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 	profileID, e := value.NewProfileID(int32(_profileID))
 	err = errors.Join(err, e)
 	if err != nil {
-		return nil, err
+		return nil, stacktrace.With(err)
 	}
 
 	devents, err := r.ListViewEvents(ctx, confName, profileID)

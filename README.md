@@ -30,7 +30,7 @@ Dreamkast-weaver is built on Service Weaver, so you can try multi-deploy mode us
 - single deploy
 
 ```bash
-DB_ENDPOINT=127.0.0.1 DB_PORT=13306 DB_USER=user DB_PASSWORD=password DB_NAME=dkui go run ./cmd/serve/main.go
+DB_ENDPOINT=127.0.0.1 DB_PORT=13306 DB_USER=user DB_PASSWORD=password go run ./cmd/serve/main.go
 weaver single status
 ```
 -  multi deploy

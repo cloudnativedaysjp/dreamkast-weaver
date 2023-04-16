@@ -52,28 +52,31 @@ func NewService(sh *sqlhelper.SqlHelper) Service {
 	return &ServiceImpl{sh: sh}
 }
 
-func (v *ServiceImpl) Init(ctx context.Context) error {
-	cfg := v.Config()
-	sh, err := sqlhelper.NewSqlHelper(cfg.SqlOption())
+func (s *ServiceImpl) Init(ctx context.Context) error {
+	opt := s.Config().SqlOption()
+	if err := opt.Validate(); err != nil {
+		opt = sqlhelper.NewOptionFromEnv("cfp")
+	}
+	sh, err := sqlhelper.NewSqlHelper(opt)
 	if err != nil {
 		return err
 	}
-	v.sh = sh
+	s.sh = sh
 	return nil
 }
 
-func (v *ServiceImpl) HandleError(msg string, err error) {
+func (s *ServiceImpl) HandleError(msg string, err error) {
 	if err != nil && !derrors.IsUserError(err) {
-		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+		s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
 	}
 }
 
-func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (resp []*model.VoteCount, err error) {
+func (s *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (resp []*model.VoteCount, err error) {
 	defer func() {
-		v.HandleError("get voteCounts", err)
+		s.HandleError("get voteCounts", err)
 	}()
 
-	r := repo.New(v.sh.DB())
+	r := repo.New(s.sh.DB())
 
 	votes, err := r.ListCfpVotes(ctx, confName.String())
 	if err != nil {
@@ -96,12 +99,12 @@ func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 	return resp, nil
 }
 
-func (v *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err error) {
+func (s *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err error) {
 	defer func() {
-		v.HandleError("vote", err)
+		s.HandleError("vote", err)
 	}()
 
-	r := repo.New(v.sh.DB())
+	r := repo.New(s.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
 		ConferenceName: input.ConfName.String(),

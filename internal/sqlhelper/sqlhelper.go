@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -16,7 +17,6 @@ const (
 	envDBPassword = "DB_PASSWORD"
 	envDBEndpoint = "DB_ENDPOINT"
 	envDBPort     = "DB_PORT"
-	envDBName     = "DB_NAME"
 )
 
 // SqlHelper provides sql helper methods like transaction and batch.
@@ -33,21 +33,31 @@ type SqlOption struct {
 	DbName   string
 }
 
-func NewOptionFromEnv() *SqlOption {
+func NewOptionFromEnv(dbName string) *SqlOption {
 	return &SqlOption{
 		User:     os.Getenv(envDBUser),
 		Password: os.Getenv(envDBPassword),
 		Endpoint: os.Getenv(envDBEndpoint),
 		Port:     os.Getenv(envDBPort),
-		DbName:   os.Getenv(envDBName),
+		DbName:   dbName,
 	}
+}
+
+func (o *SqlOption) Validate() error {
+	return validation.ValidateStruct(o,
+		validation.Field(&o.User, validation.Required),
+		validation.Field(&o.Password, validation.Required),
+		validation.Field(&o.Endpoint, validation.Required),
+		validation.Field(&o.Port, validation.Required),
+		validation.Field(&o.DbName, validation.Required),
+	)
 }
 
 // NewSqlHelper creates and sets up Database connection and returns it.
 func NewSqlHelper(opt *SqlOption) (*SqlHelper, error) {
 	// defaulting to env vars
-	if opt == nil || opt.Endpoint == "" {
-		opt = NewOptionFromEnv()
+	if err := opt.Validate(); err != nil {
+		return nil, fmt.Errorf("invalid sql option: %w", err)
 	}
 
 	info := fmt.Sprintf(
