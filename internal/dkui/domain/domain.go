@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/stacktrace"
 )
@@ -12,6 +13,12 @@ var (
 	viewEventGuardSeconds = value.GUARD_SECONDS
 	stampReadySeconds     = value.STAMP_READY_SECONDS
 	jst                   *time.Location
+)
+
+var (
+	ErrTooShortRequest = derrors.NewUserError("too short requests")
+	ErrStampNotReady   = derrors.NewUserError("stamp is not ready")
+	ErrAlreadyStamped  = derrors.NewUserError("already stamped")
 )
 
 func init() {
@@ -45,12 +52,11 @@ func (DkUiDomain) CreateOnlineViewEvent(
 	if stamps == nil || events == nil {
 		return nil, stacktrace.With(fmt.Errorf("missing required params"))
 	}
-
 	ev := NewOnlineViewEvent(trackID, talkID, slotID)
 
 	lastCreatedAt := events.LastCreated()
 	if ev.CreatedAt.Sub(lastCreatedAt) < time.Duration(viewEventGuardSeconds)*time.Second {
-		return nil, fmt.Errorf("too short requests")
+		return nil, ErrTooShortRequest
 	}
 
 	stamps.MakeReadyIfFulfilled(slotID, events.AddImmutable(*ev))
@@ -119,7 +125,7 @@ func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *ViewE
 func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
 	sc := scs.Get(slotID)
 	if sc == nil || sc.Condition != value.StampReady {
-		return fmt.Errorf("stamp is not ready: slotID=%v", slotID)
+		return ErrStampNotReady
 	}
 
 	for i, sc := range scs.Items {
@@ -140,7 +146,7 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 		scs.setReadyChallenge(slotID)
 	}
 	if sc != nil && sc.Condition == value.StampStamped {
-		return fmt.Errorf("already stamped: slotID=%v", slotID)
+		return ErrAlreadyStamped
 	}
 
 	for i, sc := range scs.Items {

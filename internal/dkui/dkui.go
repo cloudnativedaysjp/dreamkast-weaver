@@ -5,11 +5,13 @@ import (
 	"database/sql"
 	"errors"
 
+	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
+	"dreamkast-weaver/internal/stacktrace"
 
 	"github.com/ServiceWeaver/weaver"
 )
@@ -50,7 +52,7 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewDkUiService(sh *sqlhelper.SqlHelper) Service {
+func NewService(sh *sqlhelper.SqlHelper) Service {
 	return &ServiceImpl{sh: sh}
 }
 
@@ -64,22 +66,30 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) error {
+func (v *ServiceImpl) HandleError(msg string, err error) {
+	if !derrors.IsUserError(err) {
+		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+	}
+}
+
+func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) (err error) {
+	defer v.HandleError("create viewEvent", err)
+
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	mErr = errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	mErr = errors.Join(mErr, err)
-	trackID, err := value.NewTrackID(int32(req.TrackID))
-	mErr = errors.Join(mErr, err)
-	talkID, err := value.NewTalkID(int32(req.TalkID))
-	mErr = errors.Join(mErr, err)
-	slotID, err := value.NewSlotID(int32(req.SlotID))
-	mErr = errors.Join(mErr, err)
-	if mErr != nil {
-		return mErr
+	var e error
+	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
+	err = errors.Join(err, e)
+	profileID, e := value.NewProfileID(int32(req.ProfileID))
+	err = errors.Join(err, e)
+	trackID, e := value.NewTrackID(int32(req.TrackID))
+	err = errors.Join(err, e)
+	talkID, e := value.NewTalkID(int32(req.TalkID))
+	err = errors.Join(err, e)
+	slotID, e := value.NewSlotID(int32(req.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return err
 	}
 
 	devents, err := r.ListViewEvents(ctx, confName, profileID)
@@ -112,16 +122,18 @@ func (v *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewE
 	return nil
 }
 
-func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) ([]*model.ViewingSlot, error) {
+func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) (viewingSlots []*model.ViewingSlot, err error) {
+	defer v.HandleError("get viewingSlots", err)
+
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
-	mErr = errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(_profileID))
-	mErr = errors.Join(mErr, err)
-	if mErr != nil {
-		return nil, mErr
+	var e error
+	confName, e := value.NewConfName(value.ConferenceKind(_confName.String()))
+	err = errors.Join(err, e)
+	profileID, e := value.NewProfileID(int32(_profileID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
 	}
 
 	devents, err := r.ListViewEvents(ctx, confName, profileID)
@@ -129,7 +141,6 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 		return nil, err
 	}
 
-	var viewingSlots []*model.ViewingSlot
 	for k, v := range devents.ViewingSeconds() {
 		viewingSlots = append(viewingSlots, &model.ViewingSlot{
 			SlotID:      int(k.Value()),
@@ -140,16 +151,18 @@ func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName
 	return viewingSlots, nil
 }
 
-func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) ([]*model.StampChallenge, error) {
+func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) (stamps []*model.StampChallenge, err error) {
+	defer v.HandleError("get stampChallenges", err)
+
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(_confName.String()))
-	mErr = errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(_profileID))
-	mErr = errors.Join(mErr, err)
-	if mErr != nil {
-		return nil, mErr
+	var e error
+	confName, e := value.NewConfName(value.ConferenceKind(_confName.String()))
+	err = errors.Join(err, e)
+	profileID, e := value.NewProfileID(int32(_profileID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
 	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
@@ -157,7 +170,6 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfN
 		return nil, err
 	}
 
-	var stamps []*model.StampChallenge
 	for _, dst := range dstamps.Items {
 		stamps = append(stamps, &model.StampChallenge{
 			SlotID:    int(dst.SlotID.Value()),
@@ -169,18 +181,19 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfN
 	return stamps, nil
 }
 
-func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInput) error {
+func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInput) (err error) {
+	defer v.HandleError("stamp from online", err)
+
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	mErr = errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	mErr = errors.Join(mErr, err)
-	slotID, err := value.NewSlotID(int32(req.SlotID))
-	mErr = errors.Join(mErr, err)
-	if mErr != nil {
-		return mErr
+	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
+	err = errors.Join(err, e)
+	profileID, e := value.NewProfileID(int32(req.ProfileID))
+	err = errors.Join(err, e)
+	slotID, e := value.NewSlotID(int32(req.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return err
 	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
@@ -199,22 +212,23 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInpu
 	return nil
 }
 
-func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInput) error {
+func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInput) (err error) {
+	defer v.HandleError("stamp from onsite", err)
+
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var mErr, err error
-	confName, err := value.NewConfName(value.ConferenceKind(req.ConfName))
-	mErr = errors.Join(mErr, err)
-	profileID, err := value.NewProfileID(int32(req.ProfileID))
-	mErr = errors.Join(mErr, err)
-	trackID, err := value.NewTrackID(int32(req.TrackID))
-	mErr = errors.Join(mErr, err)
-	talkID, err := value.NewTalkID(int32(req.TalkID))
-	mErr = errors.Join(mErr, err)
-	slotID, err := value.NewSlotID(int32(req.SlotID))
-	mErr = errors.Join(mErr, err)
-	if mErr != nil {
-		return mErr
+	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
+	err = errors.Join(err, e)
+	profileID, e := value.NewProfileID(int32(req.ProfileID))
+	err = errors.Join(err, e)
+	trackID, e := value.NewTrackID(int32(req.TrackID))
+	err = errors.Join(err, e)
+	talkID, e := value.NewTalkID(int32(req.TalkID))
+	err = errors.Join(err, e)
+	slotID, e := value.NewSlotID(int32(req.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return err
 	}
 
 	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)

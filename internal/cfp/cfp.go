@@ -6,8 +6,11 @@ import (
 	"fmt"
 
 	"dreamkast-weaver/internal/cfp/repo"
+	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
+	"dreamkast-weaver/internal/stacktrace"
+
 	"github.com/ServiceWeaver/weaver"
 )
 
@@ -45,7 +48,7 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewVoter(sh *sqlhelper.SqlHelper) Service {
+func NewService(sh *sqlhelper.SqlHelper) Service {
 	return &ServiceImpl{sh: sh}
 }
 
@@ -59,7 +62,15 @@ func (v *ServiceImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
+func (v *ServiceImpl) HandleError(msg string, err error) {
+	if !derrors.IsUserError(err) {
+		v.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+	}
+}
+
+func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (resp []*model.VoteCount, err error) {
+	defer v.HandleError("get voteCounts", err)
+
 	r := repo.New(v.sh.DB())
 
 	votes, err := r.ListCfpVotes(ctx, confName.String())
@@ -73,7 +84,6 @@ func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 		counts[vote.TalkID]++
 	}
 
-	var resp []*model.VoteCount
 	for talkID, count := range counts {
 		resp = append(resp, &model.VoteCount{
 			TalkID: int(talkID),
@@ -84,7 +94,9 @@ func (v *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 	return resp, nil
 }
 
-func (v *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) error {
+func (v *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err error) {
+	defer v.HandleError("vote", err)
+
 	r := repo.New(v.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
