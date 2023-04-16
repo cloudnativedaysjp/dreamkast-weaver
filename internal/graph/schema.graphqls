@@ -3,9 +3,9 @@
 # https://gqlgen.com/getting-started/
 
 enum ConfName {
-  CICD2023
-  CNDF2023
-  CNDT2023
+  cicd2023
+  cndf2023
+  cndt2023
 }
 
 type Query {

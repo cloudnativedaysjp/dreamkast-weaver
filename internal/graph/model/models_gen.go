@@ -107,9 +107,9 @@ func (e ChallengeCondition) MarshalGQL(w io.Writer) {
 type ConfName string
 
 const (
-	ConfNameCicd2023 ConfName = "CICD2023"
-	ConfNameCndf2023 ConfName = "CNDF2023"
-	ConfNameCndt2023 ConfName = "CNDT2023"
+	ConfNameCicd2023 ConfName = "cicd2023"
+	ConfNameCndf2023 ConfName = "cndf2023"
+	ConfNameCndt2023 ConfName = "cndt2023"
 )
 
 var AllConfName = []ConfName{
