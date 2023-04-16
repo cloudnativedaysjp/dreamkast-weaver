@@ -18,6 +18,10 @@ build:
 generate:
 	go generate -x ./...
 
+.PHONY: lint
+lint:
+	golangci-lint run -v --fix
+
 .PHONY: multi-deploy
 multi-deploy:
 	weaver multi deploy weaver.toml
