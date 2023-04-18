@@ -122,7 +122,7 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 		if err != nil {
 			return nil, err
 		}
-		cond, err := value.NewStampCondtion(value.StampConditionKind(sc.Condition))
+		cond, err := value.NewStampCondition(value.StampConditionKind(sc.Condition))
 		if err != nil {
 			return nil, err
 		}
@@ -174,7 +174,7 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 		if err != nil {
 			return nil, err
 		}
-		viewingSeconds, err := value.NewViewingPeriod(v.ViewingSeconds)
+		viewingSeconds, err := value.NewViewingSeconds(v.ViewingSeconds)
 		if err != nil {
 			return nil, err
 		}

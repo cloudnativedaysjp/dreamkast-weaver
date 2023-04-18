@@ -1,17 +1,29 @@
 package value
 
 import (
+	"fmt"
+
+	"github.com/ServiceWeaver/weaver"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
 // ConfName represents a conference name.
 type ConfName struct {
-	valueObject[ConferenceKind]
+	weaver.AutoMarshal
+	value ConferenceKind
 }
 
 func NewConfName(v ConferenceKind) (ConfName, error) {
-	o := ConfName{wrap(v)}
+	o := ConfName{value: v}
 	return o, o.Validate()
+}
+
+func (v *ConfName) Value() ConferenceKind {
+	return v.value
+}
+
+func (v *ConfName) String() string {
+	return fmt.Sprintf("%v", v.value)
 }
 
 func (v *ConfName) Validate() error {
@@ -40,48 +52,113 @@ func init() {
 
 // ProfileID represents an ID of user profile.
 type ProfileID struct {
-	valueObject[int32]
+	weaver.AutoMarshal
+	value int32
 }
 
 func NewProfileID(v int32) (ProfileID, error) {
-	return ProfileID{wrap(v)}, nil
+	o := ProfileID{value: v}
+	return o, o.Validate()
+}
+
+func (v *ProfileID) Value() int32 {
+	return v.value
+}
+
+func (v *ProfileID) String() string {
+	return fmt.Sprintf("%v", v.value)
+}
+
+func (v *ProfileID) Validate() error {
+	return nil
 }
 
 // TrackID represents an ID of talk track.
 type TrackID struct {
-	valueObject[int32]
+	weaver.AutoMarshal
+	value int32
 }
 
 func NewTrackID(v int32) (TrackID, error) {
-	return TrackID{wrap(v)}, nil
+	o := TrackID{value: v}
+	return o, o.Validate()
 }
 
-// TrackID represents an ID of talk.
+func (v *TrackID) Value() int32 {
+	return v.value
+}
+
+func (v *TrackID) String() string {
+	return fmt.Sprintf("%v", v.value)
+}
+
+func (v *TrackID) Validate() error {
+	return nil
+}
+
+// TalkID represents an ID of talk.
 type TalkID struct {
-	valueObject[int32]
+	weaver.AutoMarshal
+	value int32
 }
 
 func NewTalkID(v int32) (TalkID, error) {
-	return TalkID{wrap(v)}, nil
+	o := TalkID{value: v}
+	return o, o.Validate()
+}
+
+func (v *TalkID) Value() int32 {
+	return v.value
+}
+
+func (v *TalkID) String() string {
+	return fmt.Sprintf("%v", v.value)
+}
+
+func (v *TalkID) Validate() error {
+	return nil
 }
 
 // SlotID represents an ID of talk slot.
 type SlotID struct {
-	valueObject[int32]
+	weaver.AutoMarshal
+	value int32
 }
 
 func NewSlotID(v int32) (SlotID, error) {
-	return SlotID{wrap(v)}, nil
+	o := SlotID{value: v}
+	return o, o.Validate()
+}
+
+func (v *SlotID) Value() int32 {
+	return v.value
+}
+
+func (v *SlotID) String() string {
+	return fmt.Sprintf("%v", v.value)
+}
+
+func (v *SlotID) Validate() error {
+	return nil
 }
 
 // StampCondition represents a condition of the stamp of talk slot.
 type StampCondition struct {
-	valueObject[StampConditionKind]
+	weaver.AutoMarshal
+	value StampConditionKind
 }
 
-func NewStampCondtion(v StampConditionKind) (StampCondition, error) {
-	o := StampCondition{wrap(v)}
+func NewStampCondition(v StampConditionKind) (StampCondition, error) {
+	o := StampCondition{value: v}
 	return o, o.Validate()
+}
+
+func (v *StampCondition) Value() StampConditionKind {
+	return v.value
+}
+
+func (v *StampCondition) String() string {
+	return fmt.Sprintf("%v", v.value)
 }
 
 func (v *StampCondition) Validate() error {
@@ -103,19 +180,28 @@ var (
 )
 
 func init() {
-	StampReady, _ = NewStampCondtion(stampReady)
-	StampStamped, _ = NewStampCondtion(stampStamped)
-	StampSkipped, _ = NewStampCondtion(stampSkipped)
+	StampReady, _ = NewStampCondition(stampReady)
+	StampStamped, _ = NewStampCondition(stampStamped)
+	StampSkipped, _ = NewStampCondition(stampSkipped)
 }
 
 // ViewingSeconds represents a talk viewing seconds.
 type ViewingSeconds struct {
-	valueObject[int32]
+	weaver.AutoMarshal
+	value int32
 }
 
-func NewViewingPeriod(v int32) (ViewingSeconds, error) {
-	o := ViewingSeconds{wrap(v)}
+func NewViewingSeconds(v int32) (ViewingSeconds, error) {
+	o := ViewingSeconds{value: v}
 	return o, o.Validate()
+}
+
+func (v *ViewingSeconds) Value() int32 {
+	return v.value
+}
+
+func (v *ViewingSeconds) String() string {
+	return fmt.Sprintf("%v", v.value)
 }
 
 func (v *ViewingSeconds) Validate() error {
@@ -137,6 +223,6 @@ var (
 )
 
 func init() {
-	ViewingSeconds120, _ = NewViewingPeriod(120)
-	ViewingSeconds2400, _ = NewViewingPeriod(2400)
+	ViewingSeconds120, _ = NewViewingSeconds(120)
+	ViewingSeconds2400, _ = NewViewingSeconds(2400)
 }
