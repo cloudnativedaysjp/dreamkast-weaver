@@ -77,8 +77,12 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 }
 
 func (s *ServiceImpl) HandleError(msg string, err error) {
-	if err != nil && !derrors.IsUserError(err) {
-		s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+	if err != nil {
+		if derrors.IsUserError(err) {
+			s.Logger().With("errorType", "user-side").Info(msg, err)
+		} else {
+			s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+		}
 	}
 }
 
