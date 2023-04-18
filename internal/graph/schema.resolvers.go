@@ -6,7 +6,10 @@ package graph
 
 import (
 	"context"
+	"dreamkast-weaver/internal/dkui"
+	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
+	"errors"
 )
 
 // Vote is the resolver for the vote field.
@@ -35,7 +38,26 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 
 // CreateViewEvent is the resolver for the createViewEvent field.
 func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error) {
-	if err := r.DkUiService.CreateViewEvent(ctx, input); err != nil {
+
+	var e, err error
+	profile := dkui.Profile{}
+	profile.ConfName, e = value.NewConfName(value.ConferenceKind(input.ConfName))
+	err = errors.Join(err, e)
+	profile.ID, e = value.NewProfileID(int32(input.ProfileID))
+	err = errors.Join(err, e)
+
+	req := dkui.CreateViewEventRequest{}
+	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
+	err = errors.Join(err, e)
+	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
+	err = errors.Join(err, e)
+	req.SlotID, e = value.NewSlotID(int32(input.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.DkUiService.CreateViewEvent(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil

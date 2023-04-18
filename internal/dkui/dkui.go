@@ -17,11 +17,24 @@ import (
 )
 
 type Service interface {
-	CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) error
+	CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) error
 	StampOnline(ctx context.Context, req model.StampOnlineInput) error
 	StampOnSite(ctx context.Context, req model.StampOnSiteInput) error
 	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
 	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
+}
+
+type Profile struct {
+	weaver.AutoMarshal
+	ID       value.ProfileID
+	ConfName value.ConfName
+}
+
+type CreateViewEventRequest struct {
+	weaver.AutoMarshal
+	TrackID value.TrackID
+	TalkID  value.TalkID
+	SlotID  value.SlotID
 }
 
 type ServiceImpl struct {
@@ -75,48 +88,33 @@ func (s *ServiceImpl) HandleError(msg string, err error) {
 	}
 }
 
-func (s *ServiceImpl) CreateViewEvent(ctx context.Context, req model.CreateViewEventInput) (err error) {
+func (s *ServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
 	defer func() {
 		s.HandleError("create viewEvent", err)
 	}()
 
 	r := repo.NewDkUiRepo(s.sh.DB())
 
-	var e error
-	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
-	err = errors.Join(err, e)
-	profileID, e := value.NewProfileID(int32(req.ProfileID))
-	err = errors.Join(err, e)
-	trackID, e := value.NewTrackID(int32(req.TrackID))
-	err = errors.Join(err, e)
-	talkID, e := value.NewTalkID(int32(req.TalkID))
-	err = errors.Join(err, e)
-	slotID, e := value.NewSlotID(int32(req.SlotID))
-	err = errors.Join(err, e)
+	devents, err := r.ListViewEvents(ctx, profile.ConfName, profile.ID)
+	if err != nil {
+		return err
+	}
+	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
 
-	devents, err := r.ListViewEvents(ctx, confName, profileID)
-	if err != nil {
-		return err
-	}
-	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
-	if err != nil {
-		return err
-	}
-
-	ev, err := s.domain.CreateOnlineViewEvent(trackID, talkID, slotID, dstamps, devents)
+	ev, err := s.domain.CreateOnlineViewEvent(req.TrackID, req.TalkID, req.SlotID, dstamps, devents)
 	if err != nil {
 		return err
 	}
 
 	if err := s.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertViewEvents(ctx, confName, profileID, ev); err != nil {
+		if err := r.InsertViewEvents(ctx, profile.ConfName, profile.ID, ev); err != nil {
 			return err
 		}
-		if err := r.UpsertTrailMapStamps(ctx, confName, profileID, dstamps); err != nil {
+		if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 			return err
 		}
 		return nil

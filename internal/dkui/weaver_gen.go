@@ -4,6 +4,7 @@ package dkui
 import (
 	"context"
 	"dreamkast-weaver/internal/graph/model"
+	"fmt"
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -36,7 +37,7 @@ type service_local_stub struct {
 	tracer trace.Tracer
 }
 
-func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 model.CreateViewEventInput) (err error) {
+func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 CreateViewEventRequest) (err error) {
 	span := trace.SpanFromContext(ctx)
 	if span.SpanContext().IsValid() {
 		// Create a child span for this method.
@@ -50,7 +51,7 @@ func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 model.Create
 		}()
 	}
 
-	return s.impl.CreateViewEvent(ctx, a0)
+	return s.impl.CreateViewEvent(ctx, a0, a1)
 }
 
 func (s service_local_stub) StampOnline(ctx context.Context, a0 model.StampOnlineInput) (err error) {
@@ -132,7 +133,7 @@ type service_client_stub struct {
 	stampChallengesMetrics *codegen.MethodMetrics
 }
 
-func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 model.CreateViewEventInput) (err error) {
+func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 CreateViewEventRequest) (err error) {
 	// Update metrics.
 	start := time.Now()
 	s.createViewEventMetrics.Count.Add(1)
@@ -163,6 +164,7 @@ func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 model.Creat
 	// Encode arguments.
 	enc := codegen.NewEncoder()
 	(a0).WeaverMarshal(enc)
+	(a1).WeaverMarshal(enc)
 	var shardKey uint64
 
 	// Call the remote method.
@@ -411,13 +413,15 @@ func (s service_server_stub) createViewEvent(ctx context.Context, args []byte) (
 
 	// Decode arguments.
 	dec := codegen.NewDecoder(args)
-	var a0 model.CreateViewEventInput
+	var a0 Profile
 	(&a0).WeaverUnmarshal(dec)
+	var a1 CreateViewEventRequest
+	(&a1).WeaverUnmarshal(dec)
 
 	// TODO(rgrandl): The deferred function above will recover from panics in the
 	// user code: fix this.
 	// Call the local method.
-	appErr := s.impl.CreateViewEvent(ctx, a0)
+	appErr := s.impl.CreateViewEvent(ctx, a0, a1)
 
 	// Encode the results.
 	enc := codegen.NewEncoder()
@@ -525,6 +529,46 @@ func (s service_server_stub) stampChallenges(ctx context.Context, args []byte) (
 	serviceweaver_enc_slice_ptr_StampChallenge_30144bfb(enc, r0)
 	enc.Error(appErr)
 	return enc.Data(), nil
+}
+
+// AutoMarshal implementations.
+
+var _ codegen.AutoMarshal = &CreateViewEventRequest{}
+
+func (x *CreateViewEventRequest) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("CreateViewEventRequest.WeaverMarshal: nil receiver"))
+	}
+	(x.TrackID).WeaverMarshal(enc)
+	(x.TalkID).WeaverMarshal(enc)
+	(x.SlotID).WeaverMarshal(enc)
+}
+
+func (x *CreateViewEventRequest) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("CreateViewEventRequest.WeaverUnmarshal: nil receiver"))
+	}
+	(&x.TrackID).WeaverUnmarshal(dec)
+	(&x.TalkID).WeaverUnmarshal(dec)
+	(&x.SlotID).WeaverUnmarshal(dec)
+}
+
+var _ codegen.AutoMarshal = &Profile{}
+
+func (x *Profile) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("Profile.WeaverMarshal: nil receiver"))
+	}
+	(x.ID).WeaverMarshal(enc)
+	(x.ConfName).WeaverMarshal(enc)
+}
+
+func (x *Profile) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("Profile.WeaverUnmarshal: nil receiver"))
+	}
+	(&x.ID).WeaverUnmarshal(dec)
+	(&x.ConfName).WeaverUnmarshal(dec)
 }
 
 // Encoding/decoding implementations.

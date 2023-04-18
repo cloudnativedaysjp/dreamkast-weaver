@@ -57,16 +57,18 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	svc, err := weaver.Get[dkui.Service](root)
 	mustNil(err)
 
-	req := model.CreateViewEventInput{
-		ConfName:  "cndf2023",
-		ProfileID: 1,
-		TrackID:   2,
-		TalkID:    3,
-		SlotID:    1000,
+	profile := dkui.Profile{
+		ID:       newProfileID(1),
+		ConfName: newConfName("cndf2023"),
+	}
+	req := dkui.CreateViewEventRequest{
+		TrackID: newTrackID(2),
+		TalkID:  newTalkID(3),
+		SlotID:  newSlotID(1000),
 	}
 
 	// first time
-	err = svc.CreateViewEvent(ctx, req)
+	err = svc.CreateViewEvent(ctx, profile, req)
 	assert.NoError(t, err)
 
 	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
@@ -79,7 +81,7 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	assert.Len(t, stamps, 0)
 
 	// second time
-	err = svc.CreateViewEvent(ctx, req)
+	err = svc.CreateViewEvent(ctx, profile, req)
 	assert.NoError(t, err)
 
 	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
@@ -170,4 +172,34 @@ func assertViewingTime(t *testing.T, slots []*model.ViewingSlot, slotID int, vt 
 		}
 	}
 	assert.True(t, found)
+}
+
+func newConfName(v value.ConferenceKind) value.ConfName {
+	o, err := value.NewConfName(v)
+	mustNil(err)
+	return o
+}
+
+func newProfileID(v int32) value.ProfileID {
+	o, err := value.NewProfileID(v)
+	mustNil(err)
+	return o
+}
+
+func newTrackID(v int32) value.TrackID {
+	o, err := value.NewTrackID(v)
+	mustNil(err)
+	return o
+}
+
+func newTalkID(v int32) value.TalkID {
+	o, err := value.NewTalkID(v)
+	mustNil(err)
+	return o
+}
+
+func newSlotID(v int32) value.SlotID {
+	o, err := value.NewSlotID(v)
+	mustNil(err)
+	return o
 }
