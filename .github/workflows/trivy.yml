@@ -1,0 +1,34 @@
+name: trivy code scan
+
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+    branches:
+      - main
+  pull_request:
+    paths-ignore:
+      - '.github/**'
+      - '!.github/workflows/trivy.yml'
+      - '**.md'
+    branches:
+      - main
+
+jobs:
+  trivy-scan:
+    name: Code scan using trivy
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Trivy vulnerability scanner in fs mode
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'

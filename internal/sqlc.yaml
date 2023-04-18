@@ -7,3 +7,10 @@ sql:
       go:
         package: "repo"
         out: "cfp/repo"
+  - engine: "mysql"
+    queries: "dkui/db/query.sql"
+    schema: "dkui/db/schema.sql"
+    gen:
+      go:
+        package: "repo"
+        out: "dkui/repo"

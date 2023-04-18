@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"dreamkast-weaver/internal/graph"
-	"dreamkast-weaver/internal/sqlhelper"
 	"log"
 	"net/http"
 	"os"
+	"time"
+
+	"dreamkast-weaver/internal/graph"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -24,15 +25,12 @@ func main() {
 	// Initialize the Service Weaver application.
 	root := weaver.Init(context.Background())
 
-	// TODO use non-test sql server and resolve config from env vars
-	sqlh := sqlhelper.NewTestSqlHelper()
-
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: graph.NewResolver(sqlh, root),
+		Resolvers: graph.NewResolver(root),
 	}))
 
-	opts := weaver.ListenerOptions{LocalAddress: "localhost:" + port}
-	lis, err := root.Listener("hello", opts)
+	opts := weaver.ListenerOptions{LocalAddress: ":" + port}
+	lis, err := root.Listener("dreamkast-weaver", opts)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,5 +40,8 @@ func main() {
 	http.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.Serve(lis, nil))
+	s := http.Server{
+		ReadHeaderTimeout: 5 * time.Second,
+	}
+	log.Fatal(s.Serve(lis))
 }

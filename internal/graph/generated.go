@@ -46,11 +46,27 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	Mutation struct {
-		Vote func(childComplexity int, input model.NewVote) int
+		CreateViewEvent func(childComplexity int, input model.CreateViewEventInput) int
+		StampOnSite     func(childComplexity int, input model.StampOnSiteInput) int
+		StampOnline     func(childComplexity int, input model.StampOnlineInput) int
+		Vote            func(childComplexity int, input model.VoteInput) int
 	}
 
 	Query struct {
-		VoteCounts func(childComplexity int, confName *string) int
+		StampChallenges func(childComplexity int, confName model.ConfName, profileID int) int
+		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int) int
+		VoteCounts      func(childComplexity int, confName model.ConfName) int
+	}
+
+	StampChallenge struct {
+		Condition func(childComplexity int) int
+		SlotID    func(childComplexity int) int
+		UpdatedAt func(childComplexity int) int
+	}
+
+	ViewingSlot struct {
+		SlotID      func(childComplexity int) int
+		ViewingTime func(childComplexity int) int
 	}
 
 	VoteCount struct {
@@ -60,10 +76,15 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Vote(ctx context.Context, input model.NewVote) (*bool, error)
+	Vote(ctx context.Context, input model.VoteInput) (*bool, error)
+	StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error)
+	StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error)
+	CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error)
 }
 type QueryResolver interface {
-	VoteCounts(ctx context.Context, confName *string) ([]*model.VoteCount, error)
+	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
+	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
+	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
 }
 
 type executableSchema struct {
@@ -81,6 +102,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "Mutation.createViewEvent":
+		if e.complexity.Mutation.CreateViewEvent == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createViewEvent_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateViewEvent(childComplexity, args["input"].(model.CreateViewEventInput)), true
+
+	case "Mutation.stampOnSite":
+		if e.complexity.Mutation.StampOnSite == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_stampOnSite_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StampOnSite(childComplexity, args["input"].(model.StampOnSiteInput)), true
+
+	case "Mutation.stampOnline":
+		if e.complexity.Mutation.StampOnline == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_stampOnline_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.StampOnline(childComplexity, args["input"].(model.StampOnlineInput)), true
+
 	case "Mutation.vote":
 		if e.complexity.Mutation.Vote == nil {
 			break
@@ -91,7 +148,31 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.Vote(childComplexity, args["input"].(model.NewVote)), true
+		return e.complexity.Mutation.Vote(childComplexity, args["input"].(model.VoteInput)), true
+
+	case "Query.stampChallenges":
+		if e.complexity.Query.StampChallenges == nil {
+			break
+		}
+
+		args, err := ec.field_Query_stampChallenges_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.StampChallenges(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
+
+	case "Query.viewingSlots":
+		if e.complexity.Query.ViewingSlots == nil {
+			break
+		}
+
+		args, err := ec.field_Query_viewingSlots_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.ViewingSlots(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
 
 	case "Query.voteCounts":
 		if e.complexity.Query.VoteCounts == nil {
@@ -103,7 +184,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(*string)), true
+		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(model.ConfName)), true
+
+	case "StampChallenge.condition":
+		if e.complexity.StampChallenge.Condition == nil {
+			break
+		}
+
+		return e.complexity.StampChallenge.Condition(childComplexity), true
+
+	case "StampChallenge.slotID":
+		if e.complexity.StampChallenge.SlotID == nil {
+			break
+		}
+
+		return e.complexity.StampChallenge.SlotID(childComplexity), true
+
+	case "StampChallenge.updatedAt":
+		if e.complexity.StampChallenge.UpdatedAt == nil {
+			break
+		}
+
+		return e.complexity.StampChallenge.UpdatedAt(childComplexity), true
+
+	case "ViewingSlot.slotId":
+		if e.complexity.ViewingSlot.SlotID == nil {
+			break
+		}
+
+		return e.complexity.ViewingSlot.SlotID(childComplexity), true
+
+	case "ViewingSlot.viewingTime":
+		if e.complexity.ViewingSlot.ViewingTime == nil {
+			break
+		}
+
+		return e.complexity.ViewingSlot.ViewingTime(childComplexity), true
 
 	case "VoteCount.count":
 		if e.complexity.VoteCount.Count == nil {
@@ -127,7 +243,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputNewVote,
+		ec.unmarshalInputCreateViewEventInput,
+		ec.unmarshalInputStampOnSiteInput,
+		ec.unmarshalInputStampOnlineInput,
+		ec.unmarshalInputVoteInput,
 	)
 	first := true
 
@@ -207,13 +326,58 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // region    ***************************** args.gotpl *****************************
 
+func (ec *executionContext) field_Mutation_createViewEvent_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.CreateViewEventInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateViewEventInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_stampOnSite_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.StampOnSiteInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNStampOnSiteInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampOnSiteInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_stampOnline_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.StampOnlineInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNStampOnlineInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampOnlineInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_vote_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.NewVote
+	var arg0 model.VoteInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewVote2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐNewVote(ctx, tmp)
+		arg0, err = ec.unmarshalNVoteInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐVoteInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -237,13 +401,61 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
+func (ec *executionContext) field_Query_stampChallenges_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ConfName
+	if tmp, ok := rawArgs["confName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
+		arg0, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["confName"] = arg0
+	var arg1 int
+	if tmp, ok := rawArgs["profileID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["profileID"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_viewingSlots_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ConfName
+	if tmp, ok := rawArgs["confName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
+		arg0, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["confName"] = arg0
+	var arg1 int
+	if tmp, ok := rawArgs["profileID"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["profileID"] = arg1
+	return args, nil
+}
+
 func (ec *executionContext) field_Query_voteCounts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 *string
+	var arg0 model.ConfName
 	if tmp, ok := rawArgs["confName"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-		arg0, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		arg0, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -304,7 +516,7 @@ func (ec *executionContext) _Mutation_vote(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Vote(rctx, fc.Args["input"].(model.NewVote))
+		return ec.resolvers.Mutation().Vote(rctx, fc.Args["input"].(model.VoteInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -342,6 +554,162 @@ func (ec *executionContext) fieldContext_Mutation_vote(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_stampOnline(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_stampOnline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().StampOnline(rctx, fc.Args["input"].(model.StampOnlineInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_stampOnline(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_stampOnline_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_stampOnSite(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_stampOnSite(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().StampOnSite(rctx, fc.Args["input"].(model.StampOnSiteInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_stampOnSite(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_stampOnSite_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_createViewEvent(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createViewEvent(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateViewEvent(rctx, fc.Args["input"].(model.CreateViewEventInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_createViewEvent(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_createViewEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_voteCounts(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_voteCounts(ctx, field)
 	if err != nil {
@@ -356,7 +724,7 @@ func (ec *executionContext) _Query_voteCounts(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(*string))
+		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(model.ConfName))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -397,6 +765,130 @@ func (ec *executionContext) fieldContext_Query_voteCounts(ctx context.Context, f
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_voteCounts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_viewingSlots(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_viewingSlots(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().ViewingSlots(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.ViewingSlot)
+	fc.Result = res
+	return ec.marshalNViewingSlot2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingSlotᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_viewingSlots(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slotId":
+				return ec.fieldContext_ViewingSlot_slotId(ctx, field)
+			case "viewingTime":
+				return ec.fieldContext_ViewingSlot_viewingTime(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type ViewingSlot", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_viewingSlots_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_stampChallenges(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_stampChallenges(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().StampChallenges(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.StampChallenge)
+	fc.Result = res
+	return ec.marshalNStampChallenge2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_stampChallenges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "slotID":
+				return ec.fieldContext_StampChallenge_slotID(ctx, field)
+			case "condition":
+				return ec.fieldContext_StampChallenge_condition(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_StampChallenge_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type StampChallenge", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_stampChallenges_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -527,6 +1019,226 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StampChallenge_slotID(ctx context.Context, field graphql.CollectedField, obj *model.StampChallenge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StampChallenge_slotID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SlotID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StampChallenge_slotID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StampChallenge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StampChallenge_condition(ctx context.Context, field graphql.CollectedField, obj *model.StampChallenge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StampChallenge_condition(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Condition, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.ChallengeCondition)
+	fc.Result = res
+	return ec.marshalNChallengeCondition2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐChallengeCondition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StampChallenge_condition(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StampChallenge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ChallengeCondition does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _StampChallenge_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.StampChallenge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_StampChallenge_updatedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_StampChallenge_updatedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "StampChallenge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ViewingSlot_slotId(ctx context.Context, field graphql.CollectedField, obj *model.ViewingSlot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ViewingSlot_slotId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.SlotID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ViewingSlot_slotId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ViewingSlot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ViewingSlot_viewingTime(ctx context.Context, field graphql.CollectedField, obj *model.ViewingSlot) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ViewingSlot_viewingTime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ViewingTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ViewingSlot_viewingTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ViewingSlot",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2393,8 +3105,172 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewVote(ctx context.Context, obj interface{}) (model.NewVote, error) {
-	var it model.NewVote
+func (ec *executionContext) unmarshalInputCreateViewEventInput(ctx context.Context, obj interface{}) (model.CreateViewEventInput, error) {
+	var it model.CreateViewEventInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"confName", "profileID", "trackID", "talkID", "slotID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "confName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
+			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "profileID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "trackID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
+			it.TrackID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "talkID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
+			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "slotID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
+			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStampOnSiteInput(ctx context.Context, obj interface{}) (model.StampOnSiteInput, error) {
+	var it model.StampOnSiteInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"confName", "profileID", "trackID", "talkID", "slotID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "confName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
+			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "profileID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "trackID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
+			it.TrackID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "talkID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
+			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "slotID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
+			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputStampOnlineInput(ctx context.Context, obj interface{}) (model.StampOnlineInput, error) {
+	var it model.StampOnlineInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"confName", "profileID", "slotID"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "confName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
+			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "profileID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "slotID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
+			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj interface{}) (model.VoteInput, error) {
+	var it model.VoteInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -2411,7 +3287,7 @@ func (ec *executionContext) unmarshalInputNewVote(ctx context.Context, obj inter
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			it.ConfName, err = ec.unmarshalNString2string(ctx, v)
+			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2470,6 +3346,24 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_vote(ctx, field)
 			})
 
+		case "stampOnline":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_stampOnline(ctx, field)
+			})
+
+		case "stampOnSite":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_stampOnSite(ctx, field)
+			})
+
+		case "createViewEvent":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_createViewEvent(ctx, field)
+			})
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2523,6 +3417,52 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "viewingSlots":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_viewingSlots(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
+		case "stampChallenges":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_stampChallenges(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -2535,6 +3475,83 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				return ec._Query___schema(ctx, field)
 			})
 
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var stampChallengeImplementors = []string{"StampChallenge"}
+
+func (ec *executionContext) _StampChallenge(ctx context.Context, sel ast.SelectionSet, obj *model.StampChallenge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, stampChallengeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("StampChallenge")
+		case "slotID":
+
+			out.Values[i] = ec._StampChallenge_slotID(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "condition":
+
+			out.Values[i] = ec._StampChallenge_condition(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updatedAt":
+
+			out.Values[i] = ec._StampChallenge_updatedAt(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var viewingSlotImplementors = []string{"ViewingSlot"}
+
+func (ec *executionContext) _ViewingSlot(ctx context.Context, sel ast.SelectionSet, obj *model.ViewingSlot) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, viewingSlotImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("ViewingSlot")
+		case "slotId":
+
+			out.Values[i] = ec._ViewingSlot_slotId(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "viewingTime":
+
+			out.Values[i] = ec._ViewingSlot_viewingTime(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2914,6 +3931,31 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
+func (ec *executionContext) unmarshalNChallengeCondition2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐChallengeCondition(ctx context.Context, v interface{}) (model.ChallengeCondition, error) {
+	var res model.ChallengeCondition
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNChallengeCondition2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐChallengeCondition(ctx context.Context, sel ast.SelectionSet, v model.ChallengeCondition) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx context.Context, v interface{}) (model.ConfName, error) {
+	var res model.ConfName
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx context.Context, sel ast.SelectionSet, v model.ConfName) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateViewEventInput(ctx context.Context, v interface{}) (model.CreateViewEventInput, error) {
+	res, err := ec.unmarshalInputCreateViewEventInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
 	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -2929,8 +3971,51 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewVote2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐNewVote(ctx context.Context, v interface{}) (model.NewVote, error) {
-	res, err := ec.unmarshalInputNewVote(ctx, v)
+func (ec *executionContext) marshalNStampChallenge2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx context.Context, sel ast.SelectionSet, v []*model.StampChallenge) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOStampChallenge2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNStampOnSiteInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampOnSiteInput(ctx context.Context, v interface{}) (model.StampOnSiteInput, error) {
+	res, err := ec.unmarshalInputStampOnSiteInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNStampOnlineInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampOnlineInput(ctx context.Context, v interface{}) (model.StampOnlineInput, error) {
+	res, err := ec.unmarshalInputStampOnlineInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
@@ -2947,6 +4032,60 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNViewingSlot2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingSlotᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ViewingSlot) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNViewingSlot2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingSlot(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNViewingSlot2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingSlot(ctx context.Context, sel ast.SelectionSet, v *model.ViewingSlot) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._ViewingSlot(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNVoteCount2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐVoteCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.VoteCount) graphql.Marshaler {
@@ -3001,6 +4140,11 @@ func (ec *executionContext) marshalNVoteCount2ᚖdreamkastᚑweaverᚋinternal�
 		return graphql.Null
 	}
 	return ec._VoteCount(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNVoteInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐVoteInput(ctx context.Context, v interface{}) (model.VoteInput, error) {
+	res, err := ec.unmarshalInputVoteInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
@@ -3280,6 +4424,13 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOStampChallenge2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx context.Context, sel ast.SelectionSet, v *model.StampChallenge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._StampChallenge(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {

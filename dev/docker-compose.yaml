@@ -1,0 +1,32 @@
+version: "3.8"
+services:
+  dev-app:
+    build:
+      context: ../
+      dockerfile: dev/app/Dockerfile
+    environment:
+      DB_ENDPOINT: db
+      DB_PORT: 3306 
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: dkui
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../:/app
+  db:
+    image: mysql/mysql-server:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      TZ: 'Asia/Tokyo'
+    cap_add:
+      - SYS_NICE
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci --default-authentication-plugin=mysql_native_password
+    volumes:
+    - mysql-data:/var/lib/mysql
+    - ./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+    - "13306:3306"
+volumes:
+  mysql-data:

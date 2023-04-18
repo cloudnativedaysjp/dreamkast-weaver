@@ -10,20 +10,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `cfp_votes`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `cfp_votes` (
-  `conference_name` char(36) NOT NULL,
-  `talk_id` int NOT NULL,
-  `created_at` datetime NOT NULL,
-  `global_ip` char(16) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `schema_migrations`
 --
 
@@ -36,7 +22,38 @@ CREATE TABLE `schema_migrations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping routines for database 'test_cfp'
+-- Table structure for table `trailmap_stamps`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `trailmap_stamps` (
+  `conference_name` varchar(32) NOT NULL,
+  `profile_id` int NOT NULL,
+  `stamps` json NOT NULL,
+  PRIMARY KEY (`conference_name`,`profile_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `view_events`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `view_events` (
+  `conference_name` varchar(32) NOT NULL,
+  `profile_id` int NOT NULL,
+  `track_id` int NOT NULL,
+  `talk_id` int NOT NULL,
+  `slot_id` int NOT NULL,
+  `viewing_seconds` int NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping routines for database 'test_dkui'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -56,5 +73,6 @@ CREATE TABLE `schema_migrations` (
 
 LOCK TABLES `schema_migrations` WRITE;
 INSERT INTO `schema_migrations` (version) VALUES
-  ('20230412022526');
+  ('20230413013915'),
+  ('20230413015514');
 UNLOCK TABLES;

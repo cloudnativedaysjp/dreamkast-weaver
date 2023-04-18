@@ -6,48 +6,65 @@ package graph
 
 import (
 	"context"
-	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/graph/model"
-	"dreamkast-weaver/internal/sqlhelper"
-	"log"
 )
 
 // Vote is the resolver for the vote field.
-func (r *mutationResolver) Vote(ctx context.Context, input model.NewVote) (*bool, error) {
-	ctx = sqlhelper.WithSqlHelper(ctx, r.sqlHelper)
-
-	if err := r.CfpVoter.Vote(ctx, cfp.VoteRequest{
-		ConfName: input.ConfName,
-		TalkID:   int32(input.TalkID),
-		GlobalIP: []byte{},
-	}); err != nil {
-		log.Printf("error: %v", err)
+func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
+	if err := r.CfpService.Vote(ctx, input); err != nil {
 		return nil, err
 	}
+	return nil, nil
+}
 
+// StampOnline is the resolver for the stampOnline field.
+func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error) {
+	if err := r.DkUiService.StampOnline(ctx, input); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+// StampOnSite is the resolver for the stampOnSite field.
+func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error) {
+	if err := r.DkUiService.StampOnSite(ctx, input); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+// CreateViewEvent is the resolver for the createViewEvent field.
+func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error) {
+	if err := r.DkUiService.CreateViewEvent(ctx, input); err != nil {
+		return nil, err
+	}
 	return nil, nil
 }
 
 // VoteCounts is the resolver for the voteCounts field.
-func (r *queryResolver) VoteCounts(ctx context.Context, confName *string) ([]*model.VoteCount, error) {
-	ctx = sqlhelper.WithSqlHelper(ctx, r.sqlHelper)
-
-	counts, err := r.CfpVoter.GetCount(ctx, cfp.GetCountRequest{
-		ConfName: *confName,
-	})
+func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
+	resp, err := r.CfpService.VoteCounts(ctx, confName)
 	if err != nil {
-		log.Printf("error: %v", err)
 		return nil, err
 	}
+	return resp, nil
+}
 
-	var resp []*model.VoteCount
-	for _, v := range counts {
-		resp = append(resp, &model.VoteCount{
-			TalkID: int(v.TalkID),
-			Count:  v.Count,
-		})
+// ViewingSlots is the resolver for the viewingSlots field.
+func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error) {
+	resp, err := r.DkUiService.ViewingSlots(ctx, confName, profileID)
+	if err != nil {
+		return nil, err
 	}
+	return resp, nil
+}
 
+// StampChallenges is the resolver for the stampChallenges field.
+func (r *queryResolver) StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error) {
+	resp, err := r.DkUiService.StampChallenges(ctx, confName, profileID)
+	if err != nil {
+		return nil, err
+	}
 	return resp, nil
 }
 
