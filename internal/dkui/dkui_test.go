@@ -8,7 +8,6 @@ import (
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
-	"dreamkast-weaver/internal/graph/model"
 
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
@@ -58,8 +57,8 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	mustNil(err)
 
 	profile := dkui.Profile{
+		ConfName: newConfName("cndt2023"),
 		ID:       newProfileID(1),
-		ConfName: newConfName("cndf2023"),
 	}
 	req := dkui.CreateViewEventRequest{
 		TrackID: newTrackID(2),
@@ -71,46 +70,41 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	err = svc.CreateViewEvent(ctx, profile, req)
 	assert.NoError(t, err)
 
-	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
+	events, err := svc.ViewingEvents(ctx, profile)
 	assert.NoError(t, err)
 
-	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
+	stamps, err := svc.StampChallenges(ctx, profile)
 	assert.NoError(t, err)
 
-	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS)
-	assert.Len(t, stamps, 0)
+	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS)
+	assert.Len(t, stamps.Items, 0)
 
 	// second time
 	err = svc.CreateViewEvent(ctx, profile, req)
 	assert.NoError(t, err)
 
-	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
+	events, err = svc.ViewingEvents(ctx, profile)
 	assert.NoError(t, err)
 
-	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
+	stamps, err = svc.StampChallenges(ctx, profile)
 	assert.NoError(t, err)
 
-	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
-	assert.Len(t, stamps, 1)
+	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
+	assert.Len(t, stamps.Items, 1)
 	assertStampCondition(t, stamps, 1000, "ready")
 
 	// stamp
-	stampReq := model.StampOnlineInput{
-		ConfName:  "cndf2023",
-		ProfileID: 1,
-		SlotID:    1000,
-	}
-	err = svc.StampOnline(ctx, stampReq)
+	err = svc.StampOnline(ctx, profile, req.SlotID)
 	assert.NoError(t, err)
 
-	slots, err = svc.ViewingSlots(ctx, "cndf2023", 1)
+	events, err = svc.ViewingEvents(ctx, profile)
 	assert.NoError(t, err)
 
-	stamps, err = svc.StampChallenges(ctx, "cndf2023", 1)
+	stamps, err = svc.StampChallenges(ctx, profile)
 	assert.NoError(t, err)
 
-	assertViewingTime(t, slots, 1000, value.INTERVAL_SECONDS*2)
-	assert.Len(t, stamps, 1)
+	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
+	assert.Len(t, stamps.Items, 1)
 	assertStampCondition(t, stamps, 1000, "stamped")
 }
 
@@ -123,24 +117,26 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 	svc, err := weaver.Get[dkui.Service](root)
 	mustNil(err)
 
-	req := model.StampOnSiteInput{
-		ConfName:  "cndf2023",
-		ProfileID: 1,
-		TrackID:   2,
-		TalkID:    3,
-		SlotID:    1001,
+	profile := dkui.Profile{
+		ConfName: newConfName("cndt2023"),
+		ID:       newProfileID(1),
+	}
+	req := dkui.StampRequest{
+		TrackID: newTrackID(2),
+		TalkID:  newTalkID(3),
+		SlotID:  newSlotID(1001),
 	}
 
-	err = svc.StampOnSite(ctx, req)
+	err = svc.StampOnSite(ctx, profile, req)
 	assert.NoError(t, err)
 
-	slots, err := svc.ViewingSlots(ctx, "cndf2023", 1)
+	slots, err := svc.ViewingEvents(ctx, profile)
 	assert.NoError(t, err)
 
-	stamps, err := svc.StampChallenges(ctx, "cndf2023", 1)
+	stamps, err := svc.StampChallenges(ctx, profile)
 	assert.NoError(t, err)
 
-	assertViewingTime(t, slots, 1001, value.TALK_SECONDS)
+	assertViewEvents(t, slots, 1001, value.TALK_SECONDS)
 	assertStampCondition(t, stamps, 1001, "stamped")
 }
 
@@ -150,28 +146,34 @@ func mustNil(err error) {
 	}
 }
 
-func assertStampCondition(t *testing.T, stamps []*model.StampChallenge, slotID int, status string) {
+func assertStampCondition(t *testing.T, stamps *domain.StampChallenges, slotID int32, status value.StampConditionKind) {
 	t.Helper()
 	var found bool
-	for _, sc := range stamps {
-		if sc.SlotID == slotID {
+	for _, sc := range stamps.Items {
+		if sc.SlotID.Value() == slotID {
 			found = true
-			assert.Equal(t, status, sc.Condition.String())
+			assert.Equal(t, status, sc.Condition.Value())
 		}
 	}
 	assert.True(t, found)
 }
 
-func assertViewingTime(t *testing.T, slots []*model.ViewingSlot, slotID int, vt int) {
+func assertViewEvents(t *testing.T, events *domain.ViewEvents, slotID int32, vt int32) {
 	t.Helper()
-	var found bool
-	for _, s := range slots {
-		if s.SlotID == slotID {
-			found = true
-			assert.Equal(t, vt, s.ViewingTime)
+	var total int32
+	for _, ev := range events.Items {
+		if ev.SlotID.Value() == slotID {
+			total += ev.ViewingSeconds.Value()
 		}
 	}
-	assert.True(t, found)
+	assert.Equal(t, vt, total)
+}
+
+func newProfile(confName value.ConferenceKind, profile int32) dkui.Profile {
+	return dkui.Profile{
+		ConfName: newConfName(confName),
+		ID:       newProfileID(profile),
+	}
 }
 
 func newConfName(v value.ConferenceKind) value.ConfName {
@@ -200,6 +202,18 @@ func newTalkID(v int32) value.TalkID {
 
 func newSlotID(v int32) value.SlotID {
 	o, err := value.NewSlotID(v)
+	mustNil(err)
+	return o
+}
+
+func newViewingSeconds(v int32) value.ViewingSeconds {
+	o, err := value.NewViewingSeconds(v)
+	mustNil(err)
+	return o
+}
+
+func newStampCondition(v value.StampConditionKind) value.StampCondition {
+	o, err := value.NewStampCondition(v)
 	mustNil(err)
 	return o
 }

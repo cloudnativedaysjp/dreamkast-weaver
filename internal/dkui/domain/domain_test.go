@@ -118,7 +118,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 	slotID := newSlotID(42)
 
 	t.Run("ok", func(t *testing.T) {
-		stamps := &domain.StampChallenges{[]domain.StampChallenge{
+		stamps := &domain.StampChallenges{Items: []domain.StampChallenge{
 			*domain.NewStampChallenge(newSlotID(41)),
 			*domain.NewStampChallenge(newSlotID(42)),
 			*domain.NewStampChallenge(newSlotID(43)),
@@ -143,7 +143,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 		{
 			name: "ready stamp not found",
 			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{[]domain.StampChallenge{
+				return &domain.StampChallenges{Items: []domain.StampChallenge{
 					*domain.NewStampChallenge(newSlotID(41)),
 					*domain.NewStampChallenge(newSlotID(43)),
 				}}
@@ -185,7 +185,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 		{
 			name: "stamp not exist",
 			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{[]domain.StampChallenge{
+				return &domain.StampChallenges{Items: []domain.StampChallenge{
 					*domain.NewStampChallenge(newSlotID(41)),
 					*domain.NewStampChallenge(newSlotID(43)),
 				}}
@@ -194,7 +194,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 		{
 			name: "ready stamp exists",
 			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{[]domain.StampChallenge{
+				return &domain.StampChallenges{Items: []domain.StampChallenge{
 					*domain.NewStampChallenge(newSlotID(41)),
 					*domain.NewStampChallenge(newSlotID(42)),
 					*domain.NewStampChallenge(newSlotID(43)),
@@ -233,7 +233,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 			given: func() *domain.StampChallenges {
 				sc := domain.NewStampChallenge(newSlotID(42))
 				sc.Stamp()
-				return &domain.StampChallenges{[]domain.StampChallenge{
+				return &domain.StampChallenges{Items: []domain.StampChallenge{
 					*domain.NewStampChallenge(newSlotID(41)),
 					*sc,
 					*domain.NewStampChallenge(newSlotID(43)),

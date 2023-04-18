@@ -3,13 +3,11 @@ package dkui
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
-	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
 
@@ -18,10 +16,10 @@ import (
 
 type Service interface {
 	CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) error
-	StampOnline(ctx context.Context, req model.StampOnlineInput) error
-	StampOnSite(ctx context.Context, req model.StampOnSiteInput) error
-	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
-	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
+	StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) error
+	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
+	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
+	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
 }
 
 type Profile struct {
@@ -31,6 +29,13 @@ type Profile struct {
 }
 
 type CreateViewEventRequest struct {
+	weaver.AutoMarshal
+	TrackID value.TrackID
+	TalkID  value.TalkID
+	SlotID  value.SlotID
+}
+
+type StampRequest struct {
 	weaver.AutoMarshal
 	TrackID value.TrackID
 	TalkID  value.TalkID
@@ -125,87 +130,42 @@ func (s *ServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req 
 	return nil
 }
 
-func (v *ServiceImpl) ViewingSlots(ctx context.Context, _confName model.ConfName, _profileID int) (viewingSlots []*model.ViewingSlot, err error) {
+func (v *ServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *domain.ViewEvents, err error) {
 	defer func() {
-		v.HandleError("get viewingSlots", err)
+		v.HandleError("get viewingEvents", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var e error
-	confName, e := value.NewConfName(value.ConferenceKind(_confName.String()))
-	err = errors.Join(err, e)
-	profileID, e := value.NewProfileID(int32(_profileID))
-	err = errors.Join(err, e)
-	if err != nil {
-		return nil, stacktrace.With(err)
-	}
-
-	devents, err := r.ListViewEvents(ctx, confName, profileID)
+	resp, err = r.ListViewEvents(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	for k, v := range devents.ViewingSeconds() {
-		viewingSlots = append(viewingSlots, &model.ViewingSlot{
-			SlotID:      int(k.Value()),
-			ViewingTime: int(v),
-		})
-	}
-
-	return viewingSlots, nil
+	return resp, nil
 }
 
-func (v *ServiceImpl) StampChallenges(ctx context.Context, _confName model.ConfName, _profileID int) (stamps []*model.StampChallenge, err error) {
+func (v *ServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *domain.StampChallenges, err error) {
 	defer func() {
 		v.HandleError("get stampChallenges", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	var e error
-	confName, e := value.NewConfName(value.ConferenceKind(_confName.String()))
-	err = errors.Join(err, e)
-	profileID, e := value.NewProfileID(int32(_profileID))
-	err = errors.Join(err, e)
+	resp, err = r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return nil, err
 	}
-
-	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, dst := range dstamps.Items {
-		stamps = append(stamps, &model.StampChallenge{
-			SlotID:    int(dst.SlotID.Value()),
-			Condition: model.ChallengeCondition(dst.Condition.Value()),
-			UpdatedAt: int(dst.UpdatedAt.Unix()),
-		})
-	}
-
-	return stamps, nil
+	return resp, nil
 }
 
-func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInput) (err error) {
+func (v *ServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
 	defer func() {
 		v.HandleError("stamp from online", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
-	err = errors.Join(err, e)
-	profileID, e := value.NewProfileID(int32(req.ProfileID))
-	err = errors.Join(err, e)
-	slotID, e := value.NewSlotID(int32(req.SlotID))
-	err = errors.Join(err, e)
-	if err != nil {
-		return err
-	}
-
-	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
+	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
@@ -214,50 +174,36 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, req model.StampOnlineInpu
 		return err
 	}
 
-	if err := r.UpsertTrailMapStamps(ctx, confName, profileID, dstamps); err != nil {
+	if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (v *ServiceImpl) StampOnSite(ctx context.Context, req model.StampOnSiteInput) (err error) {
+func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
 	defer func() {
 		v.HandleError("stamp from onsite", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	confName, e := value.NewConfName(value.ConferenceKind(req.ConfName))
-	err = errors.Join(err, e)
-	profileID, e := value.NewProfileID(int32(req.ProfileID))
-	err = errors.Join(err, e)
-	trackID, e := value.NewTrackID(int32(req.TrackID))
-	err = errors.Join(err, e)
-	talkID, e := value.NewTalkID(int32(req.TalkID))
-	err = errors.Join(err, e)
-	slotID, e := value.NewSlotID(int32(req.SlotID))
-	err = errors.Join(err, e)
+	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
 
-	dstamps, err := r.GetTrailMapStamps(ctx, confName, profileID)
-	if err != nil {
-		return err
-	}
-
-	ev, err := v.domain.StampOnSite(trackID, talkID, slotID, dstamps)
+	ev, err := v.domain.StampOnSite(req.TrackID, req.TalkID, req.SlotID, dstamps)
 	if err != nil {
 		return err
 	}
 
 	if err := v.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
 		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertViewEvents(ctx, confName, profileID, ev); err != nil {
+		if err := r.InsertViewEvents(ctx, profile.ConfName, profile.ID, ev); err != nil {
 			return err
 		}
-		if err := r.UpsertTrailMapStamps(ctx, confName, profileID, dstamps); err != nil {
+		if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 			return err
 		}
 		return nil
