@@ -6,15 +6,23 @@ package graph
 
 import (
 	"context"
+	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"errors"
+	"net"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
-	if err := r.CfpService.Vote(ctx, input); err != nil {
+	req := cfp.VoteRequest{
+		ConfName: input.ConfName.String(),
+		TalkID:   input.TalkID,
+		GlobalIP: net.ParseIP(input.GlobalIP),
+	}
+
+	if err := r.CfpService.Vote(ctx, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -22,7 +30,17 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 
 // StampOnline is the resolver for the stampOnline field.
 func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error) {
-	if err := r.DkUiService.StampOnline(ctx, input); err != nil {
+	var e, err error
+	profile, err := newProfile(input.ConfName, input.ProfileID)
+	err = errors.Join(err, e)
+
+	slotID, e := value.NewSlotID(int32(input.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.DkUiService.StampOnline(ctx, profile, slotID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -30,7 +48,22 @@ func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnl
 
 // StampOnSite is the resolver for the stampOnSite field.
 func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error) {
-	if err := r.DkUiService.StampOnSite(ctx, input); err != nil {
+	var e, err error
+	profile, err := newProfile(input.ConfName, input.ProfileID)
+	err = errors.Join(err, e)
+
+	req := dkui.StampRequest{}
+	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
+	err = errors.Join(err, e)
+	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
+	err = errors.Join(err, e)
+	req.SlotID, e = value.NewSlotID(int32(input.SlotID))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.DkUiService.StampOnSite(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -38,12 +71,8 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 
 // CreateViewEvent is the resolver for the createViewEvent field.
 func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error) {
-
 	var e, err error
-	profile := dkui.Profile{}
-	profile.ConfName, e = value.NewConfName(value.ConferenceKind(input.ConfName))
-	err = errors.Join(err, e)
-	profile.ID, e = value.NewProfileID(int32(input.ProfileID))
+	profile, err := newProfile(input.ConfName, input.ProfileID)
 	err = errors.Join(err, e)
 
 	req := dkui.CreateViewEventRequest{}
@@ -65,29 +94,67 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
-	resp, err := r.CfpService.VoteCounts(ctx, confName)
+	resp, err := r.CfpService.VoteCounts(ctx, confName.String())
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+
+	var counts []*model.VoteCount
+	for _, v := range resp {
+		counts = append(counts, &model.VoteCount{
+			TalkID: v.TalkID,
+			Count:  v.Count,
+		})
+	}
+
+	return counts, nil
 }
 
 // ViewingSlots is the resolver for the viewingSlots field.
 func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error) {
-	resp, err := r.DkUiService.ViewingSlots(ctx, confName, profileID)
+	profile, err := newProfile(confName, profileID)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+
+	devents, err := r.DkUiService.ViewingEvents(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+
+	var viewingSlots []*model.ViewingSlot
+	for k, v := range devents.ViewingSeconds() {
+		viewingSlots = append(viewingSlots, &model.ViewingSlot{
+			SlotID:      int(k.Value()),
+			ViewingTime: int(v),
+		})
+	}
+
+	return viewingSlots, nil
 }
 
 // StampChallenges is the resolver for the stampChallenges field.
 func (r *queryResolver) StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error) {
-	resp, err := r.DkUiService.StampChallenges(ctx, confName, profileID)
+	profile, err := newProfile(confName, profileID)
 	if err != nil {
 		return nil, err
 	}
-	return resp, nil
+
+	dstamps, err := r.DkUiService.StampChallenges(ctx, profile)
+	if err != nil {
+		return nil, err
+	}
+
+	var stamps []*model.StampChallenge
+	for _, dst := range dstamps.Items {
+		stamps = append(stamps, &model.StampChallenge{
+			SlotID:    int(dst.SlotID.Value()),
+			Condition: model.ChallengeCondition(dst.Condition.Value()),
+			UpdatedAt: int(dst.UpdatedAt.Unix()),
+		})
+	}
+
+	return stamps, nil
 }
 
 // Mutation returns MutationResolver implementation.
@@ -98,3 +165,20 @@ func (r *Resolver) Query() QueryResolver { return &queryResolver{r} }
 
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func newProfile(confName model.ConfName, profileID int) (dkui.Profile, error) {
+	var e, err error
+	profile := dkui.Profile{}
+	profile.ConfName, e = value.NewConfName(value.ConferenceKind(confName))
+	err = errors.Join(err, e)
+	profile.ID, e = value.NewProfileID(int32(profileID))
+	err = errors.Join(err, e)
+
+	return profile, err
+}
