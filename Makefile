@@ -17,6 +17,7 @@ build:
 .PHONY: generate
 generate:
 	go generate -x ./...
+	weaver generate ./...
 
 .PHONY: lint
 lint:

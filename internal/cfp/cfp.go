@@ -4,21 +4,32 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
 
 	"dreamkast-weaver/internal/cfp/repo"
 	"dreamkast-weaver/internal/derrors"
-	"dreamkast-weaver/internal/graph/model"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
 
 	"github.com/ServiceWeaver/weaver"
 )
 
-//go:generate go run github.com/ServiceWeaver/weaver/cmd/weaver generate .
-
 type Service interface {
-	Vote(ctx context.Context, input model.VoteInput) error
-	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
+	Vote(ctx context.Context, req VoteRequest) error
+	VoteCounts(ctx context.Context, confName string) ([]*VoteCount, error)
+}
+
+type VoteRequest struct {
+	weaver.AutoMarshal
+	ConfName string
+	TalkID   int
+	GlobalIP net.IP
+}
+
+type VoteCount struct {
+	weaver.AutoMarshal
+	TalkID int
+	Count  int
 }
 
 type ServiceImpl struct {
@@ -66,19 +77,23 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 }
 
 func (s *ServiceImpl) HandleError(msg string, err error) {
-	if err != nil && !derrors.IsUserError(err) {
-		s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+	if err != nil {
+		if derrors.IsUserError(err) {
+			s.Logger().With("errorType", "user-side").Info(msg, err)
+		} else {
+			s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+		}
 	}
 }
 
-func (s *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (resp []*model.VoteCount, err error) {
+func (s *ServiceImpl) VoteCounts(ctx context.Context, confName string) (resp []*VoteCount, err error) {
 	defer func() {
 		s.HandleError("get voteCounts", err)
 	}()
 
 	r := repo.New(s.sh.DB())
 
-	votes, err := r.ListCfpVotes(ctx, confName.String())
+	votes, err := r.ListCfpVotes(ctx, confName)
 	if err != nil {
 		return nil, fmt.Errorf("list cfp vote: %w", err)
 	}
@@ -90,7 +105,7 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 	}
 
 	for talkID, count := range counts {
-		resp = append(resp, &model.VoteCount{
+		resp = append(resp, &VoteCount{
 			TalkID: int(talkID),
 			Count:  count,
 		})
@@ -99,7 +114,7 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName model.ConfName) (
 	return resp, nil
 }
 
-func (s *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err error) {
+func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	defer func() {
 		s.HandleError("vote", err)
 	}()
@@ -107,10 +122,10 @@ func (s *ServiceImpl) Vote(ctx context.Context, input model.VoteInput) (err erro
 	r := repo.New(s.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
-		ConferenceName: input.ConfName.String(),
-		TalkID:         int32(input.TalkID),
+		ConferenceName: req.ConfName,
+		TalkID:         int32(req.TalkID),
 		GlobalIp: sql.NullString{
-			String: input.GlobalIP,
+			String: req.GlobalIP.String(),
 			Valid:  true,
 		},
 	}); err != nil {

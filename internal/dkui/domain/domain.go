@@ -7,6 +7,8 @@ import (
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/stacktrace"
+
+	"github.com/ServiceWeaver/weaver"
 )
 
 var (
@@ -91,6 +93,7 @@ func (DkUiDomain) StampOnSite(
 }
 
 type StampChallenge struct {
+	weaver.AutoMarshal
 	SlotID    value.SlotID
 	Condition value.StampCondition
 	UpdatedAt time.Time
@@ -115,6 +118,7 @@ func (sc *StampChallenge) Skip() {
 }
 
 type StampChallenges struct {
+	weaver.AutoMarshal
 	Items []StampChallenge
 }
 
@@ -178,6 +182,7 @@ func (scs *StampChallenges) Get(slotID value.SlotID) *StampChallenge {
 }
 
 type ViewEvent struct {
+	weaver.AutoMarshal
 	TrackID        value.TrackID
 	TalkID         value.TalkID
 	SlotID         value.SlotID
@@ -206,6 +211,7 @@ func NewOnSiteViewEvent(trackID value.TrackID, talkID value.TalkID, slotID value
 }
 
 type ViewEvents struct {
+	weaver.AutoMarshal
 	Items []ViewEvent
 }
 
