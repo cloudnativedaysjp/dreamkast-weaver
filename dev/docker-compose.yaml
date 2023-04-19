@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   dev-app:
     build:
@@ -9,7 +8,6 @@ services:
       DB_PORT: 3306 
       DB_USER: user
       DB_PASSWORD: password
-      DB_NAME: dkui
     working_dir: /app
     ports:
       - "8080:8080"
