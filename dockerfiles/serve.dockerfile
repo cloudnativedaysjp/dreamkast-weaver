@@ -16,7 +16,11 @@ FROM alpine:3.17.3
 WORKDIR /
 EXPOSE 8080
 
+# NOTE: Requires home directory at runtime
+#   see: https://github.com/ServiceWeaver/weaver/blob/v0.4.0/internal/files/file.go#L111
+ARG UID=65532
+RUN adduser -D -u ${UID} dk-weaver
 COPY --from=builder /workspace/serve .
-USER 65532:65532
+USER ${UID}
 
 ENTRYPOINT ["/serve"]
