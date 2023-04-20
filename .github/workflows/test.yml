@@ -49,7 +49,7 @@ jobs:
 
       - name: Run database
         run: |
-          docker compose -f ./dev/docker-compose.yaml up -d db
+          docker compose -f ./dev/compose.yaml up -d db
           sleep 10
 
       - name: Run Test
