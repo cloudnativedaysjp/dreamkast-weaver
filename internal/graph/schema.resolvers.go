@@ -7,19 +7,27 @@ package graph
 import (
 	"context"
 	"dreamkast-weaver/internal/cfp"
+	cvalue "dreamkast-weaver/internal/cfp/value"
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"errors"
-	"net"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
-	req := cfp.VoteRequest{
-		ConfName: input.ConfName.String(),
-		TalkID:   input.TalkID,
-		GlobalIP: net.ParseIP(input.GlobalIP),
+	var e, err error
+	err = errors.Join(err, e)
+
+	req := cfp.VoteRequest{}
+	req.ConfName, err = cvalue.NewConfName(cvalue.ConferenceKind((input.ConfName.String())))
+	err = errors.Join(err, e)
+	req.TalkID, e = cvalue.NewTalkID(int32(input.TalkID))
+	err = errors.Join(err, e)
+	req.GlobalIP, e = cvalue.NewGlobalIP(input.GlobalIP)
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
 	}
 
 	if err := r.CfpService.Vote(ctx, req); err != nil {
@@ -94,7 +102,12 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
-	resp, err := r.CfpService.VoteCounts(ctx, confName.String())
+	cn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := r.CfpService.VoteCounts(ctx, cn)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +115,7 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName)
 	var counts []*model.VoteCount
 	for _, v := range resp {
 		counts = append(counts, &model.VoteCount{
-			TalkID: v.TalkID,
+			TalkID: int(v.TalkID.Value()),
 			Count:  v.Count,
 		})
 	}

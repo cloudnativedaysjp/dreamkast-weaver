@@ -13,7 +13,10 @@ require (
 	go.opentelemetry.io/otel/trace v1.13.0
 )
 
-require github.com/pmezard/go-difflib v1.0.0 // indirect
+require (
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+)
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
