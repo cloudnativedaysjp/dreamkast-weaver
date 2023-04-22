@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net"
 
+	"dreamkast-weaver/internal/cfp/domain"
 	"dreamkast-weaver/internal/cfp/repo"
+	"dreamkast-weaver/internal/cfp/value"
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
@@ -16,27 +17,22 @@ import (
 
 type Service interface {
 	Vote(ctx context.Context, req VoteRequest) error
-	VoteCounts(ctx context.Context, confName string) ([]*VoteCount, error)
+	VoteCounts(ctx context.Context, confName value.ConfName) ([]*domain.VoteCount, error)
 }
 
 type VoteRequest struct {
 	weaver.AutoMarshal
-	ConfName string
-	TalkID   int
-	GlobalIP net.IP
-}
-
-type VoteCount struct {
-	weaver.AutoMarshal
-	TalkID int
-	Count  int
+	ConfName value.ConfName
+	TalkID   value.TalkID
+	GlobalIP value.GlobalIP
 }
 
 type ServiceImpl struct {
 	weaver.Implements[Service]
 	weaver.WithConfig[config]
 
-	sh *sqlhelper.SqlHelper
+	sh     *sqlhelper.SqlHelper
+	domain domain.CfpDomain
 }
 
 var _ Service = (*ServiceImpl)(nil)
@@ -86,32 +82,29 @@ func (s *ServiceImpl) HandleError(msg string, err error) {
 	}
 }
 
-func (s *ServiceImpl) VoteCounts(ctx context.Context, confName string) (resp []*VoteCount, err error) {
+func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (resp []*domain.VoteCount, err error) {
 	defer func() {
 		s.HandleError("get voteCounts", err)
 	}()
 
 	r := repo.New(s.sh.DB())
 
-	votes, err := r.ListCfpVotes(ctx, confName)
+	votes, err := r.ListCfpVotes(ctx, string(confName.Value()))
 	if err != nil {
 		return nil, fmt.Errorf("list cfp vote: %w", err)
 	}
 
-	// TODO move to domain package
-	counts := map[int32]int{}
-	for _, vote := range votes {
-		counts[vote.TalkID]++
+	dvotes, err := cfpVoteConv.fromDB(votes)
+	if err != nil {
+		return nil, fmt.Errorf("from db: %w", err)
 	}
 
-	for talkID, count := range counts {
-		resp = append(resp, &VoteCount{
-			TalkID: int(talkID),
-			Count:  count,
-		})
+	dvc, err := s.domain.TallyCfpVotes(dvotes)
+	if err != nil {
+		return nil, fmt.Errorf("tally cfp votes: %w", err)
 	}
 
-	return resp, nil
+	return dvc, nil
 }
 
 func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
@@ -122,10 +115,10 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	r := repo.New(s.sh.DB())
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
-		ConferenceName: req.ConfName,
-		TalkID:         int32(req.TalkID),
+		ConferenceName: string(req.ConfName.Value()),
+		TalkID:         int32(req.TalkID.Value()),
 		GlobalIp: sql.NullString{
-			String: req.GlobalIP.String(),
+			String: req.GlobalIP.Value(),
 			Valid:  true,
 		},
 	}); err != nil {
@@ -133,4 +126,37 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	}
 
 	return nil
+}
+
+var cfpVoteConv _cfpVoteConv
+
+type _cfpVoteConv struct{}
+
+func (_cfpVoteConv) fromDB(v []repo.CfpVote) (*domain.CfpVotes, error) {
+	conv := func(v *repo.CfpVote) (*domain.CfpVote, error) {
+		talkID, err := value.NewTalkID(v.TalkID)
+		if err != nil {
+			return nil, err
+		}
+		globalIP, err := value.NewGlobalIP(v.GlobalIp.String)
+		if err != nil {
+			return nil, err
+		}
+		return &domain.CfpVote{
+			TalkID:   talkID,
+			GlobalIP: globalIP,
+		}, nil
+	}
+
+	var items []domain.CfpVote
+	for _, p := range v {
+		cv := p
+		dcv, err := conv(&cv)
+		if err != nil {
+			return nil, stacktrace.With(fmt.Errorf("convert view event from DB: %w", err))
+		}
+		items = append(items, *dcv)
+	}
+
+	return &domain.CfpVotes{Items: items}, nil
 }
