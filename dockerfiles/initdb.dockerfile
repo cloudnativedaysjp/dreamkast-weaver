@@ -12,11 +12,10 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags tools -a -o initdb tools/initdb/main.go
 
 ### runner ###
-FROM alpine:3.17.3
+FROM gcr.io/distroless/static-debian11:nonroot
 WORKDIR /
 
 COPY --from=builder /workspace/initdb .
 COPY internal internal
-USER 65532:65532
 
 ENTRYPOINT ["/initdb"]
