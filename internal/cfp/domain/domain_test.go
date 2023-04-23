@@ -3,6 +3,7 @@ package domain_test
 import (
 	"dreamkast-weaver/internal/cfp/domain"
 	"dreamkast-weaver/internal/cfp/value"
+	"net"
 	"testing"
 	"time"
 
@@ -17,8 +18,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 
 	tn := time.Unix(time.Now().Unix()/int64(value.SPAN_SECONDS)*int64(value.SPAN_SECONDS), 0)
 	id := newTalkID(1)
-	//ip := NewGlobalIP("192.0.2.1")
-	ip := NewGlobalIP("192.168.100.1")
+	gip := net.ParseIP("192.0.2.1")
 
 	tests := []struct {
 		name   string
@@ -31,17 +31,17 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 				cvs = &domain.CfpVotes{Items: []domain.CfpVote{
 					{
 						TalkID:    id,
-						GlobalIP:  ip,
+						GlobalIP:  gip,
 						CreatedAt: tn,
 					},
 					{
 						TalkID:    id,
-						GlobalIP:  ip,
+						GlobalIP:  gip,
 						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
 					},
 					{
 						TalkID:    id,
-						GlobalIP:  ip,
+						GlobalIP:  gip,
 						CreatedAt: tn.Add(value.SPAN_SECONDS * time.Second),
 					},
 				}}
@@ -57,17 +57,17 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 				cvs = &domain.CfpVotes{Items: []domain.CfpVote{
 					{
 						TalkID:    id,
-						GlobalIP:  ip,
+						GlobalIP:  gip,
 						CreatedAt: tn,
 					},
 					{
 						TalkID:    newTalkID(2),
-						GlobalIP:  ip,
+						GlobalIP:  gip,
 						CreatedAt: tn.Add((value.SPAN_SECONDS - 3) * time.Second),
 					},
 					{
 						TalkID:    id,
-						GlobalIP:  NewGlobalIP("192.0.2.2"),
+						GlobalIP:  net.ParseIP("192.0.2.2"),
 						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
 					},
 				}}
@@ -97,12 +97,6 @@ func mustNil(err error) {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func NewGlobalIP(v string) value.GlobalIP {
-	ip, err := value.NewGlobalIP(v)
-	mustNil(err)
-	return ip
 }
 
 func newTalkID(v int32) value.TalkID {

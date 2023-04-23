@@ -5,27 +5,7 @@ import (
 
 	"github.com/ServiceWeaver/weaver"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
-
-// GlobalIP represents global ip address.
-type GlobalIP struct {
-	weaver.AutoMarshal
-	value string
-}
-
-func NewGlobalIP(v string) (GlobalIP, error) {
-	o := GlobalIP{value: v}
-	return o, o.Validate()
-}
-
-func (v *GlobalIP) Validate() error {
-	return validation.Validate(v.value, is.IP)
-}
-
-func (v *GlobalIP) Value() string {
-	return v.value
-}
 
 // TalkID represents an ID of talk.
 type TalkID struct {

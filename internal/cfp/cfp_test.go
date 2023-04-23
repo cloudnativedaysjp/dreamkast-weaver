@@ -2,6 +2,7 @@ package cfp_test
 
 import (
 	"context"
+	"net"
 	"net/url"
 	"testing"
 
@@ -55,7 +56,7 @@ func TestCfpVoteImpl(t *testing.T) {
 
 	cn := value.CICD2023
 	talkID, _ := value.NewTalkID(3)
-	gip, _ := value.NewGlobalIP("127.0.0.1")
+	gip := net.ParseIP("127.0.0.1")
 
 	err = svc.Vote(ctx, cfp.VoteRequest{
 		ConfName: cn,

@@ -6,6 +6,7 @@ import (
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
 )
 
+
 // Local stub implementations.
 
 // Client stub implementations.
@@ -28,22 +29,6 @@ func (x *ConfName) WeaverUnmarshal(dec *codegen.Decoder) {
 		panic(fmt.Errorf("ConfName.WeaverUnmarshal: nil receiver"))
 	}
 	*(*string)(&x.value) = dec.String()
-}
-
-var _ codegen.AutoMarshal = &GlobalIP{}
-
-func (x *GlobalIP) WeaverMarshal(enc *codegen.Encoder) {
-	if x == nil {
-		panic(fmt.Errorf("GlobalIP.WeaverMarshal: nil receiver"))
-	}
-	enc.String(x.value)
-}
-
-func (x *GlobalIP) WeaverUnmarshal(dec *codegen.Decoder) {
-	if x == nil {
-		panic(fmt.Errorf("GlobalIP.WeaverUnmarshal: nil receiver"))
-	}
-	x.value = dec.String()
 }
 
 var _ codegen.AutoMarshal = &TalkID{}
