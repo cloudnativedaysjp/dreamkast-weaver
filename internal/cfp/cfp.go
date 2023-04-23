@@ -99,10 +99,7 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (
 		return nil, fmt.Errorf("from db: %w", err)
 	}
 
-	dvc, err := s.domain.TallyCfpVotes(dvotes)
-	if err != nil {
-		return nil, fmt.Errorf("tally cfp votes: %w", err)
-	}
+	dvc := s.domain.TallyCfpVotes(dvotes)
 
 	return dvc, nil
 }
@@ -143,8 +140,9 @@ func (_cfpVoteConv) fromDB(v []repo.CfpVote) (*domain.CfpVotes, error) {
 			return nil, err
 		}
 		return &domain.CfpVote{
-			TalkID:   talkID,
-			GlobalIP: globalIP,
+			TalkID:    talkID,
+			GlobalIP:  globalIP,
+			CreatedAt: v.CreatedAt,
 		}, nil
 	}
 
