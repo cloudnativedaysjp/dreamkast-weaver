@@ -9,13 +9,11 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/vektah/gqlparser/v2 v2.5.1
+	go.opentelemetry.io/otel v1.13.0
+	go.opentelemetry.io/otel/trace v1.13.0
 )
 
-require (
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	go.opentelemetry.io/otel v1.13.0 // indirect
-	go.opentelemetry.io/otel/trace v1.13.0 // indirect
-)
+require github.com/pmezard/go-difflib v1.0.0 // indirect
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect

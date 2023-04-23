@@ -114,7 +114,7 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
 		ConferenceName: string(req.ConfName.Value()),
-		TalkID:         int32(req.TalkID.Value()),
+		TalkID:         req.TalkID.Value(),
 		GlobalIp: sql.NullString{
 			String: req.GlobalIP.String(),
 			Valid:  true,

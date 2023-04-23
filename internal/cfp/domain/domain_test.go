@@ -15,7 +15,6 @@ var (
 )
 
 func TestCfpDomain_TallyCfpVotes(t *testing.T) {
-
 	tn := time.Unix(time.Now().Unix()/int64(value.SPAN_SECONDS)*int64(value.SPAN_SECONDS), 0)
 	id := newTalkID(1)
 	gip := net.ParseIP("192.0.2.1")

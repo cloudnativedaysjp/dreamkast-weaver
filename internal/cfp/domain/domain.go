@@ -29,7 +29,6 @@ type VoteCount struct {
 }
 
 func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
-
 	type key struct {
 		talkId    int32
 		ip        string
