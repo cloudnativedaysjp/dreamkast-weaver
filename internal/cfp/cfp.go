@@ -100,10 +100,7 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (
 		return nil, err
 	}
 
-	dvc, err := s.domain.TallyCfpVotes(dvotes)
-	if err != nil {
-		return nil, fmt.Errorf("tally cfp votes: %w", err)
-	}
+	dvc := s.domain.TallyCfpVotes(dvotes)
 
 	return dvc, nil
 }
@@ -117,7 +114,7 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
 		ConferenceName: string(req.ConfName.Value()),
-		TalkID:         int32(req.TalkID.Value()),
+		TalkID:         req.TalkID.Value(),
 		ClientIp: sql.NullString{
 			String: req.ClientIp.String(),
 			Valid:  true,
@@ -141,8 +138,9 @@ func (_cfpVoteConv) fromDB(v []repo.CfpVote) (*domain.CfpVotes, error) {
 		}
 		ip := net.ParseIP(v.ClientIp.String)
 		return &domain.CfpVote{
-			TalkID:   talkID,
-			ClientIp: ip,
+			TalkID:    talkID,
+			ClientIp:  ip,
+			CreatedAt: v.CreatedAt,
 		}, nil
 	}
 

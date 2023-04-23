@@ -22,6 +22,7 @@ func (x *CfpVote) WeaverMarshal(enc *codegen.Encoder) {
 	}
 	(x.TalkID).WeaverMarshal(enc)
 	serviceweaver_enc_slice_byte_87461245(enc, ([]byte)(x.ClientIp))
+	enc.EncodeBinaryMarshaler(&x.CreatedAt)
 }
 
 func (x *CfpVote) WeaverUnmarshal(dec *codegen.Decoder) {
@@ -30,6 +31,7 @@ func (x *CfpVote) WeaverUnmarshal(dec *codegen.Decoder) {
 	}
 	(&x.TalkID).WeaverUnmarshal(dec)
 	*(*[]byte)(&x.ClientIp) = serviceweaver_dec_slice_byte_87461245(dec)
+	dec.DecodeBinaryUnmarshaler(&x.CreatedAt)
 }
 
 func serviceweaver_enc_slice_byte_87461245(enc *codegen.Encoder, arg []byte) {
