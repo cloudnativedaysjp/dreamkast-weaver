@@ -1,12 +1,15 @@
 package graph
 
 import (
+	"context"
 	"log"
+	"net/http"
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/dkui"
 
 	"github.com/ServiceWeaver/weaver"
+	"github.com/tomasen/realip"
 )
 
 // This file will not be regenerated automatically.
@@ -35,4 +38,23 @@ func NewResolver(root weaver.Instance) *Resolver {
 		CfpService:  cfp,
 		DkUiService: dkui,
 	}
+}
+
+type ipCtxKey struct{}
+
+func NewIPMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip := realip.FromRequest(r)
+		ctx := context.WithValue(r.Context(), ipCtxKey{}, ip)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func ClientIP(ctx context.Context) string {
+	val := ctx.Value(ipCtxKey{})
+	if val == nil {
+		return ""
+	}
+
+	return val.(string)
 }

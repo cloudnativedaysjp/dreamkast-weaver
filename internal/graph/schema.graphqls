@@ -50,7 +50,6 @@ type Mutation {
 input VoteInput {
   confName: ConfName!
   talkId: Int!
-  globalIp: String!
 }
 
 input StampOnlineInput {
