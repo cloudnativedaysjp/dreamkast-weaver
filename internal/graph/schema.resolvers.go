@@ -25,7 +25,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 	err = errors.Join(err, e)
 	req.TalkID, e = cvalue.NewTalkID(int32(input.TalkID))
 	err = errors.Join(err, e)
-	req.GlobalIP = net.ParseIP(input.GlobalIP)
+	req.GlobalIP = net.ParseIP(ClientIPFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}

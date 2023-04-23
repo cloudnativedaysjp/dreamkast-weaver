@@ -3276,7 +3276,7 @@ func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj int
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"confName", "talkId", "globalIp"}
+	fieldsInOrder := [...]string{"confName", "talkId"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3296,14 +3296,6 @@ func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj int
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkId"))
 			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "globalIp":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("globalIp"))
-			it.GlobalIP, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
