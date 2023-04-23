@@ -1,0 +1,62 @@
+name: build dreamkast-weaver/initdb image
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event.pusher.name != 'dreamkast-cloudnativedays'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v2
+
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: 'go.mod'
+
+      #- name: Configure AWS Credentials
+      #  uses: aws-actions/configure-aws-credentials@v2
+      #  with:
+      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #    aws-region: ap-northeast-1
+
+      #- name: Login to Amazon ECR
+      #  id: login-ecr
+      #  uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: dreamkast-weaver/initdb # TODO ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb
+          tags: |
+            type=sha,prefix=,format=long
+            type=ref,event=branch
+
+      - name: Build
+        id: docker_build
+        uses: docker/build-push-action@v4
+        with:
+          context: ./
+          file: ./dockerfiles/initdb.dockerfile
+          builder: ${{ steps.buildx.outputs.name }}
+          push: false # TODO ture
+          provenance: false
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: dreamkast-weaver/initdb:latest #TODO '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb:${{ github.sha }}'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
