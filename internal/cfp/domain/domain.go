@@ -2,6 +2,7 @@ package domain
 
 import (
 	"dreamkast-weaver/internal/cfp/value"
+	"time"
 
 	"github.com/ServiceWeaver/weaver"
 )
@@ -10,8 +11,9 @@ type CfpDomain struct{}
 
 type CfpVote struct {
 	weaver.AutoMarshal
-	TalkID   value.TalkID
-	GlobalIP value.GlobalIP
+	TalkID    value.TalkID
+	GlobalIP  value.GlobalIP
+	CreatedAt time.Time
 }
 
 type CfpVotes struct {
@@ -25,22 +27,34 @@ type VoteCount struct {
 	Count  int
 }
 
-func (cv *CfpDomain) TallyCfpVotes(cvs *CfpVotes) ([]*VoteCount, error) {
-	counts := map[int32]int{}
-	for _, cv := range cvs.Items {
-		counts[cv.TalkID.Value()]++
+func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
+
+	type key struct {
+		talkId    int32
+		ip        string
+		timeFrame int64
+	}
+	voted := map[key]bool{}
+	counts := map[value.TalkID]int{}
+	for _, v := range cfpVotes.Items {
+		k := key{
+			talkId:    v.TalkID.Value(),
+			ip:        v.GlobalIP.Value(),
+			timeFrame: v.CreatedAt.Unix() / value.SPAN_SECONDS,
+		}
+		if _, isThere := voted[k]; isThere {
+			continue
+		}
+		voted[k] = true
+		counts[v.TalkID]++
 	}
 
 	var resp []*VoteCount
 	for talkID, count := range counts {
-		talkID, err := value.NewTalkID(talkID)
-		if err != nil {
-			return nil, err
-		}
 		resp = append(resp, &VoteCount{
 			TalkID: talkID,
 			Count:  count,
 		})
 	}
-	return resp, nil
+	return resp
 }

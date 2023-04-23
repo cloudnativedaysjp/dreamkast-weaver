@@ -75,6 +75,10 @@ func (v *ConfName) Validate() error {
 	)
 }
 
+const (
+	SPAN_SECONDS = 3600
+)
+
 type ConferenceKind string
 
 var (
