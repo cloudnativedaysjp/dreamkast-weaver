@@ -28,14 +28,14 @@ jobs:
       #  id: login-ecr
       #  uses: aws-actions/amazon-ecr-login@v1
 
-      #- name: Docker meta
-      #  id: meta
-      #  uses: docker/metadata-action@v4
-      #  with:
-      #    images: ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb
-      #    tags: |
-      #      type=sha,prefix=,format=long
-      #      type=ref,event=branch
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: dreamkast-weaver/initdb # TODO ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb
+          tags: |
+            type=sha,prefix=,format=long
+            type=ref,event=branch
 
       - name: Build
         id: docker_build
@@ -46,17 +46,17 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           push: false # TODO ture
           provenance: false
-          tags: dreamkast-weaver/initdb:latest # TODO ${{ steps.meta.outputs.tags }}
-          # TODO labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: dreamkast-weaver/initdb:latest #TODO '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb:${{ github.sha }}'
-          format: 'table'
-          exit-code: '0'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
+      #- name: Run Trivy vulnerability scanner
+      #  uses: aquasecurity/trivy-action@master
+      #  with:
+      #    image-ref: '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/initdb:${{ github.sha }}'
+      #    format: 'table'
+      #    exit-code: '0'
+      #    ignore-unfixed: true
+      #    vuln-type: 'os,library'
+      #    severity: 'CRITICAL,HIGH'
