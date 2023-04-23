@@ -6,6 +6,7 @@ import (
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
 )
 
+
 // Local stub implementations.
 
 // Client stub implementations.

@@ -2,6 +2,7 @@ package domain
 
 import (
 	"dreamkast-weaver/internal/cfp/value"
+	"net"
 	"time"
 
 	"github.com/ServiceWeaver/weaver"
@@ -12,7 +13,7 @@ type CfpDomain struct{}
 type CfpVote struct {
 	weaver.AutoMarshal
 	TalkID    value.TalkID
-	GlobalIP  value.GlobalIP
+	GlobalIP  net.IP
 	CreatedAt time.Time
 }
 
@@ -39,7 +40,7 @@ func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
 	for _, v := range cfpVotes.Items {
 		k := key{
 			talkId:    v.TalkID.Value(),
-			ip:        v.GlobalIP.Value(),
+			ip:        v.GlobalIP.String(),
 			timeFrame: v.CreatedAt.Unix() / value.SPAN_SECONDS,
 		}
 		if _, isThere := voted[k]; isThere {

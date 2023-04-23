@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
 
 	"dreamkast-weaver/internal/cfp/domain"
 	"dreamkast-weaver/internal/cfp/repo"
@@ -24,7 +25,7 @@ type VoteRequest struct {
 	weaver.AutoMarshal
 	ConfName value.ConfName
 	TalkID   value.TalkID
-	GlobalIP value.GlobalIP
+	GlobalIP net.IP
 }
 
 type ServiceImpl struct {
@@ -115,7 +116,7 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 		ConferenceName: string(req.ConfName.Value()),
 		TalkID:         int32(req.TalkID.Value()),
 		GlobalIp: sql.NullString{
-			String: req.GlobalIP.Value(),
+			String: req.GlobalIP.String(),
 			Valid:  true,
 		},
 	}); err != nil {
@@ -135,13 +136,10 @@ func (_cfpVoteConv) fromDB(v []repo.CfpVote) (*domain.CfpVotes, error) {
 		if err != nil {
 			return nil, err
 		}
-		globalIP, err := value.NewGlobalIP(v.GlobalIp.String)
-		if err != nil {
-			return nil, err
-		}
+		gip := net.ParseIP(v.GlobalIp.String)
 		return &domain.CfpVote{
 			TalkID:    talkID,
-			GlobalIP:  globalIP,
+			GlobalIP:  gip,
 			CreatedAt: v.CreatedAt,
 		}, nil
 	}

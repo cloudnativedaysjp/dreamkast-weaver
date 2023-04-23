@@ -6,6 +6,7 @@ import (
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
 )
 
+
 // Local stub implementations.
 
 // Client stub implementations.
@@ -21,7 +22,8 @@ func (x *CfpVote) WeaverMarshal(enc *codegen.Encoder) {
 		panic(fmt.Errorf("CfpVote.WeaverMarshal: nil receiver"))
 	}
 	(x.TalkID).WeaverMarshal(enc)
-	(x.GlobalIP).WeaverMarshal(enc)
+	serviceweaver_enc_slice_byte_87461245(enc, ([]byte)(x.GlobalIP))
+	enc.EncodeBinaryMarshaler(&x.CreatedAt)
 }
 
 func (x *CfpVote) WeaverUnmarshal(dec *codegen.Decoder) {
@@ -29,7 +31,31 @@ func (x *CfpVote) WeaverUnmarshal(dec *codegen.Decoder) {
 		panic(fmt.Errorf("CfpVote.WeaverUnmarshal: nil receiver"))
 	}
 	(&x.TalkID).WeaverUnmarshal(dec)
-	(&x.GlobalIP).WeaverUnmarshal(dec)
+	*(*[]byte)(&x.GlobalIP) = serviceweaver_dec_slice_byte_87461245(dec)
+	dec.DecodeBinaryUnmarshaler(&x.CreatedAt)
+}
+
+func serviceweaver_enc_slice_byte_87461245(enc *codegen.Encoder, arg []byte) {
+	if arg == nil {
+		enc.Len(-1)
+		return
+	}
+	enc.Len(len(arg))
+	for i := 0; i < len(arg); i++ {
+		enc.Byte(arg[i])
+	}
+}
+
+func serviceweaver_dec_slice_byte_87461245(dec *codegen.Decoder) []byte {
+	n := dec.Len()
+	if n == -1 {
+		return nil
+	}
+	res := make([]byte, n)
+	for i := 0; i < n; i++ {
+		res[i] = dec.Byte()
+	}
+	return res
 }
 
 var _ codegen.AutoMarshal = &CfpVotes{}

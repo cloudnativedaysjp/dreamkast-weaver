@@ -12,6 +12,7 @@ import (
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/model"
 	"errors"
+	"net"
 )
 
 // Vote is the resolver for the vote field.
@@ -24,8 +25,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 	err = errors.Join(err, e)
 	req.TalkID, e = cvalue.NewTalkID(int32(input.TalkID))
 	err = errors.Join(err, e)
-	req.GlobalIP, e = cvalue.NewGlobalIP(input.GlobalIP)
-	err = errors.Join(err, e)
+	req.GlobalIP = net.ParseIP(input.GlobalIP)
 	if err != nil {
 		return nil, err
 	}
