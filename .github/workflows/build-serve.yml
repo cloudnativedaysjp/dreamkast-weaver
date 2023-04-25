@@ -40,7 +40,7 @@ jobs:
           context: ./
           file: ./dockerfiles/serve.dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-          push: false # TODO ture
+          push: false # TODO true
           provenance: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
