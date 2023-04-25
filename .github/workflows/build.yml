@@ -1,4 +1,4 @@
-name: build dreamkast-weaver/serve image
+name: build dreamkast-weaver image
 
 on: push
 
@@ -6,6 +6,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: github.event.pusher.name != 'dreamkast-cloudnativedays'
+    strategy:
+      matrix:
+        bin: [initdb, serve]
     steps:
       - uses: actions/checkout@v3
 
@@ -28,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: dreamkast-weaver/serve # TODO ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/serve
+          images: dreamkast-weaver/${{ matrix.bin }} # TODO ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/${{ matrix.bin }} 
           tags: |
             type=sha,prefix=,format=long
             type=ref,event=branch
@@ -38,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: ./
-          file: ./dockerfiles/serve.dockerfile
+          file: ./dockerfiles/${{ matrix.bin }}.dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: false # TODO true
           provenance: false
@@ -50,7 +53,7 @@ jobs:
       #- name: Run Trivy vulnerability scanner
       #  uses: aquasecurity/trivy-action@master
       #  with:
-      #    image-ref: '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/serve:${{ github.sha }}'
+      #    image-ref: '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver/${{ matrix.bin }}:${{ github.sha }}'
       #    format: 'table'
       #    exit-code: '0'
       #    ignore-unfixed: true
