@@ -1,7 +1,5 @@
 VERSION ?= latest
 REGISTRY_BASE ?= 607167088920.dkr.ecr.ap-northeast-1.amazonaws.com/dreamkast-weaver
-REGISTRY_SERVE = ${REGISTRY_BASE}/serve
-REGISTRY_DBMIGRATE = ${REGISTRY_BASE}/initdb
 
 .PHONY: fmt
 fmt:
@@ -42,10 +40,8 @@ initdb:
 
 .PHONY: build-image
 build-image:
-	docker build -f dockerfiles/initdb.dockerfile -t $(REGISTRY_DBMIGRATE):$(VERSION) .
-	docker build -f dockerfiles/serve.dockerfile -t $(REGISTRY_SERVE):$(VERSION) .
+	docker build -f Dockerfile -t $(REGISTRY_BASE):$(VERSION) .
 
 .PHONY: push-image
 push-image:
-	docker push $(REGISTRY_DBMIGRATE):$(VERSION)
-	docker push $(REGISTRY_SERVE):$(VERSION)
+	docker push $(REGISTRY_BASE):$(VERSION)
