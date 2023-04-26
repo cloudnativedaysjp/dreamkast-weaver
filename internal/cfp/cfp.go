@@ -89,8 +89,13 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (
 	}()
 
 	r := repo.New(s.sh.DB())
+	req := repo.ListCfpVotesParams{
+		ConferenceName: string(confName.Value()),
+		Start:          confName.Start(),
+		End:            confName.End(),
+	}
 
-	votes, err := r.ListCfpVotes(ctx, string(confName.Value()))
+	votes, err := r.ListCfpVotes(ctx, req)
 	if err != nil {
 		return nil, stacktrace.With(fmt.Errorf("list cfp vote: %w", err))
 	}

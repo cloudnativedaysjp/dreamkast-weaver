@@ -8,6 +8,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"time"
 )
 
 const insertCfpVote = `-- name: InsertCfpVote :exec
@@ -34,11 +35,20 @@ func (q *Queries) InsertCfpVote(ctx context.Context, arg InsertCfpVoteParams) er
 
 const listCfpVotes = `-- name: ListCfpVotes :many
 SELECT conference_name, talk_id, created_at, client_ip FROM cfp_votes
-WHERE conference_name = ?
+WHERE
+  conference_name = ? AND
+  created_at > ? AND
+  created_at < ?
 `
 
-func (q *Queries) ListCfpVotes(ctx context.Context, conferenceName string) ([]CfpVote, error) {
-	rows, err := q.db.QueryContext(ctx, listCfpVotes, conferenceName)
+type ListCfpVotesParams struct {
+	ConferenceName string
+	Start          time.Time
+	End            time.Time
+}
+
+func (q *Queries) ListCfpVotes(ctx context.Context, arg ListCfpVotesParams) ([]CfpVote, error) {
+	rows, err := q.db.QueryContext(ctx, listCfpVotes, arg.ConferenceName, arg.Start, arg.End)
 	if err != nil {
 		return nil, err
 	}
