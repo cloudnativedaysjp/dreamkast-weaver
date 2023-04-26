@@ -20,7 +20,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 	req := cfp.VoteRequest{
 		ConfName: input.ConfName.String(),
 		TalkID:   input.TalkID,
-		GlobalIP: net.ParseIP(middleware.RealIPFromContext(ctx)),
+		ClientIP: net.ParseIP(middleware.ClientIPFromContext(ctx)),
 	}
 
 	if err := r.CfpService.Vote(ctx, req); err != nil {

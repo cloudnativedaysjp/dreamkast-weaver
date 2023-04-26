@@ -58,7 +58,7 @@ func TestCfpVoteImpl(t *testing.T) {
 	err = svc.Vote(ctx, cfp.VoteRequest{
 		ConfName: "cndf2023",
 		TalkID:   talkID,
-		GlobalIP: net.ParseIP("127.0.0.1"),
+		ClientIP: net.ParseIP("127.0.0.1"),
 	})
 	assert.NoError(t, err)
 

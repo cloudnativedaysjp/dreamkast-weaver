@@ -23,7 +23,7 @@ type VoteRequest struct {
 	weaver.AutoMarshal
 	ConfName string
 	TalkID   int
-	GlobalIP net.IP
+	ClientIP net.IP
 }
 
 type VoteCount struct {
@@ -124,8 +124,8 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
 		ConferenceName: req.ConfName,
 		TalkID:         int32(req.TalkID),
-		GlobalIp: sql.NullString{
-			String: req.GlobalIP.String(),
+		ClientIp: sql.NullString{
+			String: req.ClientIP.String(),
 			Valid:  true,
 		},
 	}); err != nil {

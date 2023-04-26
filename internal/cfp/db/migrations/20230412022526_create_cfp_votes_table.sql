@@ -4,7 +4,7 @@ CREATE TABLE
     conference_name CHAR(36) NOT NULL,
     talk_id INT NOT NULL,
     created_at DATETIME NOT NULL,
-    global_ip CHAR(16)
+    client_ip CHAR(16)
   );
 
 -- migrate:down
