@@ -19,7 +19,6 @@ import (
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
 	var e, err error
-	err = errors.Join(err, e)
 
 	req := cfp.VoteRequest{}
 	req.ConfName, err = cvalue.NewConfName(cvalue.ConferenceKind((input.ConfName.String())))
