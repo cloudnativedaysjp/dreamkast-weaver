@@ -9,7 +9,6 @@ require (
 	github.com/go-chi/chi v1.5.4
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/kyleconroy/sqlc v1.17.2
-	github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.opentelemetry.io/otel v1.13.0
 	go.opentelemetry.io/otel/trace v1.13.0

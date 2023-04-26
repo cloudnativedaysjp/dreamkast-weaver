@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"dreamkast-weaver/internal/graph"
+	gm "dreamkast-weaver/internal/graph/middleware"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -24,7 +25,7 @@ func main() {
 	}
 
 	router := chi.NewRouter()
-	router.Use(graph.NewIPMiddleware)
+	router.Use(gm.ClientIP)
 
 	// Initialize the Service Weaver application.
 	root := weaver.Init(context.Background())
