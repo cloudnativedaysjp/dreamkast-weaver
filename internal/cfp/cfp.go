@@ -2,8 +2,6 @@ package cfp
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"net"
 
 	"dreamkast-weaver/internal/cfp/domain"
@@ -88,19 +86,8 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (
 		s.HandleError("get voteCounts", err)
 	}()
 
-	r := repo.New(s.sh.DB())
-	req := repo.ListCfpVotesParams{
-		ConferenceName: string(confName.Value()),
-		Start:          confName.Start(),
-		End:            confName.End(),
-	}
-
-	votes, err := r.ListCfpVotes(ctx, req)
-	if err != nil {
-		return nil, stacktrace.With(fmt.Errorf("list cfp vote: %w", err))
-	}
-
-	dvotes, err := cfpVoteConv.fromDB(votes)
+	r := repo.NewCfpRepo(s.sh.DB())
+	dvotes, err := r.ListCfpVotes(ctx, confName)
 	if err != nil {
 		return nil, err
 	}
@@ -115,49 +102,7 @@ func (s *ServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 		s.HandleError("vote", err)
 	}()
 
-	r := repo.New(s.sh.DB())
+	r := repo.NewCfpRepo(s.sh.DB())
 
-	if err := r.InsertCfpVote(ctx, repo.InsertCfpVoteParams{
-		ConferenceName: string(req.ConfName.Value()),
-		TalkID:         req.TalkID.Value(),
-		ClientIp: sql.NullString{
-			String: req.ClientIp.String(),
-			Valid:  true,
-		},
-	}); err != nil {
-		return stacktrace.With(fmt.Errorf("incert cfp vote: %w", err))
-	}
-
-	return nil
-}
-
-var cfpVoteConv _cfpVoteConv
-
-type _cfpVoteConv struct{}
-
-func (_cfpVoteConv) fromDB(v []repo.CfpVote) (*domain.CfpVotes, error) {
-	conv := func(v *repo.CfpVote) (*domain.CfpVote, error) {
-		talkID, err := value.NewTalkID(v.TalkID)
-		if err != nil {
-			return nil, err
-		}
-		ip := net.ParseIP(v.ClientIp.String)
-		return &domain.CfpVote{
-			TalkID:    talkID,
-			ClientIp:  ip,
-			CreatedAt: v.CreatedAt,
-		}, nil
-	}
-
-	var items []domain.CfpVote
-	for _, p := range v {
-		cv := p
-		dcv, err := conv(&cv)
-		if err != nil {
-			return nil, stacktrace.With(fmt.Errorf("convert view event from DB: %w", err))
-		}
-		items = append(items, *dcv)
-	}
-
-	return &domain.CfpVotes{Items: items}, nil
+	return r.InsertCfpVote(ctx, req.ConfName, req.TalkID, req.ClientIp)
 }
