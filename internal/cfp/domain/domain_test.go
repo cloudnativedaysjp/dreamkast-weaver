@@ -15,7 +15,7 @@ var (
 )
 
 func TestCfpDomain_TallyCfpVotes(t *testing.T) {
-	tn := time.Unix(time.Now().Unix()/int64(value.SPAN_SECONDS)*int64(value.SPAN_SECONDS), 0)
+	tn := time.Unix(time.Now().Unix()/int64(domain.SPAN_SECONDS)*int64(domain.SPAN_SECONDS), 0)
 	id := newTalkID(1)
 	ip := net.ParseIP("192.0.2.1")
 
@@ -36,12 +36,12 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 					{
 						TalkID:    id,
 						ClientIp:  ip,
-						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
+						CreatedAt: tn.Add((domain.SPAN_SECONDS - 1) * time.Second),
 					},
 					{
 						TalkID:    id,
 						ClientIp:  ip,
-						CreatedAt: tn.Add(value.SPAN_SECONDS * time.Second),
+						CreatedAt: tn.Add(domain.SPAN_SECONDS * time.Second),
 					},
 				}}
 				return cvs
@@ -62,12 +62,12 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 					{
 						TalkID:    newTalkID(2),
 						ClientIp:  ip,
-						CreatedAt: tn.Add((value.SPAN_SECONDS - 3) * time.Second),
+						CreatedAt: tn.Add((domain.SPAN_SECONDS - 3) * time.Second),
 					},
 					{
 						TalkID:    id,
 						ClientIp:  net.ParseIP("192.0.2.2"),
-						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
+						CreatedAt: tn.Add((domain.SPAN_SECONDS - 1) * time.Second),
 					},
 				}}
 				return cvs

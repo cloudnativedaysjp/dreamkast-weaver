@@ -8,6 +8,10 @@ import (
 	"github.com/ServiceWeaver/weaver"
 )
 
+const (
+	SPAN_SECONDS = 3600
+)
+
 type CfpDomain struct{}
 
 type CfpVote struct {
@@ -40,7 +44,7 @@ func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
 		k := key{
 			talkId:    v.TalkID.Value(),
 			ip:        v.ClientIp.String(),
-			timeFrame: v.CreatedAt.Unix() / value.SPAN_SECONDS,
+			timeFrame: v.CreatedAt.Unix() / SPAN_SECONDS,
 		}
 		if _, isThere := voted[k]; isThere {
 			continue

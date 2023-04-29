@@ -75,10 +75,6 @@ func (v *ConfName) End() time.Time {
 	return cfpTerms[v.value].end
 }
 
-const (
-	SPAN_SECONDS = 3600
-)
-
 type ConferenceKind string
 type cfpTerm struct {
 	start time.Time
