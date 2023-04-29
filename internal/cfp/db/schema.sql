@@ -19,7 +19,7 @@ CREATE TABLE `cfp_votes` (
   `conference_name` char(36) NOT NULL,
   `talk_id` int NOT NULL,
   `created_at` datetime NOT NULL,
-  `global_ip` char(16) DEFAULT NULL
+  `client_ip` char(16) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

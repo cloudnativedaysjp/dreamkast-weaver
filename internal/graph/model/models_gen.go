@@ -49,7 +49,6 @@ type VoteCount struct {
 type VoteInput struct {
 	ConfName ConfName `json:"confName"`
 	TalkID   int      `json:"talkId"`
-	GlobalIP string   `json:"globalIp"`
 }
 
 type ChallengeCondition string

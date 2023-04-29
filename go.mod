@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.29
 	github.com/ServiceWeaver/weaver v0.4.0
 	github.com/amacneil/dbmate/v2 v2.2.0
+	github.com/go-chi/chi v1.5.4
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/kyleconroy/sqlc v1.17.2
 	github.com/vektah/gqlparser/v2 v2.5.1

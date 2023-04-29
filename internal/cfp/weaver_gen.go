@@ -276,7 +276,7 @@ func (x *VoteRequest) WeaverMarshal(enc *codegen.Encoder) {
 	}
 	enc.String(x.ConfName)
 	enc.Int(x.TalkID)
-	serviceweaver_enc_slice_byte_87461245(enc, ([]byte)(x.GlobalIP))
+	serviceweaver_enc_slice_byte_87461245(enc, ([]byte)(x.ClientIP))
 }
 
 func (x *VoteRequest) WeaverUnmarshal(dec *codegen.Decoder) {
@@ -285,7 +285,7 @@ func (x *VoteRequest) WeaverUnmarshal(dec *codegen.Decoder) {
 	}
 	x.ConfName = dec.String()
 	x.TalkID = dec.Int()
-	*(*[]byte)(&x.GlobalIP) = serviceweaver_dec_slice_byte_87461245(dec)
+	*(*[]byte)(&x.ClientIP) = serviceweaver_dec_slice_byte_87461245(dec)
 }
 
 func serviceweaver_enc_slice_byte_87461245(enc *codegen.Encoder, arg []byte) {

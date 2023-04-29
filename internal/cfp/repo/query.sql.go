@@ -14,7 +14,7 @@ const insertCfpVote = `-- name: InsertCfpVote :exec
 INSERT INTO cfp_votes (
   conference_name,
   talk_id,
-  global_ip,
+  client_ip,
   created_at
 ) VALUES ( 
   ?, ?, ?, now()
@@ -24,16 +24,16 @@ INSERT INTO cfp_votes (
 type InsertCfpVoteParams struct {
 	ConferenceName string
 	TalkID         int32
-	GlobalIp       sql.NullString
+	ClientIp       sql.NullString
 }
 
 func (q *Queries) InsertCfpVote(ctx context.Context, arg InsertCfpVoteParams) error {
-	_, err := q.db.ExecContext(ctx, insertCfpVote, arg.ConferenceName, arg.TalkID, arg.GlobalIp)
+	_, err := q.db.ExecContext(ctx, insertCfpVote, arg.ConferenceName, arg.TalkID, arg.ClientIp)
 	return err
 }
 
 const listCfpVotes = `-- name: ListCfpVotes :many
-SELECT conference_name, talk_id, created_at, global_ip FROM cfp_votes
+SELECT conference_name, talk_id, created_at, client_ip FROM cfp_votes
 WHERE conference_name = ?
 `
 
@@ -50,7 +50,7 @@ func (q *Queries) ListCfpVotes(ctx context.Context, conferenceName string) ([]Cf
 			&i.ConferenceName,
 			&i.TalkID,
 			&i.CreatedAt,
-			&i.GlobalIp,
+			&i.ClientIp,
 		); err != nil {
 			return nil, err
 		}

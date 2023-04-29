@@ -6,7 +6,7 @@ WHERE conference_name = ?;
 INSERT INTO cfp_votes (
   conference_name,
   talk_id,
-  global_ip,
+  client_ip,
   created_at
 ) VALUES ( 
   ?, ?, ?, now()

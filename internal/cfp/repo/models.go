@@ -13,7 +13,7 @@ type CfpVote struct {
 	ConferenceName string
 	TalkID         int32
 	CreatedAt      time.Time
-	GlobalIp       sql.NullString
+	ClientIp       sql.NullString
 }
 
 type SchemaMigration struct {
