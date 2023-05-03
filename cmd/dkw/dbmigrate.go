@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"path/filepath"
 
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	"github.com/spf13/cobra"
@@ -19,11 +20,11 @@ var (
 	dbs = []db{
 		{
 			name:         "/dkui",
-			migrationDir: "/internal/dkui/db/migrations",
+			migrationDir: "internal/dkui/db/migrations",
 		},
 		{
 			name:         "/cfp",
-			migrationDir: "/internal/cfp/db/migrations",
+			migrationDir: "internal/cfp/db/migrations",
 		},
 	}
 )
@@ -39,6 +40,11 @@ var dbmigrateCmd = &cobra.Command{
 		endpoint := getEnv("DB_ENDPOINT", "localhost")
 		port := getEnv("DB_PORT", "13306")
 
+		wd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		for _, db := range dbs {
 			u := &url.URL{
 				Scheme: "mysql",
@@ -48,7 +54,7 @@ var dbmigrateCmd = &cobra.Command{
 			}
 
 			dbm := dbmate.New(u)
-			dbm.MigrationsDir = db.migrationDir
+			dbm.MigrationsDir = filepath.Join(wd, db.migrationDir)
 			err := dbm.CreateAndMigrate()
 			if err != nil {
 				log.Fatal(err)
