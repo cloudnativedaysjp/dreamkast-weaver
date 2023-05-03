@@ -21,7 +21,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 	var e, err error
 
 	req := cfp.VoteRequest{}
-	req.ConfName, err = cvalue.NewConfName(cvalue.ConferenceKind((input.ConfName.String())))
+	req.ConfName, e = cvalue.NewConfName(cvalue.ConferenceKind((input.ConfName.String())))
 	err = errors.Join(err, e)
 	req.TalkID, e = cvalue.NewTalkID(int32(input.TalkID))
 	err = errors.Join(err, e)
