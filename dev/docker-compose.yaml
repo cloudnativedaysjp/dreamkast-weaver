@@ -5,16 +5,20 @@ services:
       context: ../
       dockerfile: dev/app/Dockerfile
     environment:
-      DB_ENDPOINT: db
-      DB_PORT: 3306 
+      DB_ENDPOINT: localhost
+      DB_PORT: 13306
       DB_USER: user
       DB_PASSWORD: password
       DB_NAME: dkui
+      UID: ${UID}
+      XDG_DATA_HOME: /mnt
     working_dir: /app
-    ports:
-      - "8080:8080"
+    network_mode: host
+    #ports:
+    #  - "8080:8080"
     volumes:
       - ../:/app
+      - ${HOME}/.local/share/serviceweaver/:/mnt/serviceweaver
   db:
     image: mysql/mysql-server:8.0
     environment:
