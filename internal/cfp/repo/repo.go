@@ -21,11 +21,11 @@ func NewCfpRepo(db DBTX) domain.CfpRepo {
 
 var _ domain.CfpRepo = (*CfpRepoImpl)(nil)
 
-func (r *CfpRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName) (*domain.CfpVotes, error) {
+func (r *CfpRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName, vt *domain.VotingTerm) (*domain.CfpVotes, error) {
 	req := ListCfpVotesParams{
 		ConferenceName: string(confName.Value()),
-		Start:          confName.Start(),
-		End:            confName.End(),
+		Start:          vt.Start,
+		End:            vt.End,
 	}
 
 	votes, err := r.q.ListCfpVotes(ctx, req)

@@ -1,9 +1,7 @@
 package value
 
 import (
-	"errors"
 	"fmt"
-	"time"
 
 	"github.com/ServiceWeaver/weaver"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -54,32 +52,10 @@ func (v *ConfName) String() string {
 func (v *ConfName) Validate() error {
 	return validation.Validate(v.value,
 		validation.In(cicd2023, cndf2023, cndt2023),
-		validation.By(func(value interface{}) error {
-			v, ok := value.(ConferenceKind)
-			if !ok {
-				return errors.New("must be conference kind")
-			}
-			if _, ok := cfpTerms[v]; !ok {
-				return errors.New("must be set to cfp terms")
-			}
-			return nil
-		}),
 	)
 }
 
-func (v *ConfName) Start() time.Time {
-	return cfpTerms[v.value].start
-}
-
-func (v *ConfName) End() time.Time {
-	return cfpTerms[v.value].end
-}
-
 type ConferenceKind string
-type cfpTerm struct {
-	start time.Time
-	end   time.Time
-}
 
 var (
 	cicd2023 ConferenceKind = "cicd2023"
@@ -89,38 +65,10 @@ var (
 	CICD2023 ConfName
 	CNDF2023 ConfName
 	CNDT2023 ConfName
-
-	jst *time.Location
-
-	cfpTerms map[ConferenceKind]cfpTerm
 )
 
 func init() {
-	var err, e error
-	jst, e = time.LoadLocation("Asia/Tokyo")
-	err = errors.Join(err, e)
-
-	cfpTerms = make(map[ConferenceKind]cfpTerm)
-	cfpTerms[cicd2023] = cfpTerm{
-		start: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
-		end:   time.Date(2023, 1, 25, 18, 0, 0, 0, jst),
-	}
-	cfpTerms[cndf2023] = cfpTerm{
-		start: time.Date(2023, 5, 2, 0, 0, 0, 0, jst),
-		end:   time.Date(2023, 6, 25, 18, 0, 0, 0, jst), // TODO adjust
-	}
-	cfpTerms[cndt2023] = cfpTerm{
-		start: time.Date(2023, 9, 1, 0, 0, 0, 0, jst),    // TODO adjust
-		end:   time.Date(2023, 11, 25, 18, 0, 0, 0, jst), // TODO adjust
-	}
-
-	CICD2023, e = NewConfName(cicd2023)
-	err = errors.Join(err, e)
-	CNDF2023, e = NewConfName(cndf2023)
-	err = errors.Join(err, e)
-	CNDT2023, e = NewConfName(cndt2023)
-	err = errors.Join(err, e)
-	if err != nil {
-		panic(err)
-	}
+	CICD2023, _ = NewConfName(cicd2023)
+	CNDF2023, _ = NewConfName(cndf2023)
+	CNDT2023, _ = NewConfName(cndt2023)
 }

@@ -2,6 +2,8 @@ package domain
 
 import (
 	"dreamkast-weaver/internal/cfp/value"
+	"dreamkast-weaver/internal/stacktrace"
+	"errors"
 	"net"
 	"time"
 
@@ -11,6 +13,37 @@ import (
 const (
 	SPAN_SECONDS = 3600
 )
+
+var (
+	jst         *time.Location
+	votingTerms map[value.ConfName]VotingTerm
+)
+
+var (
+	ErrMissingVotingTerm = errors.New("missing voting term")
+)
+
+func init() {
+	var err error
+	jst, err = time.LoadLocation("Asia/Tokyo")
+	if err != nil {
+		panic(err)
+	}
+
+	votingTerms = make(map[value.ConfName]VotingTerm)
+	votingTerms[value.CICD2023] = VotingTerm{
+		Start: time.Date(2023, 1, 1, 0, 0, 0, 0, jst),
+		End:   time.Date(2023, 1, 25, 18, 0, 0, 0, jst),
+	}
+	votingTerms[value.CNDF2023] = VotingTerm{
+		Start: time.Date(2023, 5, 2, 0, 0, 0, 0, jst),
+		End:   time.Date(2023, 6, 25, 18, 0, 0, 0, jst), // TODO adjust
+	}
+	votingTerms[value.CNDT2023] = VotingTerm{
+		Start: time.Date(2023, 9, 1, 0, 0, 0, 0, jst),    // TODO adjust
+		End:   time.Date(2023, 11, 25, 18, 0, 0, 0, jst), // TODO adjust
+	}
+}
 
 type CfpDomain struct{}
 
@@ -30,6 +63,11 @@ type VoteCount struct {
 	weaver.AutoMarshal
 	TalkID value.TalkID
 	Count  int
+}
+
+type VotingTerm struct {
+	Start time.Time
+	End   time.Time
 }
 
 func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
@@ -61,4 +99,11 @@ func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes) []*VoteCount {
 		})
 	}
 	return resp
+}
+
+func (cd *CfpDomain) GetVotingTerm(cn value.ConfName) (*VotingTerm, error) {
+	if vt, ok := votingTerms[cn]; ok {
+		return &vt, nil
+	}
+	return nil, stacktrace.With(ErrMissingVotingTerm)
 }

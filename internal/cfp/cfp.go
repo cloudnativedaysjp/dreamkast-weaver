@@ -87,7 +87,13 @@ func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (
 	}()
 
 	r := repo.NewCfpRepo(s.sh.DB())
-	dvotes, err := r.ListCfpVotes(ctx, confName)
+
+	dvt, err := s.domain.GetVotingTerm(confName)
+	if err != nil {
+		return nil, err
+	}
+
+	dvotes, err := r.ListCfpVotes(ctx, confName, dvt)
 	if err != nil {
 		return nil, err
 	}
