@@ -5,7 +5,6 @@ import (
 	"dreamkast-weaver/internal/graph"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -18,7 +17,7 @@ import (
 	gm "dreamkast-weaver/internal/graph/middleware"
 )
 
-const defaultPort = "8080"
+var port string
 
 var (
 	corsOpts = cors.Options{
@@ -37,11 +36,6 @@ var serveCmd = &cobra.Command{
 	Short: "Run service",
 	Long:  "Run service",
 	Run: func(cmd *cobra.Command, args []string) {
-
-		port := os.Getenv("PORT")
-		if port == "" {
-			port = defaultPort
-		}
 
 		router := chi.NewRouter()
 		router.Use(gm.ClientIP)
@@ -75,4 +69,5 @@ var serveCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(serveCmd)
+	serveCmd.Flags().StringVarP(&port, "port", "p", "8080", "listen port")
 }
