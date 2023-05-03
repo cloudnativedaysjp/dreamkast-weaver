@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"dreamkast-weaver/internal/cfp"
+	"dreamkast-weaver/internal/cfp/value"
 
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
@@ -53,16 +54,17 @@ func TestCfpVoteImpl(t *testing.T) {
 	svc, err := weaver.Get[cfp.Service](root)
 	mustNil(err)
 
-	talkID := 3
+	cn := value.CICD2023
+	talkID, _ := value.NewTalkID(3)
 
 	err = svc.Vote(ctx, cfp.VoteRequest{
-		ConfName: "cndf2023",
+		ConfName: cn,
 		TalkID:   talkID,
-		ClientIP: net.ParseIP("127.0.0.1"),
+		ClientIp: net.ParseIP("127.0.0.1"),
 	})
 	assert.NoError(t, err)
 
-	resp, err := svc.VoteCounts(ctx, "cndf2023")
+	resp, err := svc.VoteCounts(ctx, cn)
 	assert.NoError(t, err)
 
 	var ok bool

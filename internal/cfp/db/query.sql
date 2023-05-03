@@ -1,6 +1,9 @@
 -- name: ListCfpVotes :many
 SELECT * FROM cfp_votes
-WHERE conference_name = ?;
+WHERE
+  conference_name = ? AND
+  created_at > sqlc.arg(start) AND
+  created_at < sqlc.arg(end);
 
 -- name: InsertCfpVote :exec
 INSERT INTO cfp_votes (
