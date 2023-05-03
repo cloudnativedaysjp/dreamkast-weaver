@@ -49,7 +49,7 @@ var serveCmd = &cobra.Command{
 		}))
 
 		opts := weaver.ListenerOptions{LocalAddress: ":" + port}
-		lis, err := root.Listener("dreamkast-weaver", opts)
+		lis, err := root.Listener("dkw-serve", opts)
 		if err != nil {
 			log.Fatal(err)
 		}
