@@ -7,8 +7,8 @@
   "packageRules": [
     {
       "matchManagers": ["gomod"],
-      "matchUpdateTypes": ["patch", "minor", "digest"],
-      "groupName": "all minor, patch, or digest dependencies on Go",
+      "matchUpdateTypes": ["patch", "digest"],
+      "groupName": "all patch, or digest dependencies on Go",
     },
     {
       "matchManagers": ["github-actions"],
