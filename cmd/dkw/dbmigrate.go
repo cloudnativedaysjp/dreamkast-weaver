@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
+	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
 	"github.com/spf13/cobra"
 )
 
