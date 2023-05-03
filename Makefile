@@ -15,7 +15,7 @@ test: fmt vet
 
 .PHONY: build
 build:
-	go build -o serve ./cmd/serve/main.go
+	go build -o dkw cmd/main.go
 
 .PHONY: generate
 generate:
@@ -33,10 +33,6 @@ multi-deploy:
 .PHONY: multi-status
 multi-status:
 	weaver multi status
-
-.PHONY: initdb
-initdb:
-	go run tools/initdb/main.go
 
 .PHONY: build-image
 build-image:

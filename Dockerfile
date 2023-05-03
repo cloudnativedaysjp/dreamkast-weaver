@@ -9,13 +9,16 @@ COPY go.sum go.sum
 RUN go mod download
 COPY . .
 # Build
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags timetzdata -a -o serve cmd/serve/main.go
+ARG GOOS=linux
+ARG GOARCH=amd64
+RUN CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -ldflags="-s -w" -trimpath -tags timetzdata -o dkw cmd/main.go
 
 ### runner ###
 FROM gcr.io/distroless/static-debian11:nonroot
 WORKDIR /
 EXPOSE 8080
 
-COPY --from=builder /workspace/serve .
+COPY internal internal
+COPY --from=builder /workspace/dkw .
 
-ENTRYPOINT ["/serve"]
+ENTRYPOINT ["/dkw"]
