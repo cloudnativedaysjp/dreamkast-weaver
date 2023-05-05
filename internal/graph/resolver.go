@@ -1,12 +1,21 @@
 package graph
 
 import (
+	"context"
 	"log"
+	"net/http"
+	"sync"
+	"time"
+
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/ServiceWeaver/weaver"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/cors"
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/dkui"
-
-	"github.com/ServiceWeaver/weaver"
+	gm "dreamkast-weaver/internal/graph/middleware"
 )
 
 // This file will not be regenerated automatically.
@@ -15,24 +24,55 @@ import (
 
 //go:generate go run github.com/99designs/gqlgen generate
 
-type Resolver struct {
-	CfpService  cfp.Service
-	DkUiService dkui.Service
+var (
+	port = "8080"
+	pMu  sync.Mutex
+
+	corsOpts = cors.Options{
+		AllowedOrigins: []string{"https://*", "http://*"},
+		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders: []string{
+			"Content-Type", "Accept", "Authorization",
+			"X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token", "X-Amz-User-Agent",
+		},
+	}
+)
+
+func SetPort(addr string) {
+	pMu.Lock()
+	defer pMu.Unlock()
+	port = addr
 }
 
-func NewResolver(root weaver.Instance) *Resolver {
-	cfp, err := weaver.Get[cfp.Service](root)
-	if err != nil {
-		log.Fatal(err)
-	}
+type Resolver struct {
+	weaver.Implements[weaver.Main]
+	CfpService  weaver.Ref[cfp.Service]
+	DkUiService weaver.Ref[dkui.Service]
+}
 
-	dkui, err := weaver.Get[dkui.Service](root)
-	if err != nil {
-		log.Fatal(err)
-	}
+func Serve(ctx context.Context, r *Resolver) error {
+	router := chi.NewRouter()
+	router.Use(gm.ClientIP)
+	router.Use(cors.Handler(corsOpts))
 
-	return &Resolver{
-		CfpService:  cfp,
-		DkUiService: dkui,
+	srv := handler.NewDefaultServer(NewExecutableSchema(Config{
+		Resolvers: r,
+	}))
+
+	opts := weaver.ListenerOptions{LocalAddress: ":" + port}
+	lis, err := r.Listener("dkw-serve", opts)
+	if err != nil {
+		return err
 	}
+	log.Printf("Listener available on %v\n", lis)
+
+	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	router.Handle("/query", srv)
+
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	s := http.Server{
+		ReadHeaderTimeout: 5 * time.Second,
+		Handler:           router,
+	}
+	return s.Serve(lis)
 }

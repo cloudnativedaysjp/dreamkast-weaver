@@ -30,7 +30,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 		return nil, err
 	}
 
-	if err := r.CfpService.Vote(ctx, req); err != nil {
+	if err := r.CfpService.Get().Vote(ctx, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -48,7 +48,7 @@ func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnl
 		return nil, err
 	}
 
-	if err := r.DkUiService.StampOnline(ctx, profile, slotID); err != nil {
+	if err := r.DkUiService.Get().StampOnline(ctx, profile, slotID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -71,7 +71,7 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 		return nil, err
 	}
 
-	if err := r.DkUiService.StampOnSite(ctx, profile, req); err != nil {
+	if err := r.DkUiService.Get().StampOnSite(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -94,7 +94,7 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 		return nil, err
 	}
 
-	if err := r.DkUiService.CreateViewEvent(ctx, profile, req); err != nil {
+	if err := r.DkUiService.Get().CreateViewEvent(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -107,7 +107,7 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName)
 		return nil, err
 	}
 
-	resp, err := r.CfpService.VoteCounts(ctx, cn)
+	resp, err := r.CfpService.Get().VoteCounts(ctx, cn)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfNam
 		return nil, err
 	}
 
-	devents, err := r.DkUiService.ViewingEvents(ctx, profile)
+	devents, err := r.DkUiService.Get().ViewingEvents(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +153,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 		return nil, err
 	}
 
-	dstamps, err := r.DkUiService.StampChallenges(ctx, profile)
+	dstamps, err := r.DkUiService.Get().StampChallenges(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
