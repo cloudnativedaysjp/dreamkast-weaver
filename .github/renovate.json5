@@ -15,6 +15,10 @@
       "groupName": "all dependencies on GitHub Actions",
     },
   ],
+  "postUpdateOptions": [
+    "gomodTidy",
+    "gomodUpdateImportPaths",
+  ],
   "enabledManagers": [
     "gomod",
     "github-actions",
