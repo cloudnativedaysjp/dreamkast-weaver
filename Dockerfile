@@ -19,8 +19,13 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 ### runner ###
 FROM gcr.io/distroless/static-debian11:nonroot
-WORKDIR /
+
+LABEL org.opencontainers.image.authors="Yoshitaka Fujii, Hiroki Okui, Kohei Ota"
+LABEL org.opencontainers.image.url="https://github.com/cloudnativedaysjp/dreamkast-weaver"
+LABEL org.opencontainers.image.source="https://github.com/cloudnativedaysjp/dreamkast-weaver/blob/main/Dockerfile"
 EXPOSE 8080
+
+WORKDIR /
 
 COPY --link internal internal
 COPY --link --from=builder /workspace/dkw .
