@@ -3,7 +3,7 @@ module dreamkast-weaver
 go 1.20
 
 require (
-	github.com/99designs/gqlgen v0.17.29
+	github.com/99designs/gqlgen v0.17.31
 	github.com/ServiceWeaver/weaver v0.7.2
 	github.com/amacneil/dbmate/v2 v2.2.0
 	github.com/go-chi/chi v1.5.4
