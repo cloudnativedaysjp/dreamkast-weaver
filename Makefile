@@ -1,3 +1,6 @@
+VERSION ?= latest
+REGISTRY_BASE ?= 607167088920.dkr.ecr.ap-northeast-1.amazonaws.com/dreamkast-weaver
+
 .PHONY: fmt
 fmt:
 	go fmt ./...
@@ -12,7 +15,7 @@ test: fmt vet
 
 .PHONY: build
 build:
-	go build -o serve ./cmd/serve/main.go
+	go build -o dkw cmd/main.go
 
 .PHONY: generate
 generate:
@@ -30,3 +33,11 @@ multi-deploy:
 .PHONY: multi-status
 multi-status:
 	weaver multi status
+
+.PHONY: build-image
+build-image:
+	docker build -f Dockerfile -t $(REGISTRY_BASE):$(VERSION) .
+
+.PHONY: push-image
+push-image:
+	docker push $(REGISTRY_BASE):$(VERSION)

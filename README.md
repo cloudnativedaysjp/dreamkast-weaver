@@ -14,7 +14,7 @@ Microservices for dreamkast built on Service Weaver.
 Run the dev container and database:
 
 ```bash
-docker-compose -f dev/docker-compose.yaml up -d
+docker-compose -f dev/compose.yaml up -d
 ```
 
 Access `http://localhost:8080` then you can perform tests with a graphiql UI.
