@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   dev-app:
     build:
@@ -9,7 +8,6 @@ services:
       DB_PORT: 13306
       DB_USER: user
       DB_PASSWORD: password
-      DB_NAME: dkui
       UID: ${UID}
       XDG_DATA_HOME: /mnt
     working_dir: /app

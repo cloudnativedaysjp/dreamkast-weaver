@@ -1,12 +1,10 @@
 package graph
 
 import (
-	"log"
+	"github.com/ServiceWeaver/weaver"
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/dkui"
-
-	"github.com/ServiceWeaver/weaver"
 )
 
 // This file will not be regenerated automatically.
@@ -16,23 +14,7 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	CfpService  cfp.Service
-	DkUiService dkui.Service
-}
-
-func NewResolver(root weaver.Instance) *Resolver {
-	cfp, err := weaver.Get[cfp.Service](root)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	dkui, err := weaver.Get[dkui.Service](root)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return &Resolver{
-		CfpService:  cfp,
-		DkUiService: dkui,
-	}
+	weaver.Implements[weaver.Main]
+	CfpService  weaver.Ref[cfp.Service]
+	DkUiService weaver.Ref[dkui.Service]
 }

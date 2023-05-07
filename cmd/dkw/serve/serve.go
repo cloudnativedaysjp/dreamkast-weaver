@@ -1,25 +1,25 @@
-package main
+package serve
 
 import (
 	"context"
 	"log"
 	"net/http"
-	"os"
 	"time"
-
-	"dreamkast-weaver/internal/graph"
-	gm "dreamkast-weaver/internal/graph/middleware"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/ServiceWeaver/weaver"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
+	"github.com/spf13/cobra"
+
+	"dreamkast-weaver/internal/graph"
+	gm "dreamkast-weaver/internal/graph/middleware"
 )
 
-const defaultPort = "8080"
-
 var (
+	Port string
+
 	corsOpts = cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
@@ -30,37 +30,41 @@ var (
 	}
 )
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
+// serveCmd represents the serve command.
+var Cmd = &cobra.Command{
+	Use:   "serve",
+	Short: "Run service",
+	Long:  "Run service",
+	Run: func(_ *cobra.Command, _ []string) {
+		if err := weaver.Run(context.Background(), serve); err != nil {
+			log.Fatal(err)
+		}
+	},
+}
 
+func serve(ctx context.Context, r *graph.Resolver) error {
 	router := chi.NewRouter()
 	router.Use(gm.ClientIP)
 	router.Use(cors.Handler(corsOpts))
 
-	// Initialize the Service Weaver application.
-	root := weaver.Init(context.Background())
-
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: graph.NewResolver(root),
+		Resolvers: r,
 	}))
 
-	opts := weaver.ListenerOptions{LocalAddress: ":" + port}
-	lis, err := root.Listener("dreamkast-weaver", opts)
+	opts := weaver.ListenerOptions{LocalAddress: ":" + Port}
+	lis, err := r.Listener("dkw-serve", opts)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	log.Printf("Listener available on %v\n", lis)
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
 	s := http.Server{
 		ReadHeaderTimeout: 5 * time.Second,
 		Handler:           router,
 	}
-	log.Fatal(s.Serve(lis))
+	return s.Serve(lis)
 }
