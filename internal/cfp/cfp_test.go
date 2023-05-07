@@ -9,7 +9,6 @@ import (
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/cfp/value"
 
-	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
@@ -46,35 +45,36 @@ func teardown() {}
 
 func TestCfpVoteImpl(t *testing.T) {
 	t.Skip()
-	ctx := context.Background()
-	root := weavertest.Init(ctx, t, weavertest.Options{
+
+	opt := weavertest.Options{
 		SingleProcess: true,
 		Config:        weaverConfig,
-	})
-	svc, err := weaver.Get[cfp.Service](root)
-	mustNil(err)
-
-	cn := value.CICD2023
-	talkID, _ := value.NewTalkID(3)
-
-	err = svc.Vote(ctx, cfp.VoteRequest{
-		ConfName: cn,
-		TalkID:   talkID,
-		ClientIp: net.ParseIP("127.0.0.1"),
-	})
-	assert.NoError(t, err)
-
-	resp, err := svc.VoteCounts(ctx, cn)
-	assert.NoError(t, err)
-
-	var ok bool
-	for _, r := range resp {
-		if r.TalkID == talkID {
-			ok = true
-			assert.Greater(t, r.Count, 0)
-		}
 	}
-	assert.True(t, ok, "talkID not found")
+
+	weavertest.Run(t, opt, func(svc cfp.Service) {
+		ctx := context.Background()
+		cn := value.CICD2023
+		talkID, _ := value.NewTalkID(3)
+
+		err := svc.Vote(ctx, cfp.VoteRequest{
+			ConfName: cn,
+			TalkID:   talkID,
+			ClientIp: net.ParseIP("127.0.0.1"),
+		})
+		assert.NoError(t, err)
+
+		resp, err := svc.VoteCounts(ctx, cn)
+		assert.NoError(t, err)
+
+		var ok bool
+		for _, r := range resp {
+			if r.TalkID == talkID {
+				ok = true
+				assert.Greater(t, r.Count, 0)
+			}
+		}
+		assert.True(t, ok, "talkID not found")
+	})
 }
 
 func mustNil(err error) {

@@ -9,7 +9,6 @@ import (
 	"dreamkast-weaver/internal/dkui/domain"
 	"dreamkast-weaver/internal/dkui/value"
 
-	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
@@ -48,96 +47,98 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	domain.ChangeGuardSecondsForTest(0)
 	domain.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
 
-	ctx := context.Background()
-	root := weavertest.Init(ctx, t, weavertest.Options{
+	opt := weavertest.Options{
 		SingleProcess: true,
 		Config:        weaverConfig,
+	}
+
+	weavertest.Run(t, opt, func(svc dkui.Service) {
+		ctx := context.Background()
+
+		profile := dkui.Profile{
+			ConfName: newConfName("cndt2023"),
+			ID:       newProfileID(1),
+		}
+		req := dkui.CreateViewEventRequest{
+			TrackID: newTrackID(2),
+			TalkID:  newTalkID(3),
+			SlotID:  newSlotID(1000),
+		}
+
+		// first time
+		err := svc.CreateViewEvent(ctx, profile, req)
+		assert.NoError(t, err)
+
+		events, err := svc.ViewingEvents(ctx, profile)
+		assert.NoError(t, err)
+
+		stamps, err := svc.StampChallenges(ctx, profile)
+		assert.NoError(t, err)
+
+		assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS)
+		assert.Len(t, stamps.Items, 0)
+
+		// second time
+		err = svc.CreateViewEvent(ctx, profile, req)
+		assert.NoError(t, err)
+
+		events, err = svc.ViewingEvents(ctx, profile)
+		assert.NoError(t, err)
+
+		stamps, err = svc.StampChallenges(ctx, profile)
+		assert.NoError(t, err)
+
+		assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
+		assert.Len(t, stamps.Items, 1)
+		assertStampCondition(t, stamps, 1000, "ready")
+
+		// stamp
+		err = svc.StampOnline(ctx, profile, req.SlotID)
+		assert.NoError(t, err)
+
+		events, err = svc.ViewingEvents(ctx, profile)
+		assert.NoError(t, err)
+
+		stamps, err = svc.StampChallenges(ctx, profile)
+		assert.NoError(t, err)
+
+		assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
+		assert.Len(t, stamps.Items, 1)
+		assertStampCondition(t, stamps, 1000, "stamped")
 	})
-	svc, err := weaver.Get[dkui.Service](root)
-	mustNil(err)
-
-	profile := dkui.Profile{
-		ConfName: newConfName("cndt2023"),
-		ID:       newProfileID(1),
-	}
-	req := dkui.CreateViewEventRequest{
-		TrackID: newTrackID(2),
-		TalkID:  newTalkID(3),
-		SlotID:  newSlotID(1000),
-	}
-
-	// first time
-	err = svc.CreateViewEvent(ctx, profile, req)
-	assert.NoError(t, err)
-
-	events, err := svc.ViewingEvents(ctx, profile)
-	assert.NoError(t, err)
-
-	stamps, err := svc.StampChallenges(ctx, profile)
-	assert.NoError(t, err)
-
-	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS)
-	assert.Len(t, stamps.Items, 0)
-
-	// second time
-	err = svc.CreateViewEvent(ctx, profile, req)
-	assert.NoError(t, err)
-
-	events, err = svc.ViewingEvents(ctx, profile)
-	assert.NoError(t, err)
-
-	stamps, err = svc.StampChallenges(ctx, profile)
-	assert.NoError(t, err)
-
-	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
-	assert.Len(t, stamps.Items, 1)
-	assertStampCondition(t, stamps, 1000, "ready")
-
-	// stamp
-	err = svc.StampOnline(ctx, profile, req.SlotID)
-	assert.NoError(t, err)
-
-	events, err = svc.ViewingEvents(ctx, profile)
-	assert.NoError(t, err)
-
-	stamps, err = svc.StampChallenges(ctx, profile)
-	assert.NoError(t, err)
-
-	assertViewEvents(t, events, 1000, value.INTERVAL_SECONDS*2)
-	assert.Len(t, stamps.Items, 1)
-	assertStampCondition(t, stamps, 1000, "stamped")
 }
 
 func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
-	ctx := context.Background()
-	root := weavertest.Init(ctx, t, weavertest.Options{
+	opt := weavertest.Options{
 		SingleProcess: true,
 		Config:        weaverConfig,
+	}
+
+	weavertest.Run(t, opt, func(svc dkui.Service) {
+		ctx := context.Background()
+
+		profile := dkui.Profile{
+			ConfName: newConfName("cndt2023"),
+			ID:       newProfileID(1),
+		}
+		req := dkui.StampRequest{
+			TrackID: newTrackID(2),
+			TalkID:  newTalkID(3),
+			SlotID:  newSlotID(1001),
+		}
+
+		err := svc.StampOnSite(ctx, profile, req)
+		assert.NoError(t, err)
+
+		slots, err := svc.ViewingEvents(ctx, profile)
+		assert.NoError(t, err)
+
+		stamps, err := svc.StampChallenges(ctx, profile)
+		assert.NoError(t, err)
+
+		assertViewEvents(t, slots, 1001, value.TALK_SECONDS)
+		assertStampCondition(t, stamps, 1001, "stamped")
 	})
-	svc, err := weaver.Get[dkui.Service](root)
-	mustNil(err)
-
-	profile := dkui.Profile{
-		ConfName: newConfName("cndt2023"),
-		ID:       newProfileID(1),
-	}
-	req := dkui.StampRequest{
-		TrackID: newTrackID(2),
-		TalkID:  newTalkID(3),
-		SlotID:  newSlotID(1001),
-	}
-
-	err = svc.StampOnSite(ctx, profile, req)
-	assert.NoError(t, err)
-
-	slots, err := svc.ViewingEvents(ctx, profile)
-	assert.NoError(t, err)
-
-	stamps, err := svc.StampChallenges(ctx, profile)
-	assert.NoError(t, err)
-
-	assertViewEvents(t, slots, 1001, value.TALK_SECONDS)
-	assertStampCondition(t, stamps, 1001, "stamped")
 }
 
 func mustNil(err error) {
