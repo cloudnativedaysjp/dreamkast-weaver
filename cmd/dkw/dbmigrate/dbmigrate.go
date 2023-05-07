@@ -46,6 +46,14 @@ var Cmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		// Check for existing migration dir.
+		for _, db := range dbs {
+			mdp := filepath.Join(wd, db.migrationDir)
+			if _, err := os.Stat(mdp); err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		for _, db := range dbs {
 			u := &url.URL{
 				Scheme: "mysql",
