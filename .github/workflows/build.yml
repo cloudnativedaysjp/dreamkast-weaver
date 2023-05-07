@@ -13,22 +13,22 @@ jobs:
         id: buildx
         uses: docker/setup-buildx-action@v2
 
-      #- name: Configure AWS Credentials
-      #  uses: aws-actions/configure-aws-credentials@v2
-      #  with:
-      #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #    aws-region: ap-northeast-1
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
 
-      #- name: Login to Amazon ECR
-      #  id: login-ecr
-      #  uses: aws-actions/amazon-ecr-login@v1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: dreamkast-weaver # TODO ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver
+          images: ${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver
           tags: |
             type=sha,prefix=,format=long
             type=ref,event=branch
@@ -40,19 +40,19 @@ jobs:
           context: ./
           file: Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
-          push: false # TODO true
+          push: true
           provenance: false
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      #- name: Run Trivy vulnerability scanner
-      #  uses: aquasecurity/trivy-action@master
-      #  with:
-      #    image-ref: '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver:${{ github.sha }}'
-      #    format: 'table'
-      #    exit-code: '0'
-      #    ignore-unfixed: true
-      #    vuln-type: 'os,library'
-      #    severity: 'CRITICAL,HIGH'
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ steps.login-ecr.outputs.registry }}/dreamkast-weaver:${{ github.sha }}'
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
