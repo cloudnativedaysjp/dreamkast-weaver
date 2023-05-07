@@ -7,8 +7,8 @@ require (
 	github.com/ServiceWeaver/weaver v0.4.0
 	github.com/amacneil/dbmate/v2 v2.2.0
 	github.com/go-chi/chi v1.5.4
-	github.com/go-sql-driver/mysql v1.7.0
-	github.com/kyleconroy/sqlc v1.17.2
+	github.com/go-sql-driver/mysql v1.7.1
+	github.com/kyleconroy/sqlc v1.18.0
 	github.com/spf13/cobra-cli v1.3.0
 	github.com/vektah/gqlparser/v2 v2.5.1
 	go.opentelemetry.io/otel v1.13.0
@@ -16,15 +16,21 @@ require (
 )
 
 require (
+	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230321174746-8dcc6526cfb1 // indirect
+	github.com/bytecodealliance/wasmtime-go/v8 v8.0.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/pganalyze/pg_query_go/v4 v4.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/riza-io/grpc-go v0.1.0 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.10.1 // indirect
 	github.com/subosito/gotenv v1.2.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	google.golang.org/grpc v1.54.0 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
@@ -38,7 +44,6 @@ require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
-	github.com/bytecodealliance/wasmtime-go/v5 v5.0.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/cubicdaiya/gonp v1.0.4 // indirect
 	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548 // indirect
@@ -62,13 +67,12 @@ require (
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.15.15 // indirect
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/lib/pq v1.10.9 // indirect
 	github.com/lightstep/varopt v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/paulmach/orb v0.8.0 // indirect
-	github.com/pganalyze/pg_query_go/v2 v2.2.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
 	github.com/pingcap/errors v0.11.5-0.20210425183316-da1aaba5fb63 // indirect
 	github.com/pingcap/log v0.0.0-20210906054005-afc726e70354 // indirect
@@ -93,12 +97,12 @@ require (
 	golang.org/x/exp v0.0.0-20230206171751-46f607a40771 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/term v0.6.0 // indirect
+	golang.org/x/text v0.8.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	google.golang.org/genproto v0.0.0-20221109142239-94d6d90a7d66 // indirect
-	google.golang.org/protobuf v1.28.1 // indirect
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
+	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
