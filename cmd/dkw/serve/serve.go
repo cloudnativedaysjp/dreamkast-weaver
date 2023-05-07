@@ -1,8 +1,7 @@
-package dkw
+package serve
 
 import (
 	"context"
-	"dreamkast-weaver/internal/graph"
 	"log"
 	"net/http"
 	"time"
@@ -14,10 +13,11 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/spf13/cobra"
 
+	"dreamkast-weaver/internal/graph"
 	gm "dreamkast-weaver/internal/graph/middleware"
 )
 
-var port string
+var Port string
 
 var (
 	corsOpts = cors.Options{
@@ -30,8 +30,8 @@ var (
 	}
 )
 
-// serveCmd represents the serve command.
-var serveCmd = &cobra.Command{
+// Cmd represents the serve command.
+var Cmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Run service",
 	Long:  "Run service",
@@ -48,7 +48,7 @@ var serveCmd = &cobra.Command{
 			Resolvers: graph.NewResolver(root),
 		}))
 
-		opts := weaver.ListenerOptions{LocalAddress: ":" + port}
+		opts := weaver.ListenerOptions{LocalAddress: ":" + Port}
 		lis, err := root.Listener("dkw-serve", opts)
 		if err != nil {
 			log.Fatal(err)
@@ -58,16 +58,11 @@ var serveCmd = &cobra.Command{
 		router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 		router.Handle("/query", srv)
 
-		log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+		log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
 		s := http.Server{
 			ReadHeaderTimeout: 5 * time.Second,
 			Handler:           router,
 		}
 		log.Fatal(s.Serve(lis))
 	},
-}
-
-func init() {
-	rootCmd.AddCommand(serveCmd)
-	serveCmd.Flags().StringVarP(&port, "port", "p", "8080", "listen port")
 }

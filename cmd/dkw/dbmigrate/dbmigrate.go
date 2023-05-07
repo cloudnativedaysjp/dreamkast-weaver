@@ -1,4 +1,4 @@
-package dkw
+package dbmigrate
 
 import (
 	"fmt"
@@ -30,8 +30,8 @@ var (
 	}
 )
 
-// dbmigrateCmd represents the dbmigrate command.
-var dbmigrateCmd = &cobra.Command{
+// Cmd represents the dbmigrate command.
+var Cmd = &cobra.Command{
 	Use:   "dbmigrate",
 	Short: "Create database and Migrate to the latest version",
 	Long:  "Create database and Migrate to the latest version",
@@ -64,10 +64,6 @@ var dbmigrateCmd = &cobra.Command{
 			log.Printf("CreateAndMigrate for %s is complete", db.name)
 		}
 	},
-}
-
-func init() {
-	rootCmd.AddCommand(dbmigrateCmd)
 }
 
 func getEnv(key, fallback string) string {
