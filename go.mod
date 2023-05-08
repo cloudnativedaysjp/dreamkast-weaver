@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.29
 	github.com/ServiceWeaver/weaver v0.7.2
 	github.com/amacneil/dbmate/v2 v2.2.0
-	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/kyleconroy/sqlc v1.18.0
 	github.com/spf13/cobra-cli v1.3.0
