@@ -3123,42 +3123,47 @@ func (ec *executionContext) unmarshalInputCreateViewEventInput(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			data, err := ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ConfName = data
 		case "profileID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProfileID = data
 		case "trackID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
-			it.TrackID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.TrackID = data
 		case "talkID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
-			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.TalkID = data
 		case "slotID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SlotID = data
 		}
 	}
 
@@ -3183,42 +3188,47 @@ func (ec *executionContext) unmarshalInputStampOnSiteInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			data, err := ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ConfName = data
 		case "profileID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProfileID = data
 		case "trackID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
-			it.TrackID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.TrackID = data
 		case "talkID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
-			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.TalkID = data
 		case "slotID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SlotID = data
 		}
 	}
 
@@ -3243,26 +3253,29 @@ func (ec *executionContext) unmarshalInputStampOnlineInput(ctx context.Context, 
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			data, err := ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ConfName = data
 		case "profileID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			it.ProfileID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ProfileID = data
 		case "slotID":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			it.SlotID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.SlotID = data
 		}
 	}
 
@@ -3287,18 +3300,20 @@ func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj int
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			it.ConfName, err = ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
+			data, err := ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.ConfName = data
 		case "talkId":
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkId"))
-			it.TalkID, err = ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
+			it.TalkID = data
 		}
 	}
 
