@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/99designs/gqlgen v0.17.31
-	github.com/ServiceWeaver/weaver v0.7.2
+	github.com/ServiceWeaver/weaver v0.9.0
 	github.com/amacneil/dbmate/v2 v2.2.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-sql-driver/mysql v1.7.1
@@ -94,7 +94,7 @@ require (
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/exp v0.0.0-20230321023759-10a507213a29 // indirect
+	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.6.0 // indirect
