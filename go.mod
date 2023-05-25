@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/ServiceWeaver/weaver v0.9.0
 	github.com/amacneil/dbmate/v2 v2.2.0
+	github.com/getsentry/sentry-go v0.21.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/kyleconroy/sqlc v1.18.0
@@ -32,7 +33,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	golang.org/x/net v0.8.0 // indirect
 	google.golang.org/grpc v1.54.0 // indirect
-	gopkg.in/ini.v1 v1.66.2 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
@@ -42,7 +43,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.6.4 // indirect
 	github.com/DataDog/hyperloglog v0.0.0-20220214164406-974598347557 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
-	github.com/andybalholm/brotli v1.0.4 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220626175859-9abda183db8e // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
@@ -67,7 +68,7 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/klauspost/compress v1.15.15 // indirect
+	github.com/klauspost/compress v1.16.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/lightstep/varopt v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
