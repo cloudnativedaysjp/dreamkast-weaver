@@ -6,6 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/ServiceWeaver/weaver v0.9.0
 	github.com/amacneil/dbmate/v2 v2.2.0
+	github.com/getsentry/sentry-go v0.21.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/kyleconroy/sqlc v1.18.0
@@ -18,7 +19,6 @@ require (
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230321174746-8dcc6526cfb1 // indirect
 	github.com/bytecodealliance/wasmtime-go/v8 v8.0.0 // indirect
-	github.com/getsentry/sentry-go v0.21.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
