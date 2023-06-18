@@ -37,7 +37,7 @@ func init() {
 	}
 	votingTerms[value.CNDF2023] = VotingTerm{
 		Start: time.Date(2023, 5, 2, 0, 0, 0, 0, jst),
-		End:   time.Date(2023, 6, 25, 18, 0, 0, 0, jst), // TODO adjust
+		End:   time.Date(2023, 6, 19, 23, 59, 0, 0, jst),
 	}
 	votingTerms[value.CNDT2023] = VotingTerm{
 		Start: time.Date(2023, 9, 1, 0, 0, 0, 0, jst),    // TODO adjust
