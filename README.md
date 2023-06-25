@@ -2,12 +2,15 @@
 
 Microservices for dreamkast built on Service Weaver.
 
+<div align="center">
+<img src="./images/icon.jpg" alt="dreamkast-weaver" width="300">
+</div>
+
 ## Prerequisites
 
 - Docker
 - Docker Compose
 - [Service Weaver](https://serviceweaver.dev/docs.html#installation)
-
 
 ## How to run 
 
