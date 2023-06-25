@@ -25,7 +25,7 @@ jobs:
       - name: List all changed files
         id: check-paths-ignore
         env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+          ALL_CHANGED_FILES: "${{ steps.changed-files.outputs.all_changed_files }}"
         run: |
           FLAG=$(cat << '_EOF_' | python
           import os
