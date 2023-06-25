@@ -27,3 +27,18 @@ REPLACE
   trailmap_stamps (conference_name, profile_id, stamps)
 VALUES
   (?, ?, ?);
+
+-- name: UpsertViewerCount :exec
+REPLACE
+  viewer_counts (conference_name, track_id, channel_arn, track_name, count, updated_atm)
+VALUES
+  (?, ?, ?, ?, ?, NOW());
+
+-- name: GetViewerCount :one
+SELECT
+  *
+FROM
+  viewer_counts
+WHERE
+  conference_name = ?
+  AND track_id= ?;

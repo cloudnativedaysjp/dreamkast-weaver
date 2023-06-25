@@ -16,6 +16,22 @@ import (
 
 // AutoMarshal implementations.
 
+var _ codegen.AutoMarshal = &ChannelArn{}
+
+func (x *ChannelArn) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("ChannelArn.WeaverMarshal: nil receiver"))
+	}
+	enc.String(x.value)
+}
+
+func (x *ChannelArn) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("ChannelArn.WeaverUnmarshal: nil receiver"))
+	}
+	x.value = dec.String()
+}
+
 var _ codegen.AutoMarshal = &ConfName{}
 
 func (x *ConfName) WeaverMarshal(enc *codegen.Encoder) {
@@ -110,6 +126,22 @@ func (x *TrackID) WeaverUnmarshal(dec *codegen.Decoder) {
 		panic(fmt.Errorf("TrackID.WeaverUnmarshal: nil receiver"))
 	}
 	x.value = dec.Int32()
+}
+
+var _ codegen.AutoMarshal = &TrackName{}
+
+func (x *TrackName) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackName.WeaverMarshal: nil receiver"))
+	}
+	enc.String(x.value)
+}
+
+func (x *TrackName) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackName.WeaverUnmarshal: nil receiver"))
+	}
+	x.value = dec.String()
 }
 
 var _ codegen.AutoMarshal = &ViewingSeconds{}

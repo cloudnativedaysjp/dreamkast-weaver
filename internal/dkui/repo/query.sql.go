@@ -32,6 +32,35 @@ func (q *Queries) GetTrailmapStamps(ctx context.Context, arg GetTrailmapStampsPa
 	return i, err
 }
 
+const getViewerCount = `-- name: GetViewerCount :one
+SELECT
+  conference_name, track_id, channel_arn, track_name, count, updated_at
+FROM
+  viewer_counts
+WHERE
+  conference_name = ?
+  AND track_id= ?
+`
+
+type GetViewerCountParams struct {
+	ConferenceName string
+	TrackID        int32
+}
+
+func (q *Queries) GetViewerCount(ctx context.Context, arg GetViewerCountParams) (ViewerCount, error) {
+	row := q.db.QueryRowContext(ctx, getViewerCount, arg.ConferenceName, arg.TrackID)
+	var i ViewerCount
+	err := row.Scan(
+		&i.ConferenceName,
+		&i.TrackID,
+		&i.ChannelArn,
+		&i.TrackName,
+		&i.Count,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const insertViewEvents = `-- name: InsertViewEvents :exec
 INSERT INTO
   view_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
@@ -121,5 +150,31 @@ type UpsertTrailmapStampParams struct {
 
 func (q *Queries) UpsertTrailmapStamp(ctx context.Context, arg UpsertTrailmapStampParams) error {
 	_, err := q.db.ExecContext(ctx, upsertTrailmapStamp, arg.ConferenceName, arg.ProfileID, arg.Stamps)
+	return err
+}
+
+const upsertViewerCount = `-- name: UpsertViewerCount :exec
+REPLACE
+  viewer_counts (conference_name, track_id, channel_arn, track_name, count, updated_atm)
+VALUES
+  (?, ?, ?, ?, ?, NOW())
+`
+
+type UpsertViewerCountParams struct {
+	ConferenceName string
+	TrackID        int32
+	ChannelArn     string
+	TrackName      string
+	Count          int64
+}
+
+func (q *Queries) UpsertViewerCount(ctx context.Context, arg UpsertViewerCountParams) error {
+	_, err := q.db.ExecContext(ctx, upsertViewerCount,
+		arg.ConferenceName,
+		arg.TrackID,
+		arg.ChannelArn,
+		arg.TrackName,
+		arg.Count,
+	)
 	return err
 }

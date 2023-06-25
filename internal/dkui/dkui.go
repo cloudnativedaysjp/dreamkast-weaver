@@ -6,12 +6,15 @@ import (
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
+	"dreamkast-weaver/internal/dkui/infra/aws"
+	"dreamkast-weaver/internal/dkui/infra/dreamkast"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
 
 	"github.com/ServiceWeaver/weaver"
+	"golang.org/x/exp/slog"
 )
 
 type Service interface {
@@ -20,6 +23,8 @@ type Service interface {
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
+	SaveViewerCount(ctx context.Context, confName value.ConfName) error
+	GetViewerCount(ctx context.Context, confName value.ConfName, trackId value.TrackID) (*domain.ViewerCount, error)
 }
 
 type Profile struct {
@@ -71,7 +76,9 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 }
 
 func NewService(sh *sqlhelper.SqlHelper) Service {
-	return &ServiceImpl{sh: sh}
+	return &ServiceImpl{
+		sh: sh,
+	}
 }
 
 func (s *ServiceImpl) Init(ctx context.Context) error {
@@ -216,4 +223,56 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 	}
 
 	return nil
+}
+
+func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfName) (err error) {
+	defer func() {
+		v.HandleError("save viewer count", err)
+	}()
+
+	dc := dreamkast.NewDkApiClientImpl()
+	ac, err := aws.NewAWSClientImpl()
+	if err != nil {
+		return err
+	}
+
+	tracks, err := dc.GetTracks(ctx, confName)
+	if err != nil {
+		return err
+	}
+
+	r := repo.NewDkUiRepo(v.sh.DB())
+	for _, track := range tracks.Items {
+		logger := v.Logger().With(slog.String("arn", track.ChannelArn.String()))
+
+		var count int64
+		stream, err := ac.IVSGetStream(ctx, track.ChannelArn)
+		if err == nil {
+			count = stream.ViewerCount
+		} else {
+			logger.Warn("failed IVS GetStream", slog.String("err", err.Error()))
+		}
+
+		dvc := domain.NewViewerCount(track.TrackID, track.ChannelArn, track.TrackName, count)
+		if err := r.UpsertViewerCount(ctx, confName, *dvc); err != nil {
+			logger.Warn("failed UpsertViewerCount", slog.String("err", err.Error()))
+		}
+	}
+
+	return nil
+}
+
+func (v *ServiceImpl) GetViewerCount(ctx context.Context, confName value.ConfName, trackID value.TrackID) (dvc *domain.ViewerCount, err error) {
+	defer func() {
+		v.HandleError("get viewer count", err)
+	}()
+
+	r := repo.NewDkUiRepo(v.sh.DB())
+
+	dvc, err = r.GetViewerCount(ctx, confName, trackID)
+	if err != nil {
+		return nil, err
+	}
+
+	return dvc, nil
 }

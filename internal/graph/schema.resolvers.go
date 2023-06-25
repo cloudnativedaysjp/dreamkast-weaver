@@ -100,6 +100,16 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	return nil, nil
 }
 
+// SaveViewerCount is the resolver for the saveViewerCount field.
+func (r *mutationResolver) SaveViewerCount(ctx context.Context, input model.SaveViewerCount) (*bool, error) {
+	cn, err := value.NewConfName(value.ConferenceKind(input.ConfName))
+	err = r.DkUiService.Get().SaveViewerCount(ctx, cn)
+	if err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
 	cn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
@@ -168,6 +178,30 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 	}
 
 	return stamps, nil
+}
+
+// ViewerCount is the resolver for the viewerCount field.
+func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName, trackID int) (*model.ViewerCount, error) {
+	var e, err error
+	tID, e := value.NewTrackID(int32(trackID))
+	err = errors.Join(err, e)
+	cn, e := value.NewConfName(value.ConferenceKind((confName.String())))
+	err = errors.Join(err, e)
+	if err != nil {
+		return nil, err
+	}
+
+	dvc, err := r.DkUiService.Get().GetViewerCount(ctx, cn, tID)
+	if err != nil {
+		return nil, err
+	}
+	return &model.ViewerCount{
+		TrackID:    int(dvc.TrackID.Value()),
+		ChannelArn: dvc.ChannelArn.String(),
+		TrackName:  dvc.TrackName.String(),
+		Count:      int(dvc.Count),
+		UpdateAt:   int(dvc.UpdateAt.Unix()),
+	}, nil
 }
 
 // Mutation returns MutationResolver implementation.

@@ -21,6 +21,7 @@ services:
     image: mysql/mysql-server:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
+      DREAMKAST_ADDR: https://staging.dev.cloudnativedays.jp
       TZ: 'Asia/Tokyo'
     cap_add:
       - SYS_NICE

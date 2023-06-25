@@ -137,3 +137,66 @@ func serviceweaver_dec_slice_ViewEvent_de49073f(dec *codegen.Decoder) []ViewEven
 	}
 	return res
 }
+
+var _ codegen.AutoMarshal = &ViewerCount{}
+
+func (x *ViewerCount) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("ViewerCount.WeaverMarshal: nil receiver"))
+	}
+	(x.TrackID).WeaverMarshal(enc)
+	(x.ChannelArn).WeaverMarshal(enc)
+	(x.TrackName).WeaverMarshal(enc)
+	enc.Int64(x.Count)
+	enc.EncodeBinaryMarshaler(&x.UpdateAt)
+}
+
+func (x *ViewerCount) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("ViewerCount.WeaverUnmarshal: nil receiver"))
+	}
+	(&x.TrackID).WeaverUnmarshal(dec)
+	(&x.ChannelArn).WeaverUnmarshal(dec)
+	(&x.TrackName).WeaverUnmarshal(dec)
+	x.Count = dec.Int64()
+	dec.DecodeBinaryUnmarshaler(&x.UpdateAt)
+}
+
+var _ codegen.AutoMarshal = &ViewerCounts{}
+
+func (x *ViewerCounts) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("ViewerCounts.WeaverMarshal: nil receiver"))
+	}
+	serviceweaver_enc_slice_ViewerCount_da23b7f2(enc, x.Items)
+}
+
+func (x *ViewerCounts) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("ViewerCounts.WeaverUnmarshal: nil receiver"))
+	}
+	x.Items = serviceweaver_dec_slice_ViewerCount_da23b7f2(dec)
+}
+
+func serviceweaver_enc_slice_ViewerCount_da23b7f2(enc *codegen.Encoder, arg []ViewerCount) {
+	if arg == nil {
+		enc.Len(-1)
+		return
+	}
+	enc.Len(len(arg))
+	for i := 0; i < len(arg); i++ {
+		(arg[i]).WeaverMarshal(enc)
+	}
+}
+
+func serviceweaver_dec_slice_ViewerCount_da23b7f2(dec *codegen.Decoder) []ViewerCount {
+	n := dec.Len()
+	if n == -1 {
+		return nil
+	}
+	res := make([]ViewerCount, n)
+	for i := 0; i < n; i++ {
+		(&res[i]).WeaverUnmarshal(dec)
+	}
+	return res
+}
