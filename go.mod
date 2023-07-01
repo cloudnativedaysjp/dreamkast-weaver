@@ -51,7 +51,7 @@ require (
 )
 
 require (
-	github.com/BurntSushi/toml v1.2.1 // indirect
+	github.com/BurntSushi/toml v1.2.1
 	github.com/ClickHouse/ch-go v0.52.1 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.6.4 // indirect
 	github.com/DataDog/hyperloglog v0.0.0-20220214164406-974598347557 // indirect

@@ -49,7 +49,7 @@ type StampRequest struct {
 
 type ServiceImpl struct {
 	weaver.Implements[Service]
-	weaver.WithConfig[config]
+	weaver.WithConfig[Config]
 
 	sh     *sqlhelper.SqlHelper
 	domain domain.DkUiDomain
@@ -57,7 +57,7 @@ type ServiceImpl struct {
 
 var _ Service = (*ServiceImpl)(nil)
 
-type config struct {
+type Config struct {
 	DBUser     string `toml:"db_user"`
 	DBPassword string `toml:"db_password"`
 	DBEndpoint string `toml:"db_endpoint"`
@@ -65,7 +65,7 @@ type config struct {
 	DBName     string `toml:"db_name"`
 }
 
-func (c *config) SqlOption() *sqlhelper.SqlOption {
+func (c *Config) SqlOption() *sqlhelper.SqlOption {
 	return &sqlhelper.SqlOption{
 		User:     c.DBUser,
 		Password: c.DBPassword,

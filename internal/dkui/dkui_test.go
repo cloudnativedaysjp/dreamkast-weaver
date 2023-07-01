@@ -7,8 +7,11 @@ import (
 
 	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/dkui/domain"
+	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/sqlhelper"
 
+	"github.com/BurntSushi/toml"
 	"github.com/ServiceWeaver/weaver/weavertest"
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
@@ -141,6 +144,44 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 	})
 }
 
+func TestDkUiServiceImpl_GetViewerCount(t *testing.T) {
+	opt := weavertest.Options{
+		SingleProcess: true,
+		Config:        weaverConfig,
+	}
+
+	weavertest.Run(t, opt, func(svc dkui.Service) {
+		ctx := context.Background()
+
+		// setup sqlhelper
+		m := map[string]dkui.Config{}
+		_, err := toml.Decode(weaverConfig, &m)
+		assert.NoError(t, err)
+
+		cfg := m["dreamkast-weaver/internal/dkui/Service"]
+		opt := cfg.SqlOption()
+		sh, err := sqlhelper.NewSqlHelper(opt)
+		assert.NoError(t, err)
+
+		// upsert viewer-count record
+		cn := newConfName("cicd2023")
+		trackID := newTrackID(2)
+		trackName := newTrackName("A")
+		ca := newChannelArn("arn:aws:ivs:us-west-2:607167088920:channel/XXXXXXXXXXXX")
+		count := int64(10)
+		dvc := domain.NewViewerCount(trackID, ca, trackName, count)
+
+		r := repo.NewDkUiRepo(sh.DB())
+		err = r.UpsertViewerCount(ctx, cn, *dvc)
+		assert.NoError(t, err)
+
+		// get viewer count
+		res, err := svc.GetViewerCount(ctx, cn, trackID)
+		assert.NoError(t, err)
+		assert.Equal(t, count, res.Count)
+	})
+}
+
 func mustNil(err error) {
 	if err != nil {
 		panic(err)
@@ -215,6 +256,18 @@ func newViewingSeconds(v int32) value.ViewingSeconds {
 
 func newStampCondition(v value.StampConditionKind) value.StampCondition {
 	o, err := value.NewStampCondition(v)
+	mustNil(err)
+	return o
+}
+
+func newChannelArn(v string) value.ChannelArn {
+	o, err := value.NewChannelArn(v)
+	mustNil(err)
+	return o
+}
+
+func newTrackName(v string) value.TrackName {
+	o, err := value.NewTrackName(v)
 	mustNil(err)
 	return o
 }

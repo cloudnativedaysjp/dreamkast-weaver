@@ -30,7 +30,7 @@ VALUES
 
 -- name: UpsertViewerCount :exec
 REPLACE
-  viewer_counts (conference_name, track_id, channel_arn, track_name, count, updated_atm)
+  viewer_counts (conference_name, track_id, channel_arn, track_name, count, updated_at)
 VALUES
   (?, ?, ?, ?, ?, NOW());
 
