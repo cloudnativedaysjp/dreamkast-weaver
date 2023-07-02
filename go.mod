@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.18.1
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
 	github.com/aws/aws-sdk-go-v2/service/ivs v1.23.0
-	github.com/getsentry/sentry-go v0.21.0
+	github.com/getsentry/sentry-go v0.22.0
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/kyleconroy/sqlc v1.18.0
