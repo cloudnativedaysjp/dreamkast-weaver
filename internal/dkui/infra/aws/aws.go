@@ -9,30 +9,30 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ivs/types"
 )
 
-type AWSClient interface {
-	IVSGetStream(ctx context.Context, ca value.ChannelArn) (*types.Stream, error)
+type AWSIVSClient interface {
+	GetStream(ctx context.Context, ca value.ChannelArn) (*types.Stream, error)
 }
 
-type AWSClientImpl struct {
-	ivsClient *ivs.Client
+type AWSIVSClientImpl struct {
+	client *ivs.Client
 }
 
-var _ AWSClient = (*AWSClientImpl)(nil)
+var _ AWSIVSClient = (*AWSIVSClientImpl)(nil)
 
-func NewAWSClientImpl() (AWSClient, error) {
+func NewAWSIVSClientImpl() (AWSIVSClient, error) {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		return nil, err
 	}
 
-	return &AWSClientImpl{
-		ivsClient: ivs.NewFromConfig(cfg),
+	return &AWSIVSClientImpl{
+		client: ivs.NewFromConfig(cfg),
 	}, nil
 }
 
-func (c *AWSClientImpl) IVSGetStream(ctx context.Context, ca value.ChannelArn) (*types.Stream, error) {
+func (c *AWSIVSClientImpl) GetStream(ctx context.Context, ca value.ChannelArn) (*types.Stream, error) {
 	v := ca.String()
-	o, err := c.ivsClient.GetStream(ctx, &ivs.GetStreamInput{
+	o, err := c.client.GetStream(ctx, &ivs.GetStreamInput{
 		ChannelArn: &v,
 	})
 	if err != nil {

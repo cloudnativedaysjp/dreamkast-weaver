@@ -230,12 +230,12 @@ func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfNa
 		v.HandleError("save viewer count", err)
 	}()
 
-	dc := dreamkast.NewDkApiClientImpl()
-	ac, err := aws.NewAWSClientImpl()
+	ic, err := aws.NewAWSIVSClientImpl()
 	if err != nil {
 		return err
 	}
 
+	dc := dreamkast.NewDkApiClientImpl()
 	tracks, err := dc.GetTracks(ctx, confName)
 	if err != nil {
 		return err
@@ -246,7 +246,7 @@ func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfNa
 		logger := v.Logger().With(slog.String("arn", track.ChannelArn.String()))
 
 		var count int64
-		stream, err := ac.IVSGetStream(ctx, track.ChannelArn)
+		stream, err := ic.GetStream(ctx, track.ChannelArn)
 		if err == nil {
 			count = stream.ViewerCount
 		} else {
