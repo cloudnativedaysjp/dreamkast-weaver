@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -52,7 +53,7 @@ func (s *server) Main(ctx context.Context) error {
 	router.Use(cors.Handler(corsOpts))
 
 	r := s.resolver.Get()
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
+	graphSrv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
 		Resolvers: &r,
 	}))
 
@@ -64,8 +65,12 @@ func (s *server) Main(ctx context.Context) error {
 	log.Printf("Listener available on %v\n", lis)
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	router.Handle("/query", srv)
+	router.Handle("/query", graphSrv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
-	return http.Serve(lis, router)
+	srv := &http.Server{
+		ReadHeaderTimeout: 5 * time.Second,
+		Handler:           router,
+	}
+	return srv.Serve(lis)
 }
