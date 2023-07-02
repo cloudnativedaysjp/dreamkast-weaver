@@ -50,12 +50,8 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	domain.ChangeGuardSecondsForTest(0)
 	domain.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
 
-	opt := weavertest.Options{
-		SingleProcess: true,
-		Config:        weaverConfig,
-	}
-
-	weavertest.Run(t, opt, func(svc dkui.Service) {
+	runner := weavertest.Local.WithConfig(weaverConfig)
+	runner.Run(t, func(svc dkui.Service) {
 		ctx := context.Background()
 
 		profile := dkui.Profile{
@@ -112,12 +108,9 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 }
 
 func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
-	opt := weavertest.Options{
-		SingleProcess: true,
-		Config:        weaverConfig,
-	}
 
-	weavertest.Run(t, opt, func(svc dkui.Service) {
+	runner := weavertest.Local.WithConfig(weaverConfig)
+	runner.Run(t, func(svc dkui.Service) {
 		ctx := context.Background()
 
 		profile := dkui.Profile{
@@ -145,12 +138,9 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 }
 
 func TestDkUiServiceImpl_GetViewerCount(t *testing.T) {
-	opt := weavertest.Options{
-		SingleProcess: true,
-		Config:        weaverConfig,
-	}
 
-	weavertest.Run(t, opt, func(svc dkui.Service) {
+	runner := weavertest.Local.WithConfig(weaverConfig)
+	runner.Run(t, func(svc dkui.Service) {
 		ctx := context.Background()
 
 		// setup sqlhelper

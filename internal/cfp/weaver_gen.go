@@ -13,16 +13,18 @@ import (
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"net"
 	"reflect"
 	"time"
 )
 
+var _ codegen.LatestVersion = codegen.Version[[0][11]struct{}]("You used 'weaver generate' codegen version 0.11.0, but you built your code with an incompatible weaver module version. Try upgrading 'weaver generate' and re-running it.")
+
 func init() {
 	codegen.Register(codegen.Registration{
-		Name:     "dreamkast-weaver/internal/cfp/Service",
-		Iface:    reflect.TypeOf((*Service)(nil)).Elem(),
-		Impl:     reflect.TypeOf(ServiceImpl{}),
-		ConfigFn: func(i any) any { return i.(*ServiceImpl).WithConfig.Config() },
+		Name:  "dreamkast-weaver/internal/cfp/Service",
+		Iface: reflect.TypeOf((*Service)(nil)).Elem(),
+		Impl:  reflect.TypeOf(ServiceImpl{}),
 		LocalStubFn: func(impl any, tracer trace.Tracer) any {
 			return service_local_stub{impl: impl.(Service), tracer: tracer}
 		},
@@ -36,12 +38,21 @@ func init() {
 	})
 }
 
+// weaver.Instance checks.
+var _ weaver.InstanceOf[Service] = (*ServiceImpl)(nil)
+
+// weaver.Router checks.
+var _ weaver.Unrouted = (*ServiceImpl)(nil)
+
 // Local stub implementations.
 
 type service_local_stub struct {
 	impl   Service
 	tracer trace.Tracer
 }
+
+// Check that service_local_stub implements the Service interface.
+var _ Service = (*service_local_stub)(nil)
 
 func (s service_local_stub) Vote(ctx context.Context, a0 VoteRequest) (err error) {
 	span := trace.SpanFromContext(ctx)
@@ -84,6 +95,9 @@ type service_client_stub struct {
 	voteMetrics       *codegen.MethodMetrics
 	voteCountsMetrics *codegen.MethodMetrics
 }
+
+// Check that service_client_stub implements the Service interface.
+var _ Service = (*service_client_stub)(nil)
 
 func (s service_client_stub) Vote(ctx context.Context, a0 VoteRequest) (err error) {
 	// Update metrics.
@@ -195,7 +209,10 @@ type service_server_stub struct {
 	addLoad func(key uint64, load float64)
 }
 
-// GetStubFn implements the stub.Server interface.
+// Check that service_server_stub implements the codegen.Server interface.
+var _ codegen.Server = (*service_server_stub)(nil)
+
+// GetStubFn implements the codegen.Server interface.
 func (s service_server_stub) GetStubFn(method string) func(ctx context.Context, args []byte) ([]byte, error) {
 	switch method {
 	case "Vote":
@@ -258,7 +275,16 @@ func (s service_server_stub) voteCounts(ctx context.Context, args []byte) (res [
 
 // AutoMarshal implementations.
 
-var _ codegen.AutoMarshal = &VoteRequest{}
+var _ codegen.AutoMarshal = (*VoteRequest)(nil)
+
+type __is_VoteRequest[T ~struct {
+	weaver.AutoMarshal
+	ConfName value.ConfName
+	TalkID   value.TalkID
+	ClientIp net.IP
+}] struct{}
+
+var _ __is_VoteRequest[VoteRequest]
 
 func (x *VoteRequest) WeaverMarshal(enc *codegen.Encoder) {
 	if x == nil {

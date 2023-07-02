@@ -46,12 +46,8 @@ func teardown() {}
 func TestCfpVoteImpl(t *testing.T) {
 	t.Skip()
 
-	opt := weavertest.Options{
-		SingleProcess: true,
-		Config:        weaverConfig,
-	}
-
-	weavertest.Run(t, opt, func(svc cfp.Service) {
+	runner := weavertest.Local.WithConfig(weaverConfig)
+	runner.Run(t, func(svc cfp.Service) {
 		ctx := context.Background()
 		cn := value.CICD2023
 		talkID, _ := value.NewTalkID(3)

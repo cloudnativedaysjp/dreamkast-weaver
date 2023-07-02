@@ -17,12 +17,13 @@ import (
 	"time"
 )
 
+var _ codegen.LatestVersion = codegen.Version[[0][11]struct{}]("You used 'weaver generate' codegen version 0.11.0, but you built your code with an incompatible weaver module version. Try upgrading 'weaver generate' and re-running it.")
+
 func init() {
 	codegen.Register(codegen.Registration{
-		Name:     "dreamkast-weaver/internal/dkui/Service",
-		Iface:    reflect.TypeOf((*Service)(nil)).Elem(),
-		Impl:     reflect.TypeOf(ServiceImpl{}),
-		ConfigFn: func(i any) any { return i.(*ServiceImpl).WithConfig.Config() },
+		Name:  "dreamkast-weaver/internal/dkui/Service",
+		Iface: reflect.TypeOf((*Service)(nil)).Elem(),
+		Impl:  reflect.TypeOf(ServiceImpl{}),
 		LocalStubFn: func(impl any, tracer trace.Tracer) any {
 			return service_local_stub{impl: impl.(Service), tracer: tracer}
 		},
@@ -36,12 +37,21 @@ func init() {
 	})
 }
 
+// weaver.Instance checks.
+var _ weaver.InstanceOf[Service] = (*ServiceImpl)(nil)
+
+// weaver.Router checks.
+var _ weaver.Unrouted = (*ServiceImpl)(nil)
+
 // Local stub implementations.
 
 type service_local_stub struct {
 	impl   Service
 	tracer trace.Tracer
 }
+
+// Check that service_local_stub implements the Service interface.
+var _ Service = (*service_local_stub)(nil)
 
 func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 CreateViewEventRequest) (err error) {
 	span := trace.SpanFromContext(ctx)
@@ -174,6 +184,9 @@ type service_client_stub struct {
 	stampOnlineMetrics      *codegen.MethodMetrics
 	viewingEventsMetrics    *codegen.MethodMetrics
 }
+
+// Check that service_client_stub implements the Service interface.
+var _ Service = (*service_client_stub)(nil)
 
 func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 CreateViewEventRequest) (err error) {
 	// Update metrics.
@@ -545,7 +558,10 @@ type service_server_stub struct {
 	addLoad func(key uint64, load float64)
 }
 
-// GetStubFn implements the stub.Server interface.
+// Check that service_server_stub implements the codegen.Server interface.
+var _ codegen.Server = (*service_server_stub)(nil)
+
+// GetStubFn implements the codegen.Server interface.
 func (s service_server_stub) GetStubFn(method string) func(ctx context.Context, args []byte) ([]byte, error) {
 	switch method {
 	case "CreateViewEvent":
@@ -746,7 +762,16 @@ func (s service_server_stub) viewingEvents(ctx context.Context, args []byte) (re
 
 // AutoMarshal implementations.
 
-var _ codegen.AutoMarshal = &CreateViewEventRequest{}
+var _ codegen.AutoMarshal = (*CreateViewEventRequest)(nil)
+
+type __is_CreateViewEventRequest[T ~struct {
+	weaver.AutoMarshal
+	TrackID value.TrackID
+	TalkID  value.TalkID
+	SlotID  value.SlotID
+}] struct{}
+
+var _ __is_CreateViewEventRequest[CreateViewEventRequest]
 
 func (x *CreateViewEventRequest) WeaverMarshal(enc *codegen.Encoder) {
 	if x == nil {
@@ -766,7 +791,15 @@ func (x *CreateViewEventRequest) WeaverUnmarshal(dec *codegen.Decoder) {
 	(&x.SlotID).WeaverUnmarshal(dec)
 }
 
-var _ codegen.AutoMarshal = &Profile{}
+var _ codegen.AutoMarshal = (*Profile)(nil)
+
+type __is_Profile[T ~struct {
+	weaver.AutoMarshal
+	ID       value.ProfileID
+	ConfName value.ConfName
+}] struct{}
+
+var _ __is_Profile[Profile]
 
 func (x *Profile) WeaverMarshal(enc *codegen.Encoder) {
 	if x == nil {
@@ -784,7 +817,16 @@ func (x *Profile) WeaverUnmarshal(dec *codegen.Decoder) {
 	(&x.ConfName).WeaverUnmarshal(dec)
 }
 
-var _ codegen.AutoMarshal = &StampRequest{}
+var _ codegen.AutoMarshal = (*StampRequest)(nil)
+
+type __is_StampRequest[T ~struct {
+	weaver.AutoMarshal
+	TrackID value.TrackID
+	TalkID  value.TalkID
+	SlotID  value.SlotID
+}] struct{}
+
+var _ __is_StampRequest[StampRequest]
 
 func (x *StampRequest) WeaverMarshal(enc *codegen.Encoder) {
 	if x == nil {
