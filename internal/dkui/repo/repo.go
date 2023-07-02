@@ -84,6 +84,27 @@ func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.
 	return nil
 }
 
+func (r *DkUiRepoImpl) UpsertViewerCount(ctx context.Context, cn value.ConfName, vc domain.ViewerCount) error {
+	if err := r.q.UpsertViewerCount(ctx, UpsertViewerCountParams{
+		ConferenceName: string(cn.Value()),
+		TrackID:        vc.TrackID.Value(),
+		ChannelArn:     vc.ChannelArn.String(),
+		TrackName:      vc.TrackName.String(),
+		Count:          vc.Count,
+	}); err != nil {
+		return stacktrace.With(fmt.Errorf("upsert viewer count: %w", err))
+	}
+	return nil
+}
+
+func (r *DkUiRepoImpl) ListViewerCounts(ctx context.Context, cn value.ConfName) (*domain.ViewerCounts, error) {
+	data, err := r.q.ListViewerCount(ctx, cn.String())
+	if err != nil {
+		return nil, stacktrace.With(fmt.Errorf("list viewer count: %w", err))
+	}
+	return viewerCountConv.fromDB(data)
+}
+
 var stampChallengeConv _stampChallengeConv
 
 type _stampChallengeConv struct{}
@@ -220,4 +241,64 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 // 	}
 //
 // 	return events
+// }
+
+var viewerCountConv _viewerCountConv
+
+type _viewerCountConv struct{}
+
+func (_viewerCountConv) fromDB(vcs []ViewerCount) (*domain.ViewerCounts, error) {
+	conv := func(v *ViewerCount) (*domain.ViewerCount, error) {
+		trackID, err := value.NewTrackID(v.TrackID)
+		if err != nil {
+			return nil, err
+		}
+		ca, err := value.NewChannelArn(v.ChannelArn)
+		if err != nil {
+			return nil, err
+		}
+		tn, err := value.NewTrackName(v.TrackName)
+		if err != nil {
+			return nil, err
+		}
+
+		return &domain.ViewerCount{
+			TrackID:    trackID,
+			ChannelArn: ca,
+			TrackName:  tn,
+			Count:      v.Count,
+			UpdateAt:   v.UpdatedAt,
+		}, nil
+	}
+
+	var items []domain.ViewerCount
+
+	for _, vc := range vcs {
+		v := vc
+		dvc, err := conv(&v)
+		if err != nil {
+			return nil, stacktrace.With(fmt.Errorf("convert viewer count from DB: %w", err))
+		}
+		items = append(items, *dvc)
+	}
+
+	return &domain.ViewerCounts{Items: items}, nil
+}
+
+// func (_viewerCountConv) toDB(confName value.ConfName, v *domain.ViewerCounts) []ViewerCount {
+// 	conv := func(dvc *domain.ViewerCount) *ViewerCount {
+// 		return &ViewerCount{
+// 			ConferenceName: string(confName.Value()),
+// 			TrackID:        dvc.TrackID.Value(),
+// 			ChannelArn:     dvc.ChannelArn.String(),
+// 			TrackName:      dvc.TrackName.String(),
+// 			Count:          dvc.Count,
+// 			UpdatedAt:      dvc.UpdateAt,
+// 		}
+// 	}
+// 	var vcs []ViewerCount
+// 	for _, vc := range v.Items {
+// 		vcs = append(vcs, *conv(&vc))
+// 	}
+// 	return vcs
 // }

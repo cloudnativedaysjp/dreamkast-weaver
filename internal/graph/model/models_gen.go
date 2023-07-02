@@ -16,6 +16,10 @@ type CreateViewEventInput struct {
 	SlotID    int      `json:"slotID"`
 }
 
+type SaveViewerCount struct {
+	ConfName ConfName `json:"confName"`
+}
+
 type StampChallenge struct {
 	SlotID    int                `json:"slotID"`
 	Condition ChallengeCondition `json:"condition"`
@@ -34,6 +38,14 @@ type StampOnlineInput struct {
 	ConfName  ConfName `json:"confName"`
 	ProfileID int      `json:"profileID"`
 	SlotID    int      `json:"slotID"`
+}
+
+type ViewerCount struct {
+	TrackID    int    `json:"trackID"`
+	ChannelArn string `json:"channelArn"`
+	TrackName  string `json:"trackName"`
+	Count      int    `json:"count"`
+	UpdateAt   int    `json:"updateAt"`
 }
 
 type ViewingSlot struct {

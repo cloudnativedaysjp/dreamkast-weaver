@@ -6,12 +6,15 @@ import (
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
+	"dreamkast-weaver/internal/dkui/infra/aws"
+	"dreamkast-weaver/internal/dkui/infra/dreamkast"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
 
 	"github.com/ServiceWeaver/weaver"
+	"golang.org/x/exp/slog"
 )
 
 type Service interface {
@@ -20,6 +23,8 @@ type Service interface {
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
+	SaveViewerCount(ctx context.Context, confName value.ConfName) error
+	ListViewerCounts(ctx context.Context, confName value.ConfName) (*domain.ViewerCounts, error)
 }
 
 type Profile struct {
@@ -44,7 +49,7 @@ type StampRequest struct {
 
 type ServiceImpl struct {
 	weaver.Implements[Service]
-	weaver.WithConfig[config]
+	weaver.WithConfig[Config]
 
 	sh     *sqlhelper.SqlHelper
 	domain domain.DkUiDomain
@@ -52,7 +57,7 @@ type ServiceImpl struct {
 
 var _ Service = (*ServiceImpl)(nil)
 
-type config struct {
+type Config struct {
 	DBUser     string `toml:"db_user"`
 	DBPassword string `toml:"db_password"`
 	DBEndpoint string `toml:"db_endpoint"`
@@ -60,7 +65,7 @@ type config struct {
 	DBName     string `toml:"db_name"`
 }
 
-func (c *config) SqlOption() *sqlhelper.SqlOption {
+func (c *Config) SqlOption() *sqlhelper.SqlOption {
 	return &sqlhelper.SqlOption{
 		User:     c.DBUser,
 		Password: c.DBPassword,
@@ -71,7 +76,9 @@ func (c *config) SqlOption() *sqlhelper.SqlOption {
 }
 
 func NewService(sh *sqlhelper.SqlHelper) Service {
-	return &ServiceImpl{sh: sh}
+	return &ServiceImpl{
+		sh: sh,
+	}
 }
 
 func (s *ServiceImpl) Init(ctx context.Context) error {
@@ -216,4 +223,56 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 	}
 
 	return nil
+}
+
+func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfName) (err error) {
+	defer func() {
+		v.HandleError("save viewer count", err)
+	}()
+
+	ic, err := aws.NewAWSIVSClientImpl()
+	if err != nil {
+		return err
+	}
+
+	dc := dreamkast.NewDkApiClientImpl()
+	tracks, err := dc.GetTracks(ctx, confName)
+	if err != nil {
+		return err
+	}
+
+	r := repo.NewDkUiRepo(v.sh.DB())
+	for _, track := range tracks.Items {
+		logger := v.Logger().With(slog.String("arn", track.ChannelArn.String()))
+
+		var count int64
+		stream, err := ic.GetStream(ctx, track.ChannelArn)
+		if err == nil {
+			count = stream.ViewerCount
+		} else {
+			logger.Warn("failed IVS GetStream", slog.String("err", err.Error()))
+		}
+
+		dvc := domain.NewViewerCount(track.TrackID, track.ChannelArn, track.TrackName, count)
+		if err := r.UpsertViewerCount(ctx, confName, *dvc); err != nil {
+			logger.Warn("failed UpsertViewerCount", slog.String("err", err.Error()))
+		}
+	}
+
+	return nil
+}
+
+func (v *ServiceImpl) ListViewerCounts(ctx context.Context, confName value.ConfName) (dvc *domain.ViewerCounts, err error) {
+	defer func() {
+		v.HandleError("get viewer count", err)
+	}()
+
+	r := repo.NewDkUiRepo(v.sh.DB())
+
+	dvc, err = r.ListViewerCounts(ctx, confName)
+	if err != nil {
+		return nil, err
+	}
+
+	return dvc, nil
 }

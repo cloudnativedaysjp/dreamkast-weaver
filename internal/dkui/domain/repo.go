@@ -12,4 +12,7 @@ type DkUiRepo interface {
 
 	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*StampChallenges, error)
 	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *StampChallenges) error
+
+	UpsertViewerCount(ctx context.Context, cn value.ConfName, vc ViewerCount) error
+	ListViewerCounts(ctx context.Context, cn value.ConfName) (*ViewerCounts, error)
 }

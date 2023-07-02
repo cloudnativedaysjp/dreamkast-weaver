@@ -23,6 +23,7 @@ func init() {
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return main_server_stub{impl: impl.(weaver.Main), addLoad: addLoad}
 		},
+		RefData: "⟦5c473b49:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→dreamkast-weaver/internal/cfp/Service⟧\n⟦64d89053:wEaVeReDgE:github.com/ServiceWeaver/weaver/Main→dreamkast-weaver/internal/dkui/Service⟧\n",
 	})
 }
 
