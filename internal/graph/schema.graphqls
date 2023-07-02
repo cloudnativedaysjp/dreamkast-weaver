@@ -14,7 +14,7 @@ type Query {
   # dkui
   viewingSlots(confName: ConfName!, profileID: Int!): [ViewingSlot!]!
   stampChallenges(confName: ConfName!, profileID: Int!): [StampChallenge]!
-  viewerCount(confName: ConfName!, trackID: Int!): ViewerCount!
+  viewerCount(confName: ConfName!): [ViewerCount!]!
 }
 
 type VoteCount {

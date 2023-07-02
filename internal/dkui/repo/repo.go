@@ -97,13 +97,10 @@ func (r *DkUiRepoImpl) UpsertViewerCount(ctx context.Context, cn value.ConfName,
 	return nil
 }
 
-func (r *DkUiRepoImpl) GetViewerCount(ctx context.Context, cn value.ConfName, trackID value.TrackID) (*domain.ViewerCount, error) {
-	data, err := r.q.GetViewerCount(ctx, GetViewerCountParams{
-		ConferenceName: string(cn.Value()),
-		TrackID:        trackID.Value(),
-	})
+func (r *DkUiRepoImpl) ListViewerCounts(ctx context.Context, cn value.ConfName) (*domain.ViewerCounts, error) {
+	data, err := r.q.ListViewerCount(ctx, cn.String())
 	if err != nil {
-		return nil, stacktrace.With(fmt.Errorf("get viewer count: %w", err))
+		return nil, stacktrace.With(fmt.Errorf("list viewer count: %w", err))
 	}
 	return viewerCountConv.fromDB(data)
 }
@@ -250,7 +247,7 @@ var viewerCountConv _viewerCountConv
 
 type _viewerCountConv struct{}
 
-func (_viewerCountConv) fromDB(vc ViewerCount) (*domain.ViewerCount, error) {
+func (_viewerCountConv) fromDB(vcs []ViewerCount) (*domain.ViewerCounts, error) {
 	conv := func(v *ViewerCount) (*domain.ViewerCount, error) {
 		trackID, err := value.NewTrackID(v.TrackID)
 		if err != nil {
@@ -273,11 +270,19 @@ func (_viewerCountConv) fromDB(vc ViewerCount) (*domain.ViewerCount, error) {
 			UpdateAt:   v.UpdatedAt,
 		}, nil
 	}
-	dvc, err := conv(&vc)
-	if err != nil {
-		return nil, stacktrace.With(fmt.Errorf("convert view count from DB: %w", err))
+
+	var items []domain.ViewerCount
+
+	for _, vc := range vcs {
+		v := vc
+		dvc, err := conv(&v)
+		if err != nil {
+			return nil, stacktrace.With(fmt.Errorf("convert viewer count from DB: %w", err))
+		}
+		items = append(items, *dvc)
 	}
-	return dvc, nil
+
+	return &domain.ViewerCounts{Items: items}, nil
 }
 
 // func (_viewerCountConv) toDB(confName value.ConfName, v *domain.ViewerCounts) []ViewerCount {

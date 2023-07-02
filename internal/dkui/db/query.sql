@@ -34,11 +34,10 @@ REPLACE
 VALUES
   (?, ?, ?, ?, ?, NOW());
 
--- name: GetViewerCount :one
+-- name: ListViewerCount :many
 SELECT
   *
 FROM
   viewer_counts
 WHERE
-  conference_name = ?
-  AND track_id= ?;
+  conference_name = ?;

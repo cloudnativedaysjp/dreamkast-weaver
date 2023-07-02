@@ -181,27 +181,28 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 }
 
 // ViewerCount is the resolver for the viewerCount field.
-func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName, trackID int) (*model.ViewerCount, error) {
-	var e, err error
-	tID, e := value.NewTrackID(int32(trackID))
-	err = errors.Join(err, e)
-	cn, e := value.NewConfName(value.ConferenceKind((confName.String())))
-	err = errors.Join(err, e)
+func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName) ([]*model.ViewerCount, error) {
+	cn, err := value.NewConfName(value.ConferenceKind((confName.String())))
 	if err != nil {
 		return nil, err
 	}
 
-	dvc, err := r.DkUiService.Get().GetViewerCount(ctx, cn, tID)
+	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx, cn)
 	if err != nil {
 		return nil, err
 	}
-	return &model.ViewerCount{
-		TrackID:    int(dvc.TrackID.Value()),
-		ChannelArn: dvc.ChannelArn.String(),
-		TrackName:  dvc.TrackName.String(),
-		Count:      int(dvc.Count),
-		UpdateAt:   int(dvc.UpdateAt.Unix()),
-	}, nil
+
+	var vcs []*model.ViewerCount
+	for _, dvc := range dvcs.Items {
+		vcs = append(vcs, &model.ViewerCount{
+			TrackID:    int(dvc.TrackID.Value()),
+			ChannelArn: dvc.ChannelArn.String(),
+			TrackName:  dvc.TrackName.String(),
+			Count:      int(dvc.Count),
+			UpdateAt:   int(dvc.UpdateAt.Unix()),
+		})
+	}
+	return vcs, nil
 }
 
 // Mutation returns MutationResolver implementation.

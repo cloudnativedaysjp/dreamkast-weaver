@@ -32,35 +32,6 @@ func (q *Queries) GetTrailmapStamps(ctx context.Context, arg GetTrailmapStampsPa
 	return i, err
 }
 
-const getViewerCount = `-- name: GetViewerCount :one
-SELECT
-  conference_name, track_id, channel_arn, track_name, count, updated_at
-FROM
-  viewer_counts
-WHERE
-  conference_name = ?
-  AND track_id= ?
-`
-
-type GetViewerCountParams struct {
-	ConferenceName string
-	TrackID        int32
-}
-
-func (q *Queries) GetViewerCount(ctx context.Context, arg GetViewerCountParams) (ViewerCount, error) {
-	row := q.db.QueryRowContext(ctx, getViewerCount, arg.ConferenceName, arg.TrackID)
-	var i ViewerCount
-	err := row.Scan(
-		&i.ConferenceName,
-		&i.TrackID,
-		&i.ChannelArn,
-		&i.TrackName,
-		&i.Count,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const insertViewEvents = `-- name: InsertViewEvents :exec
 INSERT INTO
   view_events (profile_id, conference_name, track_id, talk_id, slot_id, viewing_seconds, created_at)
@@ -121,6 +92,45 @@ func (q *Queries) ListViewEvents(ctx context.Context, arg ListViewEventsParams) 
 			&i.SlotID,
 			&i.ViewingSeconds,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listViewerCount = `-- name: ListViewerCount :many
+SELECT
+  conference_name, track_id, channel_arn, track_name, count, updated_at
+FROM
+  viewer_counts
+WHERE
+  conference_name = ?
+`
+
+func (q *Queries) ListViewerCount(ctx context.Context, conferenceName string) ([]ViewerCount, error) {
+	rows, err := q.db.QueryContext(ctx, listViewerCount, conferenceName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ViewerCount
+	for rows.Next() {
+		var i ViewerCount
+		if err := rows.Scan(
+			&i.ConferenceName,
+			&i.TrackID,
+			&i.ChannelArn,
+			&i.TrackName,
+			&i.Count,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

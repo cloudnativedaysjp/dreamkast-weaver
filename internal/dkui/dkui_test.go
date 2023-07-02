@@ -176,9 +176,10 @@ func TestDkUiServiceImpl_GetViewerCount(t *testing.T) {
 		assert.NoError(t, err)
 
 		// get viewer count
-		res, err := svc.GetViewerCount(ctx, cn, trackID)
+		res, err := svc.ListViewerCounts(ctx, cn)
 		assert.NoError(t, err)
-		assert.Equal(t, count, res.Count)
+		assert.Len(t, res.Items, 1)
+		assert.Equal(t, count, res.Items[0].Count)
 	})
 }
 

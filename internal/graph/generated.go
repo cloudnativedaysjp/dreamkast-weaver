@@ -55,7 +55,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		StampChallenges func(childComplexity int, confName model.ConfName, profileID int) int
-		ViewerCount     func(childComplexity int, confName model.ConfName, trackID int) int
+		ViewerCount     func(childComplexity int, confName model.ConfName) int
 		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int) int
 		VoteCounts      func(childComplexity int, confName model.ConfName) int
 	}
@@ -96,7 +96,7 @@ type QueryResolver interface {
 	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
 	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
 	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
-	ViewerCount(ctx context.Context, confName model.ConfName, trackID int) (*model.ViewerCount, error)
+	ViewerCount(ctx context.Context, confName model.ConfName) ([]*model.ViewerCount, error)
 }
 
 type executableSchema struct {
@@ -196,7 +196,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ViewerCount(childComplexity, args["confName"].(model.ConfName), args["trackID"].(int)), true
+		return e.complexity.Query.ViewerCount(childComplexity, args["confName"].(model.ConfName)), true
 
 	case "Query.viewingSlots":
 		if e.complexity.Query.ViewingSlots == nil {
@@ -524,15 +524,6 @@ func (ec *executionContext) field_Query_viewerCount_args(ctx context.Context, ra
 		}
 	}
 	args["confName"] = arg0
-	var arg1 int
-	if tmp, ok := rawArgs["trackID"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
-		arg1, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["trackID"] = arg1
 	return args, nil
 }
 
@@ -1072,7 +1063,7 @@ func (ec *executionContext) _Query_viewerCount(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ViewerCount(rctx, fc.Args["confName"].(model.ConfName), fc.Args["trackID"].(int))
+		return ec.resolvers.Query().ViewerCount(rctx, fc.Args["confName"].(model.ConfName))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1084,9 +1075,9 @@ func (ec *executionContext) _Query_viewerCount(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.ViewerCount)
+	res := resTmp.([]*model.ViewerCount)
 	fc.Result = res
-	return ec.marshalNViewerCount2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCount(ctx, field.Selections, res)
+	return ec.marshalNViewerCount2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCountᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_viewerCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4610,8 +4601,48 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) marshalNViewerCount2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCount(ctx context.Context, sel ast.SelectionSet, v model.ViewerCount) graphql.Marshaler {
-	return ec._ViewerCount(ctx, sel, &v)
+func (ec *executionContext) marshalNViewerCount2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ViewerCount) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNViewerCount2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCount(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNViewerCount2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCount(ctx context.Context, sel ast.SelectionSet, v *model.ViewerCount) graphql.Marshaler {

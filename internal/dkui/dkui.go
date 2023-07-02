@@ -24,7 +24,7 @@ type Service interface {
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
 	SaveViewerCount(ctx context.Context, confName value.ConfName) error
-	GetViewerCount(ctx context.Context, confName value.ConfName, trackId value.TrackID) (*domain.ViewerCount, error)
+	ListViewerCounts(ctx context.Context, confName value.ConfName) (*domain.ViewerCounts, error)
 }
 
 type Profile struct {
@@ -262,14 +262,14 @@ func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfNa
 	return nil
 }
 
-func (v *ServiceImpl) GetViewerCount(ctx context.Context, confName value.ConfName, trackID value.TrackID) (dvc *domain.ViewerCount, err error) {
+func (v *ServiceImpl) ListViewerCounts(ctx context.Context, confName value.ConfName) (dvc *domain.ViewerCounts, err error) {
 	defer func() {
 		v.HandleError("get viewer count", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
 
-	dvc, err = r.GetViewerCount(ctx, confName, trackID)
+	dvc, err = r.ListViewerCounts(ctx, confName)
 	if err != nil {
 		return nil, err
 	}
