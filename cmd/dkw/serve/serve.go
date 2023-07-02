@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -36,23 +35,29 @@ var Cmd = &cobra.Command{
 	Short: "Run service",
 	Long:  "Run service",
 	Run: func(_ *cobra.Command, _ []string) {
-		if err := weaver.Run(context.Background(), serve); err != nil {
+		if err := weaver.Run(context.Background()); err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
-func serve(ctx context.Context, r *graph.Resolver) error {
+type server struct {
+	weaver.Implements[weaver.Main]
+	resolver weaver.Ref[graph.Resolver]
+}
+
+func (s *server) Main(ctx context.Context) error {
 	router := chi.NewRouter()
 	router.Use(gm.ClientIP)
 	router.Use(cors.Handler(corsOpts))
 
+	r := s.resolver.Get()
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: r,
+		Resolvers: &r,
 	}))
 
 	opts := weaver.ListenerOptions{LocalAddress: ":" + Port}
-	lis, err := r.Listener("dkw-serve", opts)
+	lis, err := s.Listener("dkw-serve", opts)
 	if err != nil {
 		return err
 	}
@@ -62,9 +67,5 @@ func serve(ctx context.Context, r *graph.Resolver) error {
 	router.Handle("/query", srv)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
-	s := http.Server{
-		ReadHeaderTimeout: 5 * time.Second,
-		Handler:           router,
-	}
-	return s.Serve(lis)
+	return http.Serve(lis, router)
 }
