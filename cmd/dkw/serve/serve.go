@@ -2,7 +2,9 @@ package serve
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/spf13/cobra"
 
+	"dreamkast-weaver/internal/cfp"
+	"dreamkast-weaver/internal/dkui"
 	"dreamkast-weaver/internal/graph"
 	gm "dreamkast-weaver/internal/graph/middleware"
 )
@@ -36,7 +40,7 @@ var Cmd = &cobra.Command{
 	Short: "Run service",
 	Long:  "Run service",
 	Run: func(_ *cobra.Command, _ []string) {
-		if err := weaver.Run(context.Background()); err != nil {
+		if err := weaver.Run(context.Background(), serve); err != nil {
 			log.Fatal(err)
 		}
 	},
@@ -44,30 +48,33 @@ var Cmd = &cobra.Command{
 
 type server struct {
 	weaver.Implements[weaver.Main]
-	resolver weaver.Ref[graph.Resolver]
+	CfpService  weaver.Ref[cfp.Service]
+	DkUiService weaver.Ref[dkui.Service]
+	//listener    weaver.Listener
 }
 
-func (s *server) Main(ctx context.Context) error {
+func serve(ctx context.Context, s *server) error {
 	router := chi.NewRouter()
 	router.Use(gm.ClientIP)
 	router.Use(cors.Handler(corsOpts))
 
-	r := s.resolver.Get()
 	graphSrv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{
-		Resolvers: &r,
+		Resolvers: graph.NewResolver(
+			s.CfpService.Get(),
+			s.DkUiService.Get(),
+		),
 	}))
 
-	opts := weaver.ListenerOptions{LocalAddress: ":" + Port}
-	lis, err := s.Listener("dkw-serve", opts)
+	// We do not use weaver's listener
+	// because we want to inject dependencies using environment variables
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", Port))
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
-	log.Printf("Listener available on %v\n", lis)
-
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", graphSrv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
+	s.Logger().Debug("Listener available", "address", lis.Addr())
 	srv := &http.Server{
 		ReadHeaderTimeout: 5 * time.Second,
 		Handler:           router,

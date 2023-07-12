@@ -3,6 +3,9 @@ name = "dkw-serve"
 binary = "./dkw"
 args = ["serve"]
 
+[single]
+listener = {address = "localhost:8080"}
+
 ["dreamkast-weaver/internal/cfp/Service"]
 db_user = "user"
 db_password = "password"

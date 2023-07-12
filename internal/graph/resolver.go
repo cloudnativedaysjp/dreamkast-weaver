@@ -1,8 +1,6 @@
 package graph
 
 import (
-	"github.com/ServiceWeaver/weaver"
-
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/dkui"
 )
@@ -13,9 +11,13 @@ import (
 
 //go:generate go run github.com/99designs/gqlgen generate
 type Resolver struct {
-	weaver.Implements[ResolverIF]
-	CfpService  weaver.Ref[cfp.Service]
-	DkUiService weaver.Ref[dkui.Service]
+	CfpService  cfp.Service
+	DkUiService dkui.Service
 }
 
-type ResolverIF interface{}
+func NewResolver(cs cfp.Service, ds dkui.Service) *Resolver {
+	return &Resolver{
+		CfpService:  cs,
+		DkUiService: ds,
+	}
+}

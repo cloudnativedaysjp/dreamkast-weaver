@@ -3,6 +3,7 @@ package dkui
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
@@ -83,9 +84,12 @@ func NewService(sh *sqlhelper.SqlHelper) Service {
 
 func (s *ServiceImpl) Init(ctx context.Context) error {
 	opt := s.Config().SqlOption()
+	fmt.Printf("%#v \n", opt)
 	if err := opt.Validate(); err != nil {
+		fmt.Println("validate ok")
 		opt = sqlhelper.NewOptionFromEnv("dkui")
 	}
+	fmt.Println("validate ng")
 	sh, err := sqlhelper.NewSqlHelper(opt)
 	if err != nil {
 		return err
