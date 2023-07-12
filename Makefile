@@ -5,9 +5,15 @@ REGISTRY_BASE ?= 607167088920.dkr.ecr.ap-northeast-1.amazonaws.com/dreamkast-wea
 fmt:
 	go fmt ./...
 
+.PHONY: dbmateup
+dbmateup:
+	cd internal/cfp  && go run github.com/amacneil/dbmate/v2 up
+	cd internal/dkui  && go run github.com/amacneil/dbmate/v2 up
+
 .PHONY: vet
-vet:
+vet: dbmateup
 	go vet ./...
+	go run github.com/kyleconroy/sqlc/cmd/sqlc vet -f internal/sqlc.yaml
 
 .PHONY: test
 test: fmt vet
