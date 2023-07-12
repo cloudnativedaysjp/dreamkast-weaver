@@ -17,4 +17,5 @@ type Resolver struct {
 	weaver.Implements[weaver.Main]
 	CfpService  weaver.Ref[cfp.Service]
 	DkUiService weaver.Ref[dkui.Service]
+	Graphql     weaver.Listener `weaver:"graphql"`
 }

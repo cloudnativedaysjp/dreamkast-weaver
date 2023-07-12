@@ -43,7 +43,7 @@ func init() {
 	}
 	// serve
 	dkwCmd.AddCommand(serve.Cmd)
-	serve.Cmd.Flags().StringVarP(&serve.Port, "port", "p", "8080", "listen port")
+	serve.Cmd.Flags().StringVarP(&serve.Port, "port", "p", "", "listen port")
 
 	// dbmigrate
 	dkwCmd.AddCommand(dbmigrate.Cmd)
