@@ -7,6 +7,10 @@ sql:
       go:
         package: "repo"
         out: "cfp/repo"
+    database:
+      uri: "user:password@tcp(127.0.0.1:13306)/cfp"
+    rules:
+    - sqlc/db-prepare
   - engine: "mysql"
     queries: "dkui/db/query.sql"
     schema: "dkui/db/schema.sql"
@@ -14,3 +18,7 @@ sql:
       go:
         package: "repo"
         out: "dkui/repo"
+    database:
+      uri: "user:password@tcp(127.0.0.1:13306)/dkui"
+    rules:
+    - sqlc/db-prepare
