@@ -2,7 +2,9 @@ package serve
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"time"
 
@@ -51,17 +53,22 @@ func serve(ctx context.Context, r *graph.Resolver) error {
 		Resolvers: r,
 	}))
 
-	opts := weaver.ListenerOptions{LocalAddress: ":" + Port}
-	lis, err := r.Listener("dkw-serve", opts)
-	if err != nil {
-		return err
+	var lis net.Listener
+	if Port == "" {
+		lis = r.Graphql
+	} else {
+		// If Port is defined, it takes precedence over weaver.toml
+		l, err := net.Listen("tcp", fmt.Sprintf(":%s", Port))
+		if err != nil {
+			return err
+		}
+		lis = l
 	}
-	log.Printf("Listener available on %v\n", lis)
+	r.Logger().Debug("Listener available", "address", lis.Addr())
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	router.Handle("/query", srv)
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", Port)
 	s := http.Server{
 		ReadHeaderTimeout: 5 * time.Second,
 		Handler:           router,
