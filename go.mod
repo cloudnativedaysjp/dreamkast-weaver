@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/ServiceWeaver/weaver v0.9.0
 	github.com/amacneil/dbmate/v2 v2.2.0
-	github.com/aws/aws-sdk-go-v2 v1.18.1
+	github.com/aws/aws-sdk-go-v2 v1.19.0
 	github.com/aws/aws-sdk-go-v2/config v1.18.27
 	github.com/aws/aws-sdk-go-v2/service/ivs v1.23.0
 	github.com/getsentry/sentry-go v0.21.0
