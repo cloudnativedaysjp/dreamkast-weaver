@@ -7,6 +7,7 @@ services:
       SERVICEWEAVER_CONFIG: weaver.toml
       UID: ${UID}
       XDG_DATA_HOME: /mnt
+      PROM_PUSHGATEWAY_ENDPOINT: localhost:9091
     working_dir: /app
     network_mode: host
     #ports:
@@ -28,5 +29,9 @@ services:
     - ./db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     ports:
     - "13306:3306"
+  pushgateway:
+    image: prom/pushgateway:v1.6.0
+    ports:
+      - 9091:9091
 volumes:
   mysql-data:

@@ -3,6 +3,7 @@ package dkui
 import (
 	"context"
 	"database/sql"
+	"os"
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
@@ -14,7 +15,22 @@ import (
 	"dreamkast-weaver/internal/stacktrace"
 
 	"github.com/ServiceWeaver/weaver"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/push"
 	"golang.org/x/exp/slog"
+)
+
+const (
+	envPushGatewayEndpoint = "PROM_PUSHGATEWAY_ENDPOINT"
+)
+
+var (
+	viewerCount = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Namespace: "dkw",
+		Subsystem: "dkui",
+		Name:      "viewer_count",
+		Help:      "Number of viewer_count",
+	}, []string{"trackName"})
 )
 
 type Service interface {
@@ -52,17 +68,19 @@ type ServiceImpl struct {
 	weaver.WithConfig[Config]
 
 	sh     *sqlhelper.SqlHelper
+	pusher *push.Pusher
 	domain domain.DkUiDomain
 }
 
 var _ Service = (*ServiceImpl)(nil)
 
 type Config struct {
-	DBUser     string `toml:"db_user"`
-	DBPassword string `toml:"db_password"`
-	DBEndpoint string `toml:"db_endpoint"`
-	DBPort     string `toml:"db_port"`
-	DBName     string `toml:"db_name"`
+	DBUser              string `toml:"db_user"`
+	DBPassword          string `toml:"db_password"`
+	DBEndpoint          string `toml:"db_endpoint"`
+	DBPort              string `toml:"db_port"`
+	DBName              string `toml:"db_name"`
+	PushGatewayEndpoint string `toml:"push_gateway_endpoint"`
 }
 
 func (c *Config) SqlOption() *sqlhelper.SqlOption {
@@ -91,6 +109,15 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 		return err
 	}
 	s.sh = sh
+
+	endpoint := s.Config().PushGatewayEndpoint
+	if endpoint == "" {
+		endpoint = os.Getenv(envPushGatewayEndpoint)
+	}
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(viewerCount)
+	s.pusher = push.New(endpoint, "dkw_dkui").Gatherer(registry)
+
 	return nil
 }
 
@@ -257,6 +284,11 @@ func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfNa
 		if err := r.UpsertViewerCount(ctx, confName, *dvc); err != nil {
 			logger.Warn("failed UpsertViewerCount", slog.String("err", err.Error()))
 		}
+		viewerCount.WithLabelValues(dvc.TrackName.String()).Set(float64(dvc.Count))
+	}
+
+	if err := v.pusher.Push(); err != nil {
+		return err
 	}
 
 	return nil
