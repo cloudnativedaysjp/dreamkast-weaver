@@ -4,10 +4,7 @@ services:
       context: ../
       dockerfile: dev/app/Dockerfile
     environment:
-      DB_ENDPOINT: localhost
-      DB_PORT: 13306
-      DB_USER: user
-      DB_PASSWORD: password
+      SERVICEWEAVER_CONFIG: weaver.toml
       UID: ${UID}
       XDG_DATA_HOME: /mnt
     working_dir: /app
