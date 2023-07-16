@@ -36,6 +36,7 @@ func TestMain(m *testing.M) {
 func setup() {
 	u, _ := url.Parse(dbUrl)
 	db := dbmate.New(u)
+	db.AutoDumpSchema = false
 
 	mustNil(db.Drop())
 	mustNil(db.CreateAndMigrate())
