@@ -7,31 +7,31 @@ require (
 	github.com/ServiceWeaver/weaver v0.17.0
 	github.com/amacneil/dbmate/v2 v2.5.0
 	github.com/aws/aws-sdk-go-v2 v1.19.0
-	github.com/aws/aws-sdk-go-v2/config v1.18.27
+	github.com/aws/aws-sdk-go-v2/config v1.18.28
 	github.com/aws/aws-sdk-go-v2/service/ivs v1.24.0
 	github.com/getsentry/sentry-go v0.22.0
-	github.com/go-chi/chi/v5 v5.0.8
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/kyleconroy/sqlc v1.19.0
+	github.com/kyleconroy/sqlc v1.19.1
 	github.com/prometheus/client_golang v1.16.0
 	github.com/spf13/cobra-cli v1.3.0
-	github.com/vektah/gqlparser/v2 v2.5.7
+	github.com/vektah/gqlparser/v2 v2.5.8
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
-	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
+	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 )
 
 require (
 	github.com/antlr/antlr4/runtime/Go/antlr/v4 v4.0.0-20230321174746-8dcc6526cfb1 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.26 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.4 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.27 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.5 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.35 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.29 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.35 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.28 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.12.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sts v1.19.2 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.36 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.29 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.12.13 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.13 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sts v1.19.3 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
 	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -44,7 +44,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
-	github.com/jackc/pgx/v5 v5.4.1 // indirect
+	github.com/jackc/pgx/v5 v5.4.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
@@ -68,13 +68,13 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.9.0 // indirect
 	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
-	google.golang.org/grpc v1.56.1 // indirect
+	google.golang.org/grpc v1.56.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
