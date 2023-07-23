@@ -63,7 +63,7 @@ var Cmd = &cobra.Command{
 			}
 
 			dbm := dbmate.New(u)
-			dbm.MigrationsDir = filepath.Join(wd, db.migrationDir)
+			dbm.MigrationsDir = []string{filepath.Join(wd, db.migrationDir)}
 			err := dbm.CreateAndMigrate()
 			if err != nil {
 				log.Fatal(err)
