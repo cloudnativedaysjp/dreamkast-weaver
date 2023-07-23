@@ -3,7 +3,7 @@ module dreamkast-weaver
 go 1.20
 
 require (
-	github.com/99designs/gqlgen v0.17.31
+	github.com/99designs/gqlgen v0.17.35
 	github.com/ServiceWeaver/weaver v0.17.0
 	github.com/amacneil/dbmate/v2 v2.2.0
 	github.com/aws/aws-sdk-go-v2 v1.18.1
@@ -15,7 +15,7 @@ require (
 	github.com/kyleconroy/sqlc v1.19.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/spf13/cobra-cli v1.3.0
-	github.com/vektah/gqlparser/v2 v2.5.1
+	github.com/vektah/gqlparser/v2 v2.5.7
 	go.opentelemetry.io/otel v1.16.0
 	go.opentelemetry.io/otel/trace v1.16.0
 	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
@@ -68,7 +68,7 @@ require (
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
-	golang.org/x/mod v0.8.0 // indirect
+	golang.org/x/mod v0.10.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
@@ -100,14 +100,14 @@ require (
 	github.com/google/pprof v0.0.0-20221118152302-e6195bd50e26 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.1 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/klauspost/compress v1.16.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/lightstep/varopt v1.3.0 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mattn/go-sqlite3 v1.14.17 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/paulmach/orb v0.8.0 // indirect
@@ -123,11 +123,11 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/stretchr/testify v1.8.3
-	github.com/urfave/cli/v2 v2.24.4 // indirect
+	github.com/urfave/cli/v2 v2.25.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.13.0 // indirect
-	golang.org/x/tools v0.6.0 // indirect
+	golang.org/x/tools v0.9.3 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
