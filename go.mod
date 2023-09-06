@@ -12,7 +12,7 @@ require (
 	github.com/getsentry/sentry-go v0.22.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/kyleconroy/sqlc v1.19.1
+	github.com/kyleconroy/sqlc v1.21.0
 	github.com/prometheus/client_golang v1.16.0
 	github.com/spf13/cobra-cli v1.3.0
 	github.com/vektah/gqlparser/v2 v2.5.8
