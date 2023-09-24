@@ -13,7 +13,7 @@ dbmateup:
 .PHONY: vet
 vet: dbmateup
 	go vet ./...
-	go run github.com/kyleconroy/sqlc/cmd/sqlc vet -f internal/sqlc.yaml
+	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f internal/sqlc.yaml
 
 .PHONY: test
 test: fmt vet
