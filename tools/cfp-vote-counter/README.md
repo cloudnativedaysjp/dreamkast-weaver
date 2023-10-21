@@ -22,7 +22,7 @@ Run
 
 ```
 # Generate CSV
-./main.py generate_csv cndt2022 [stg]
+./main.py generate_csv cndt2023 [stg]
 ```
 
 Help
