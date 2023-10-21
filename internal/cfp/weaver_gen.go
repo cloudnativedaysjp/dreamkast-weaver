@@ -93,7 +93,7 @@ func (s service_local_stub) Vote(ctx context.Context, a0 VoteRequest) (err error
 	return s.impl.Vote(ctx, a0)
 }
 
-func (s service_local_stub) VoteCounts(ctx context.Context, a0 value.ConfName) (r0 []*domain.VoteCount, err error) {
+func (s service_local_stub) VoteCounts(ctx context.Context, a0 VoteCountsRequest) (r0 []*domain.VoteCount, err error) {
 	// Update metrics.
 	begin := s.voteCountsMetrics.Begin()
 	defer func() { s.voteCountsMetrics.End(begin, err != nil, 0, 0) }()
@@ -174,7 +174,7 @@ func (s service_client_stub) Vote(ctx context.Context, a0 VoteRequest) (err erro
 	return
 }
 
-func (s service_client_stub) VoteCounts(ctx context.Context, a0 value.ConfName) (r0 []*domain.VoteCount, err error) {
+func (s service_client_stub) VoteCounts(ctx context.Context, a0 VoteCountsRequest) (r0 []*domain.VoteCount, err error) {
 	// Update metrics.
 	var requestBytes, replyBytes int
 	begin := s.voteCountsMetrics.Begin()
@@ -281,7 +281,7 @@ func (s service_server_stub) voteCounts(ctx context.Context, args []byte) (res [
 
 	// Decode arguments.
 	dec := codegen.NewDecoder(args)
-	var a0 value.ConfName
+	var a0 VoteCountsRequest
 	(&a0).WeaverUnmarshal(dec)
 
 	// TODO(rgrandl): The deferred function above will recover from panics in the
@@ -297,6 +297,35 @@ func (s service_server_stub) voteCounts(ctx context.Context, args []byte) (res [
 }
 
 // AutoMarshal implementations.
+
+var _ codegen.AutoMarshal = (*VoteCountsRequest)(nil)
+
+type __is_VoteCountsRequest[T ~struct {
+	weaver.AutoMarshal
+	ConfName    value.ConfName
+	VotingTerm  value.VotingTerm
+	SpanSeconds value.SpanSeconds
+}] struct{}
+
+var _ __is_VoteCountsRequest[VoteCountsRequest]
+
+func (x *VoteCountsRequest) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("VoteCountsRequest.WeaverMarshal: nil receiver"))
+	}
+	(x.ConfName).WeaverMarshal(enc)
+	(x.VotingTerm).WeaverMarshal(enc)
+	(x.SpanSeconds).WeaverMarshal(enc)
+}
+
+func (x *VoteCountsRequest) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("VoteCountsRequest.WeaverUnmarshal: nil receiver"))
+	}
+	(&x.ConfName).WeaverUnmarshal(dec)
+	(&x.VotingTerm).WeaverUnmarshal(dec)
+	(&x.SpanSeconds).WeaverUnmarshal(dec)
+}
 
 var _ codegen.AutoMarshal = (*VoteRequest)(nil)
 

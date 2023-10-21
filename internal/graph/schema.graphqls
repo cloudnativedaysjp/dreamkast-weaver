@@ -2,6 +2,8 @@
 #
 # https://gqlgen.com/getting-started/
 
+scalar DateTime
+
 enum ConfName {
   cicd2023
   cndf2023
@@ -10,7 +12,7 @@ enum ConfName {
 
 type Query {
   # cfp
-  voteCounts(confName: ConfName!): [VoteCount!]!
+  voteCounts(confName: ConfName!, votingTerm: VotingTerm, spanSeconds:Int ): [VoteCount!]!
   # dkui
   viewingSlots(confName: ConfName!, profileID: Int!): [ViewingSlot!]!
   stampChallenges(confName: ConfName!, profileID: Int!): [StampChallenge]!
@@ -20,6 +22,11 @@ type Query {
 type VoteCount {
   talkId: Int!
   count: Int!
+}
+
+input VotingTerm {
+  start: DateTime
+  end: DateTime
 }
 
 type ViewingSlot {

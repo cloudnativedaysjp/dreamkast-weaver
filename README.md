@@ -12,7 +12,7 @@ Microservices for dreamkast built on Service Weaver.
 - Docker Compose
 - [Service Weaver](https://serviceweaver.dev/docs.html#installation)
 
-## How to run 
+## How to run
 
 Run the dev container and database:
 

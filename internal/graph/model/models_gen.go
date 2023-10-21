@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type CreateViewEventInput struct {
@@ -61,6 +62,11 @@ type VoteCount struct {
 type VoteInput struct {
 	ConfName ConfName `json:"confName"`
 	TalkID   int      `json:"talkId"`
+}
+
+type VotingTerm struct {
+	Start *time.Time `json:"start,omitempty"`
+	End   *time.Time `json:"end,omitempty"`
 }
 
 type ChallengeCondition string

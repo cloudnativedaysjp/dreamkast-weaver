@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/url"
 	"testing"
+	"time"
 
 	"dreamkast-weaver/internal/cfp"
 	"dreamkast-weaver/internal/cfp/value"
@@ -61,7 +62,15 @@ func TestCfpVoteImpl(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		resp, err := svc.VoteCounts(ctx, cn)
+		vts := time.Now().AddDate(0, 0, -1)
+		vte := time.Now().AddDate(0, 0, 1)
+		vt, _ := value.NewVotingTerm(&vts, &vte)
+
+		resp, err := svc.VoteCounts(ctx, cfp.VoteCountsRequest{
+			ConfName:    cn,
+			VotingTerm:  vt,
+			SpanSeconds: newSpanSeconds(value.SPAN_SECONDS),
+		})
 		assert.NoError(t, err)
 
 		var ok bool
@@ -79,4 +88,10 @@ func mustNil(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func newSpanSeconds(v int) value.SpanSeconds {
+	ss, err := value.NewSpanSeconds(&v)
+	mustNil(err)
+	return ss
 }

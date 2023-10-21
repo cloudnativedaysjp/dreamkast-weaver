@@ -16,7 +16,7 @@ import (
 
 type Service interface {
 	Vote(ctx context.Context, req VoteRequest) error
-	VoteCounts(ctx context.Context, confName value.ConfName) ([]*domain.VoteCount, error)
+	VoteCounts(ctx context.Context, req VoteCountsRequest) ([]*domain.VoteCount, error)
 }
 
 type VoteRequest struct {
@@ -24,6 +24,13 @@ type VoteRequest struct {
 	ConfName value.ConfName
 	TalkID   value.TalkID
 	ClientIp net.IP
+}
+
+type VoteCountsRequest struct {
+	weaver.AutoMarshal
+	ConfName    value.ConfName
+	VotingTerm  value.VotingTerm
+	SpanSeconds value.SpanSeconds
 }
 
 type ServiceImpl struct {
@@ -81,24 +88,19 @@ func (s *ServiceImpl) HandleError(msg string, err error) {
 	}
 }
 
-func (s *ServiceImpl) VoteCounts(ctx context.Context, confName value.ConfName) (resp []*domain.VoteCount, err error) {
+func (s *ServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*domain.VoteCount, err error) {
 	defer func() {
 		s.HandleError("get voteCounts", err)
 	}()
 
 	r := repo.NewCfpRepo(s.sh.DB())
 
-	dvt, err := s.domain.GetVotingTerm(confName)
+	dvotes, err := r.ListCfpVotes(ctx, req.ConfName, req.VotingTerm)
 	if err != nil {
 		return nil, err
 	}
 
-	dvotes, err := r.ListCfpVotes(ctx, confName, dvt)
-	if err != nil {
-		return nil, err
-	}
-
-	dvc := s.domain.TallyCfpVotes(dvotes)
+	dvc := s.domain.TallyCfpVotes(dvotes, req.SpanSeconds)
 
 	return dvc, nil
 }
