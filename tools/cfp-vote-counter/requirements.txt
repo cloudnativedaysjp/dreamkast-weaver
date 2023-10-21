@@ -1,0 +1,6 @@
+pandas
+pytest
+fire
+matplotlib
+gql
+aiohttp
