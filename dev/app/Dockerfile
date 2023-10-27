@@ -1,7 +1,7 @@
-FROM golang:1.20-alpine3.17
+FROM golang:1.21-alpine3.18
 
 RUN apk add -U sudo
-RUN go install github.com/cosmtrek/air@v1.43.0
+RUN go install github.com/cosmtrek/air@v1.49.0
 
 WORKDIR /app
 
