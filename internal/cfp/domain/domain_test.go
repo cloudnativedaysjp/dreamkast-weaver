@@ -15,7 +15,8 @@ var (
 )
 
 func TestCfpDomain_TallyCfpVotes(t *testing.T) {
-	tn := time.Unix(time.Now().Unix()/int64(domain.SPAN_SECONDS)*int64(domain.SPAN_SECONDS), 0)
+	ss := newSpanSeconds(value.SPAN_SECONDS)
+	tn := time.Unix(time.Now().Unix()/value.SPAN_SECONDS*value.SPAN_SECONDS, 0)
 	id := newTalkID(1)
 	ip := net.ParseIP("192.0.2.1")
 
@@ -36,12 +37,12 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 					{
 						TalkID:    id,
 						ClientIp:  ip,
-						CreatedAt: tn.Add((domain.SPAN_SECONDS - 1) * time.Second),
+						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
 					},
 					{
 						TalkID:    id,
 						ClientIp:  ip,
-						CreatedAt: tn.Add(domain.SPAN_SECONDS * time.Second),
+						CreatedAt: tn.Add(value.SPAN_SECONDS * time.Second),
 					},
 				}}
 				return cvs
@@ -62,12 +63,12 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 					{
 						TalkID:    newTalkID(2),
 						ClientIp:  ip,
-						CreatedAt: tn.Add((domain.SPAN_SECONDS - 3) * time.Second),
+						CreatedAt: tn.Add((value.SPAN_SECONDS - 3) * time.Second),
 					},
 					{
 						TalkID:    id,
 						ClientIp:  net.ParseIP("192.0.2.2"),
-						CreatedAt: tn.Add((domain.SPAN_SECONDS - 1) * time.Second),
+						CreatedAt: tn.Add((value.SPAN_SECONDS - 1) * time.Second),
 					},
 				}}
 				return cvs
@@ -83,7 +84,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 		t.Run("ok:"+tt.name, func(t *testing.T) {
 			cvs := tt.given()
 
-			got := svc.TallyCfpVotes(cvs)
+			got := svc.TallyCfpVotes(cvs, ss)
 
 			for _, v := range got {
 				assert.Equal(t, tt.counts[v.TalkID], v.Count)
@@ -102,4 +103,10 @@ func newTalkID(v int32) value.TalkID {
 	id, err := value.NewTalkID(v)
 	mustNil(err)
 	return id
+}
+
+func newSpanSeconds(v int) value.SpanSeconds {
+	ss, err := value.NewSpanSeconds(&v)
+	mustNil(err)
+	return ss
 }

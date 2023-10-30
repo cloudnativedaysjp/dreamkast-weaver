@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/ServiceWeaver/weaver"
 	"github.com/ServiceWeaver/weaver/runtime/codegen"
+	"time"
 )
 
 var _ codegen.LatestVersion = codegen.Version[[0][17]struct{}](`
@@ -64,6 +65,29 @@ func (x *ConfName) WeaverUnmarshal(dec *codegen.Decoder) {
 	*(*string)(&x.value) = dec.String()
 }
 
+var _ codegen.AutoMarshal = (*SpanSeconds)(nil)
+
+type __is_SpanSeconds[T ~struct {
+	weaver.AutoMarshal
+	value int
+}] struct{}
+
+var _ __is_SpanSeconds[SpanSeconds]
+
+func (x *SpanSeconds) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("SpanSeconds.WeaverMarshal: nil receiver"))
+	}
+	enc.Int(x.value)
+}
+
+func (x *SpanSeconds) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("SpanSeconds.WeaverUnmarshal: nil receiver"))
+	}
+	x.value = dec.Int()
+}
+
 var _ codegen.AutoMarshal = (*TalkID)(nil)
 
 type __is_TalkID[T ~struct {
@@ -85,4 +109,30 @@ func (x *TalkID) WeaverUnmarshal(dec *codegen.Decoder) {
 		panic(fmt.Errorf("TalkID.WeaverUnmarshal: nil receiver"))
 	}
 	x.value = dec.Int32()
+}
+
+var _ codegen.AutoMarshal = (*VotingTerm)(nil)
+
+type __is_VotingTerm[T ~struct {
+	weaver.AutoMarshal
+	start time.Time
+	end   time.Time
+}] struct{}
+
+var _ __is_VotingTerm[VotingTerm]
+
+func (x *VotingTerm) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("VotingTerm.WeaverMarshal: nil receiver"))
+	}
+	enc.EncodeBinaryMarshaler(&x.start)
+	enc.EncodeBinaryMarshaler(&x.end)
+}
+
+func (x *VotingTerm) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("VotingTerm.WeaverUnmarshal: nil receiver"))
+	}
+	dec.DecodeBinaryUnmarshaler(&x.start)
+	dec.DecodeBinaryUnmarshaler(&x.end)
 }

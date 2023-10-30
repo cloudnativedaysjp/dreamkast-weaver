@@ -111,13 +111,34 @@ func (r *mutationResolver) SaveViewerCount(ctx context.Context, input model.Save
 }
 
 // VoteCounts is the resolver for the voteCounts field.
-func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error) {
-	cn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
+func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error) {
+	vcn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := r.CfpService.Get().VoteCounts(ctx, cn)
+	var vvt cvalue.VotingTerm
+	if votingTerm == nil {
+		vvt, err = cvalue.NewVotingTerm(nil, nil)
+	} else {
+		vvt, err = cvalue.NewVotingTerm(votingTerm.Start, votingTerm.End)
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	vss, err := cvalue.NewSpanSeconds(spanSeconds)
+	if err != nil {
+		return nil, err
+	}
+
+	req := cfp.VoteCountsRequest{
+		ConfName:    vcn,
+		VotingTerm:  vvt,
+		SpanSeconds: vss,
+	}
+
+	resp, err := r.CfpService.Get().VoteCounts(ctx, req)
 	if err != nil {
 		return nil, err
 	}

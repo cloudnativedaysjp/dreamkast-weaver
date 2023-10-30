@@ -7,6 +7,6 @@ import (
 )
 
 type CfpRepo interface {
-	ListCfpVotes(ctx context.Context, confName value.ConfName, vt *VotingTerm) (*CfpVotes, error)
+	ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*CfpVotes, error)
 	InsertCfpVote(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error
 }

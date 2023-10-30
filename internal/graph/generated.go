@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -57,7 +58,7 @@ type ComplexityRoot struct {
 		StampChallenges func(childComplexity int, confName model.ConfName, profileID int) int
 		ViewerCount     func(childComplexity int, confName model.ConfName) int
 		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int) int
-		VoteCounts      func(childComplexity int, confName model.ConfName) int
+		VoteCounts      func(childComplexity int, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) int
 	}
 
 	StampChallenge struct {
@@ -93,7 +94,7 @@ type MutationResolver interface {
 	SaveViewerCount(ctx context.Context, input model.SaveViewerCount) (*bool, error)
 }
 type QueryResolver interface {
-	VoteCounts(ctx context.Context, confName model.ConfName) ([]*model.VoteCount, error)
+	VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error)
 	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
 	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
 	ViewerCount(ctx context.Context, confName model.ConfName) ([]*model.ViewerCount, error)
@@ -220,7 +221,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(model.ConfName)), true
+		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(model.ConfName), args["votingTerm"].(*model.VotingTerm), args["spanSeconds"].(*int)), true
 
 	case "StampChallenge.condition":
 		if e.complexity.StampChallenge.Condition == nil {
@@ -319,6 +320,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputStampOnSiteInput,
 		ec.unmarshalInputStampOnlineInput,
 		ec.unmarshalInputVoteInput,
+		ec.unmarshalInputVotingTerm,
 	)
 	first := true
 
@@ -600,6 +602,24 @@ func (ec *executionContext) field_Query_voteCounts_args(ctx context.Context, raw
 		}
 	}
 	args["confName"] = arg0
+	var arg1 *model.VotingTerm
+	if tmp, ok := rawArgs["votingTerm"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("votingTerm"))
+		arg1, err = ec.unmarshalOVotingTerm2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐVotingTerm(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["votingTerm"] = arg1
+	var arg2 *int
+	if tmp, ok := rawArgs["spanSeconds"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("spanSeconds"))
+		arg2, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["spanSeconds"] = arg2
 	return args, nil
 }
 
@@ -915,7 +935,7 @@ func (ec *executionContext) _Query_voteCounts(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(model.ConfName))
+		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(model.ConfName), fc.Args["votingTerm"].(*model.VotingTerm), fc.Args["spanSeconds"].(*int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3827,6 +3847,44 @@ func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj int
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputVotingTerm(ctx context.Context, obj interface{}) (model.VotingTerm, error) {
+	var it model.VotingTerm
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"start", "end"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "start":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Start = data
+		case "end":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("end"))
+			data, err := ec.unmarshalODateTime2ᚖtimeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.End = data
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -5126,6 +5184,38 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalODateTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
+	return res
+}
+
 func (ec *executionContext) marshalOStampChallenge2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx context.Context, sel ast.SelectionSet, v *model.StampChallenge) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -5147,6 +5237,14 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	}
 	res := graphql.MarshalString(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOVotingTerm2ᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐVotingTerm(ctx context.Context, v interface{}) (*model.VotingTerm, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputVotingTerm(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
