@@ -8,6 +8,7 @@ package repo
 import (
 	"context"
 	"encoding/json"
+	"time"
 )
 
 const getTrailmapStamps = `-- name: GetTrailmapStamps :one
@@ -30,6 +31,23 @@ func (q *Queries) GetTrailmapStamps(ctx context.Context, arg GetTrailmapStampsPa
 	var i TrailmapStamp
 	err := row.Scan(&i.ConferenceName, &i.ProfileID, &i.Stamps)
 	return i, err
+}
+
+const insertTrackViewer = `-- name: InsertTrackViewer :exec
+INSERT INTO
+  track_viewer (created_at, track_name, profile_id)
+VALUES
+  (NOW(3), ?, ?)
+`
+
+type InsertTrackViewerParams struct {
+	TrackName string
+	ProfileID int32
+}
+
+func (q *Queries) InsertTrackViewer(ctx context.Context, arg InsertTrackViewerParams) error {
+	_, err := q.db.ExecContext(ctx, insertTrackViewer, arg.TrackName, arg.ProfileID)
+	return err
 }
 
 const insertViewEvents = `-- name: InsertViewEvents :exec
@@ -58,6 +76,43 @@ func (q *Queries) InsertViewEvents(ctx context.Context, arg InsertViewEventsPara
 		arg.ViewingSeconds,
 	)
 	return err
+}
+
+const listTrackViewer = `-- name: ListTrackViewer :many
+SELECT
+  created_at, track_name, profile_id
+FROM
+  track_viewer
+WHERE
+  created_at BETWEEN ? AND ?
+`
+
+type ListTrackViewerParams struct {
+	FromCreatedAt time.Time
+	ToCreatedAt   time.Time
+}
+
+func (q *Queries) ListTrackViewer(ctx context.Context, arg ListTrackViewerParams) ([]TrackViewer, error) {
+	rows, err := q.db.QueryContext(ctx, listTrackViewer, arg.FromCreatedAt, arg.ToCreatedAt)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []TrackViewer
+	for rows.Next() {
+		var i TrackViewer
+		if err := rows.Scan(&i.CreatedAt, &i.TrackName, &i.ProfileID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listViewEvents = `-- name: ListViewEvents :many

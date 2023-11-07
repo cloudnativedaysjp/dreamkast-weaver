@@ -118,6 +118,81 @@ func serviceweaver_dec_slice_StampChallenge_a26e451e(dec *codegen.Decoder) []Sta
 	return res
 }
 
+var _ codegen.AutoMarshal = (*TrackViewer)(nil)
+
+type __is_TrackViewer[T ~struct {
+	weaver.AutoMarshal
+	CreatedAt time.Time
+	TrackName value.TrackName
+	ProfileID value.ProfileID
+}] struct{}
+
+var _ __is_TrackViewer[TrackViewer]
+
+func (x *TrackViewer) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackViewer.WeaverMarshal: nil receiver"))
+	}
+	enc.EncodeBinaryMarshaler(&x.CreatedAt)
+	(x.TrackName).WeaverMarshal(enc)
+	(x.ProfileID).WeaverMarshal(enc)
+}
+
+func (x *TrackViewer) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackViewer.WeaverUnmarshal: nil receiver"))
+	}
+	dec.DecodeBinaryUnmarshaler(&x.CreatedAt)
+	(&x.TrackName).WeaverUnmarshal(dec)
+	(&x.ProfileID).WeaverUnmarshal(dec)
+}
+
+var _ codegen.AutoMarshal = (*TrackViewers)(nil)
+
+type __is_TrackViewers[T ~struct {
+	weaver.AutoMarshal
+	Items []TrackViewer
+}] struct{}
+
+var _ __is_TrackViewers[TrackViewers]
+
+func (x *TrackViewers) WeaverMarshal(enc *codegen.Encoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackViewers.WeaverMarshal: nil receiver"))
+	}
+	serviceweaver_enc_slice_TrackViewer_090c5322(enc, x.Items)
+}
+
+func (x *TrackViewers) WeaverUnmarshal(dec *codegen.Decoder) {
+	if x == nil {
+		panic(fmt.Errorf("TrackViewers.WeaverUnmarshal: nil receiver"))
+	}
+	x.Items = serviceweaver_dec_slice_TrackViewer_090c5322(dec)
+}
+
+func serviceweaver_enc_slice_TrackViewer_090c5322(enc *codegen.Encoder, arg []TrackViewer) {
+	if arg == nil {
+		enc.Len(-1)
+		return
+	}
+	enc.Len(len(arg))
+	for i := 0; i < len(arg); i++ {
+		(arg[i]).WeaverMarshal(enc)
+	}
+}
+
+func serviceweaver_dec_slice_TrackViewer_090c5322(dec *codegen.Decoder) []TrackViewer {
+	n := dec.Len()
+	if n == -1 {
+		return nil
+	}
+	res := make([]TrackViewer, n)
+	for i := 0; i < n; i++ {
+		(&res[i]).WeaverUnmarshal(dec)
+	}
+	return res
+}
+
 var _ codegen.AutoMarshal = (*ViewEvent)(nil)
 
 type __is_ViewEvent[T ~struct {

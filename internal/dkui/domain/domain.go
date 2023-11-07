@@ -276,3 +276,49 @@ type ViewerCounts struct {
 	weaver.AutoMarshal
 	Items []ViewerCount
 }
+
+type TrackViewer struct {
+	weaver.AutoMarshal
+	CreatedAt time.Time
+	TrackName value.TrackName
+	ProfileID value.ProfileID
+}
+
+type TrackViewers struct {
+	weaver.AutoMarshal
+	Items []TrackViewer
+}
+
+func (v *TrackViewers) GetViewerCounts() ViewerCounts {
+	aa := map[value.TrackName]int{}
+
+	type key struct {
+		tn        value.TrackName
+		profileID value.ProfileID
+	}
+	counted := map[key]bool{}
+
+	for _, v := range v.Items {
+		k := key{
+			tn:        v.TrackName,
+			profileID: v.ProfileID,
+		}
+		if _, isThere := counted[k]; isThere {
+			continue
+		}
+		counted[k] = true
+		aa[v.TrackName]++
+	}
+
+	var items []ViewerCount
+	for k, v := range aa {
+		items = append(items, ViewerCount{
+			TrackName: k,
+			Count:     int64(v),
+		})
+	}
+
+	return ViewerCounts{
+		Items: items,
+	}
+}

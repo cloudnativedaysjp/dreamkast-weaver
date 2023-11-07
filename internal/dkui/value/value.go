@@ -9,6 +9,11 @@ import (
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
+const (
+	TIMEWINDOW_VIEWER_COUNT = 30
+	METRICS_UPDATE_INTERVAL = 60
+)
+
 // ConfName represents a conference name.
 type ConfName struct {
 	weaver.AutoMarshal

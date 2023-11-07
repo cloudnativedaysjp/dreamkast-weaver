@@ -302,3 +302,76 @@ func (_viewerCountConv) fromDB(vcs []ViewerCount) (*domain.ViewerCounts, error) 
 // 	}
 // 	return vcs
 // }
+
+func (r *DkUiRepoImpl) InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error {
+	if err := r.q.InsertTrackViewer(ctx, InsertTrackViewerParams{
+		ProfileID: profileID.Value(),
+		TrackName: trackName.String(),
+	}); err != nil {
+		return stacktrace.With(fmt.Errorf("insert viewing track: %w", err))
+	}
+	return nil
+}
+
+func (r *DkUiRepoImpl) ListTrackViewer(ctx context.Context, from, to time.Time) (*domain.TrackViewers, error) {
+	tvs, err := r.q.ListTrackViewer(ctx, ListTrackViewerParams{
+		FromCreatedAt: from,
+		ToCreatedAt:   to,
+	})
+	if err != nil {
+		return nil, stacktrace.With(fmt.Errorf("list viewing track: %w", err))
+	}
+
+	return trackViewerConv.fromDB(tvs)
+}
+
+var trackViewerConv _trackViewerConv
+
+type _trackViewerConv struct{}
+
+func (_trackViewerConv) fromDB(tvs []TrackViewer) (*domain.TrackViewers, error) {
+	conv := func(v *TrackViewer) (*domain.TrackViewer, error) {
+		tn, err := value.NewTrackName(v.TrackName)
+		if err != nil {
+			return nil, err
+		}
+		pID, err := value.NewProfileID(v.ProfileID)
+		if err != nil {
+			return nil, err
+		}
+
+		return &domain.TrackViewer{
+			TrackName: tn,
+			ProfileID: pID,
+			CreatedAt: v.CreatedAt,
+		}, nil
+	}
+
+	var items []domain.TrackViewer
+
+	for _, tv := range tvs {
+		v := tv
+		dv, err := conv(&v)
+		if err != nil {
+			return nil, stacktrace.With(fmt.Errorf("convert track viewer from DB: %w", err))
+		}
+		items = append(items, *dv)
+	}
+
+	return &domain.TrackViewers{Items: items}, nil
+}
+
+// func (_trackViewerConv) toDB(v *domain.TrackViewers) []TrackViewer {
+// 	conv := func(dtv *domain.TrackViewer) *TrackViewer {
+// 		return &TrackViewer{
+// 			TrackName: dtv.TrackName.String(),
+// 			ProfileID: dtv.ProfileID.Value(),
+// 			CreatedAt: dtv.CreatedAt,
+// 		}
+// 	}
+// 	var tvs []TrackViewer
+// 	for _, vc := range v.Items {
+// 		tvs = append(tvs, *conv(&vc))
+// 	}
+// 	return tvs
+// }

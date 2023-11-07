@@ -110,6 +110,23 @@ func (r *mutationResolver) SaveViewerCount(ctx context.Context, input model.Save
 	return nil, nil
 }
 
+// ViewingTrack is the resolver for the viewingTrack field.
+func (r *mutationResolver) ViewingTrack(ctx context.Context, input model.ViewingTrackInput) (*bool, error) {
+	pID, err := value.NewProfileID(int32(input.ProfileID))
+	if err != nil {
+		return nil, err
+	}
+	tn, err := value.NewTrackName(input.TrackName)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.DkUiService.Get().ViewingTrack(ctx, pID, tn); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error) {
 	vcn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
@@ -202,13 +219,8 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 }
 
 // ViewerCount is the resolver for the viewerCount field.
-func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName) ([]*model.ViewerCount, error) {
-	cn, err := value.NewConfName(value.ConferenceKind((confName.String())))
-	if err != nil {
-		return nil, err
-	}
-
-	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx, cn)
+func (r *queryResolver) ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error) {
+	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -216,11 +228,8 @@ func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName
 	var vcs []*model.ViewerCount
 	for _, dvc := range dvcs.Items {
 		vcs = append(vcs, &model.ViewerCount{
-			TrackID:    int(dvc.TrackID.Value()),
-			ChannelArn: dvc.ChannelArn.String(),
-			TrackName:  dvc.TrackName.String(),
-			Count:      int(dvc.Count),
-			UpdateAt:   int(dvc.UpdateAt.Unix()),
+			TrackName: dvc.TrackName.String(),
+			Count:     int(dvc.Count),
 		})
 	}
 	return vcs, nil

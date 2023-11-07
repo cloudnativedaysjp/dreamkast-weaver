@@ -42,10 +42,10 @@ func init() {
 		Iface: reflect.TypeOf((*Service)(nil)).Elem(),
 		Impl:  reflect.TypeOf(ServiceImpl{}),
 		LocalStubFn: func(impl any, caller string, tracer trace.Tracer) any {
-			return service_local_stub{impl: impl.(Service), tracer: tracer, createViewEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateViewEvent", Remote: false}), listViewerCountsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ListViewerCounts", Remote: false}), saveViewerCountMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "SaveViewerCount", Remote: false}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges", Remote: false}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite", Remote: false}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline", Remote: false}), viewingEventsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingEvents", Remote: false})}
+			return service_local_stub{impl: impl.(Service), tracer: tracer, createViewEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateViewEvent", Remote: false}), listViewerCountsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ListViewerCounts", Remote: false}), saveViewerCountMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "SaveViewerCount", Remote: false}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges", Remote: false}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite", Remote: false}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline", Remote: false}), viewingEventsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingEvents", Remote: false}), viewingTrackMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingTrack", Remote: false})}
 		},
 		ClientStubFn: func(stub codegen.Stub, caller string) any {
-			return service_client_stub{stub: stub, createViewEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateViewEvent", Remote: true}), listViewerCountsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ListViewerCounts", Remote: true}), saveViewerCountMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "SaveViewerCount", Remote: true}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges", Remote: true}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite", Remote: true}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline", Remote: true}), viewingEventsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingEvents", Remote: true})}
+			return service_client_stub{stub: stub, createViewEventMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "CreateViewEvent", Remote: true}), listViewerCountsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ListViewerCounts", Remote: true}), saveViewerCountMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "SaveViewerCount", Remote: true}), stampChallengesMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampChallenges", Remote: true}), stampOnSiteMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnSite", Remote: true}), stampOnlineMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "StampOnline", Remote: true}), viewingEventsMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingEvents", Remote: true}), viewingTrackMetrics: codegen.MethodMetricsFor(codegen.MethodLabels{Caller: caller, Component: "dreamkast-weaver/internal/dkui/Service", Method: "ViewingTrack", Remote: true})}
 		},
 		ServerStubFn: func(impl any, addLoad func(uint64, float64)) codegen.Server {
 			return service_server_stub{impl: impl.(Service), addLoad: addLoad}
@@ -72,6 +72,7 @@ type service_local_stub struct {
 	stampOnSiteMetrics      *codegen.MethodMetrics
 	stampOnlineMetrics      *codegen.MethodMetrics
 	viewingEventsMetrics    *codegen.MethodMetrics
+	viewingTrackMetrics     *codegen.MethodMetrics
 }
 
 // Check that service_local_stub implements the Service interface.
@@ -97,7 +98,7 @@ func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 
 	return s.impl.CreateViewEvent(ctx, a0, a1)
 }
 
-func (s service_local_stub) ListViewerCounts(ctx context.Context, a0 value.ConfName) (r0 *domain.ViewerCounts, err error) {
+func (s service_local_stub) ListViewerCounts(ctx context.Context) (r0 *domain.ViewerCounts, err error) {
 	// Update metrics.
 	begin := s.listViewerCountsMetrics.Begin()
 	defer func() { s.listViewerCountsMetrics.End(begin, err != nil, 0, 0) }()
@@ -114,7 +115,7 @@ func (s service_local_stub) ListViewerCounts(ctx context.Context, a0 value.ConfN
 		}()
 	}
 
-	return s.impl.ListViewerCounts(ctx, a0)
+	return s.impl.ListViewerCounts(ctx)
 }
 
 func (s service_local_stub) SaveViewerCount(ctx context.Context, a0 value.ConfName) (err error) {
@@ -217,6 +218,26 @@ func (s service_local_stub) ViewingEvents(ctx context.Context, a0 Profile) (r0 *
 	return s.impl.ViewingEvents(ctx, a0)
 }
 
+func (s service_local_stub) ViewingTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName) (err error) {
+	// Update metrics.
+	begin := s.viewingTrackMetrics.Begin()
+	defer func() { s.viewingTrackMetrics.End(begin, err != nil, 0, 0) }()
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.tracer.Start(ctx, "dkui.Service.ViewingTrack", trace.WithSpanKind(trace.SpanKindInternal))
+		defer func() {
+			if err != nil {
+				span.RecordError(err)
+				span.SetStatus(codes.Error, err.Error())
+			}
+			span.End()
+		}()
+	}
+
+	return s.impl.ViewingTrack(ctx, a0, a1)
+}
+
 // Client stub implementations.
 
 type service_client_stub struct {
@@ -228,6 +249,7 @@ type service_client_stub struct {
 	stampOnSiteMetrics      *codegen.MethodMetrics
 	stampOnlineMetrics      *codegen.MethodMetrics
 	viewingEventsMetrics    *codegen.MethodMetrics
+	viewingTrackMetrics     *codegen.MethodMetrics
 }
 
 // Check that service_client_stub implements the Service interface.
@@ -284,7 +306,7 @@ func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1
 	return
 }
 
-func (s service_client_stub) ListViewerCounts(ctx context.Context, a0 value.ConfName) (r0 *domain.ViewerCounts, err error) {
+func (s service_client_stub) ListViewerCounts(ctx context.Context) (r0 *domain.ViewerCounts, err error) {
 	// Update metrics.
 	var requestBytes, replyBytes int
 	begin := s.listViewerCountsMetrics.Begin()
@@ -313,15 +335,11 @@ func (s service_client_stub) ListViewerCounts(ctx context.Context, a0 value.Conf
 
 	}()
 
-	// Encode arguments.
-	enc := codegen.NewEncoder()
-	(a0).WeaverMarshal(enc)
 	var shardKey uint64
 
 	// Call the remote method.
-	requestBytes = len(enc.Data())
 	var results []byte
-	results, err = s.stub.Run(ctx, 1, enc.Data(), shardKey)
+	results, err = s.stub.Run(ctx, 1, nil, shardKey)
 	replyBytes = len(results)
 	if err != nil {
 		err = errors.Join(weaver.RemoteCallError, err)
@@ -589,6 +607,57 @@ func (s service_client_stub) ViewingEvents(ctx context.Context, a0 Profile) (r0 
 	return
 }
 
+func (s service_client_stub) ViewingTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName) (err error) {
+	// Update metrics.
+	var requestBytes, replyBytes int
+	begin := s.viewingTrackMetrics.Begin()
+	defer func() { s.viewingTrackMetrics.End(begin, err != nil, requestBytes, replyBytes) }()
+
+	span := trace.SpanFromContext(ctx)
+	if span.SpanContext().IsValid() {
+		// Create a child span for this method.
+		ctx, span = s.stub.Tracer().Start(ctx, "dkui.Service.ViewingTrack", trace.WithSpanKind(trace.SpanKindClient))
+	}
+
+	defer func() {
+		// Catch and return any panics detected during encoding/decoding/rpc.
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+			if err != nil {
+				err = errors.Join(weaver.RemoteCallError, err)
+			}
+		}
+
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, err.Error())
+		}
+		span.End()
+
+	}()
+
+	// Encode arguments.
+	enc := codegen.NewEncoder()
+	(a0).WeaverMarshal(enc)
+	(a1).WeaverMarshal(enc)
+	var shardKey uint64
+
+	// Call the remote method.
+	requestBytes = len(enc.Data())
+	var results []byte
+	results, err = s.stub.Run(ctx, 7, enc.Data(), shardKey)
+	replyBytes = len(results)
+	if err != nil {
+		err = errors.Join(weaver.RemoteCallError, err)
+		return
+	}
+
+	// Decode the results.
+	dec := codegen.NewDecoder(results)
+	err = dec.Error()
+	return
+}
+
 // Server stub implementations.
 
 type service_server_stub struct {
@@ -616,6 +685,8 @@ func (s service_server_stub) GetStubFn(method string) func(ctx context.Context, 
 		return s.stampOnline
 	case "ViewingEvents":
 		return s.viewingEvents
+	case "ViewingTrack":
+		return s.viewingTrack
 	default:
 		return nil
 	}
@@ -655,15 +726,10 @@ func (s service_server_stub) listViewerCounts(ctx context.Context, args []byte) 
 		}
 	}()
 
-	// Decode arguments.
-	dec := codegen.NewDecoder(args)
-	var a0 value.ConfName
-	(&a0).WeaverUnmarshal(dec)
-
 	// TODO(rgrandl): The deferred function above will recover from panics in the
 	// user code: fix this.
 	// Call the local method.
-	r0, appErr := s.impl.ListViewerCounts(ctx, a0)
+	r0, appErr := s.impl.ListViewerCounts(ctx)
 
 	// Encode the results.
 	enc := codegen.NewEncoder()
@@ -794,6 +860,32 @@ func (s service_server_stub) viewingEvents(ctx context.Context, args []byte) (re
 	// Encode the results.
 	enc := codegen.NewEncoder()
 	serviceweaver_enc_ptr_ViewEvents_fd9e24a3(enc, r0)
+	enc.Error(appErr)
+	return enc.Data(), nil
+}
+
+func (s service_server_stub) viewingTrack(ctx context.Context, args []byte) (res []byte, err error) {
+	// Catch and return any panics detected during encoding/decoding/rpc.
+	defer func() {
+		if err == nil {
+			err = codegen.CatchPanics(recover())
+		}
+	}()
+
+	// Decode arguments.
+	dec := codegen.NewDecoder(args)
+	var a0 value.ProfileID
+	(&a0).WeaverUnmarshal(dec)
+	var a1 value.TrackName
+	(&a1).WeaverUnmarshal(dec)
+
+	// TODO(rgrandl): The deferred function above will recover from panics in the
+	// user code: fix this.
+	// Call the local method.
+	appErr := s.impl.ViewingTrack(ctx, a0, a1)
+
+	// Encode the results.
+	enc := codegen.NewEncoder()
 	enc.Error(appErr)
 	return enc.Data(), nil
 }

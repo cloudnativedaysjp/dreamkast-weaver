@@ -41,3 +41,17 @@ FROM
   viewer_counts
 WHERE
   conference_name = ?;
+
+-- name: InsertTrackViewer :exec
+INSERT INTO
+  track_viewer (created_at, track_name, profile_id)
+VALUES
+  (NOW(3), ?, ?);
+
+-- name: ListTrackViewer :many
+SELECT
+  *
+FROM
+  track_viewer
+WHERE
+  created_at BETWEEN ? AND ?;

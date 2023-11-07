@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"time"
 
 	"dreamkast-weaver/internal/dkui/value"
 )
@@ -15,4 +16,6 @@ type DkUiRepo interface {
 
 	UpsertViewerCount(ctx context.Context, cn value.ConfName, vc ViewerCount) error
 	ListViewerCounts(ctx context.Context, cn value.ConfName) (*ViewerCounts, error)
+	InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error)
+	ListTrackViewer(ctx context.Context, from, to time.Time) (*TrackViewers, error)
 }

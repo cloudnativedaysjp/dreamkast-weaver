@@ -42,11 +42,8 @@ type StampOnlineInput struct {
 }
 
 type ViewerCount struct {
-	TrackID    int    `json:"trackID"`
-	ChannelArn string `json:"channelArn"`
-	TrackName  string `json:"trackName"`
-	Count      int    `json:"count"`
-	UpdateAt   int    `json:"updateAt"`
+	TrackName string `json:"trackName"`
+	Count     int    `json:"count"`
 }
 
 type ViewingSlot struct {
@@ -67,6 +64,11 @@ type VoteInput struct {
 type VotingTerm struct {
 	Start *time.Time `json:"start,omitempty"`
 	End   *time.Time `json:"end,omitempty"`
+}
+
+type ViewingTrackInput struct {
+	ProfileID int    `json:"profileID"`
+	TrackName string `json:"trackName"`
 }
 
 type ChallengeCondition string

@@ -16,7 +16,7 @@ type Query {
   # dkui
   viewingSlots(confName: ConfName!, profileID: Int!): [ViewingSlot!]!
   stampChallenges(confName: ConfName!, profileID: Int!): [StampChallenge]!
-  viewerCount(confName: ConfName!): [ViewerCount!]!
+  viewerCount(confName: ConfName): [ViewerCount!]!
 }
 
 type VoteCount {
@@ -41,11 +41,8 @@ type StampChallenge {
 }
 
 type ViewerCount {
-  trackID: Int!
-  channelArn: String!
   trackName: String!
   count: Int!
-  updateAt: Int!
 }
 
 enum ChallengeCondition {
@@ -62,6 +59,7 @@ type Mutation {
   stampOnSite(input: StampOnSiteInput!): Boolean
   createViewEvent(input: CreateViewEventInput!): Boolean
   saveViewerCount(input: SaveViewerCount!): Boolean
+  viewingTrack(input: ViewingTrackInput!): Boolean
 }
 
 input VoteInput {
@@ -91,6 +89,11 @@ input CreateViewEventInput {
   slotID: Int!
 }
 
-input SaveViewerCount{
+input SaveViewerCount {
   confName: ConfName!
+}
+
+input ViewingTrackInput {
+  profileID: Int!
+  trackName: String!
 }
