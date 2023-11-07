@@ -48,7 +48,6 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateViewEvent func(childComplexity int, input model.CreateViewEventInput) int
-		SaveViewerCount func(childComplexity int, input model.SaveViewerCount) int
 		StampOnSite     func(childComplexity int, input model.StampOnSiteInput) int
 		StampOnline     func(childComplexity int, input model.StampOnlineInput) int
 		ViewingTrack    func(childComplexity int, input model.ViewingTrackInput) int
@@ -89,7 +88,6 @@ type MutationResolver interface {
 	StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error)
 	StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error)
 	CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error)
-	SaveViewerCount(ctx context.Context, input model.SaveViewerCount) (*bool, error)
 	ViewingTrack(ctx context.Context, input model.ViewingTrackInput) (*bool, error)
 }
 type QueryResolver interface {
@@ -125,18 +123,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateViewEvent(childComplexity, args["input"].(model.CreateViewEventInput)), true
-
-	case "Mutation.saveViewerCount":
-		if e.complexity.Mutation.SaveViewerCount == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_saveViewerCount_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.SaveViewerCount(childComplexity, args["input"].(model.SaveViewerCount)), true
 
 	case "Mutation.stampOnSite":
 		if e.complexity.Mutation.StampOnSite == nil {
@@ -306,7 +292,6 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
 		ec.unmarshalInputCreateViewEventInput,
-		ec.unmarshalInputSaveViewerCount,
 		ec.unmarshalInputStampOnSiteInput,
 		ec.unmarshalInputStampOnlineInput,
 		ec.unmarshalInputVoteInput,
@@ -435,21 +420,6 @@ func (ec *executionContext) field_Mutation_createViewEvent_args(ctx context.Cont
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐCreateViewEventInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_saveViewerCount_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.SaveViewerCount
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNSaveViewerCount2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐSaveViewerCount(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -869,58 +839,6 @@ func (ec *executionContext) fieldContext_Mutation_createViewEvent(ctx context.Co
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_createViewEvent_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_saveViewerCount(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_saveViewerCount(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SaveViewerCount(rctx, fc.Args["input"].(model.SaveViewerCount))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_saveViewerCount(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_saveViewerCount_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3588,35 +3506,6 @@ func (ec *executionContext) unmarshalInputCreateViewEventInput(ctx context.Conte
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputSaveViewerCount(ctx context.Context, obj interface{}) (model.SaveViewerCount, error) {
-	var it model.SaveViewerCount
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"confName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "confName":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("confName"))
-			data, err := ec.unmarshalNConfName2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐConfName(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ConfName = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputStampOnSiteInput(ctx context.Context, obj interface{}) (model.StampOnSiteInput, error) {
 	var it model.StampOnSiteInput
 	asMap := map[string]interface{}{}
@@ -3885,10 +3774,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "createViewEvent":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createViewEvent(ctx, field)
-			})
-		case "saveViewerCount":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_saveViewerCount(ctx, field)
 			})
 		case "viewingTrack":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -4615,11 +4500,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNSaveViewerCount2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐSaveViewerCount(ctx context.Context, v interface{}) (model.SaveViewerCount, error) {
-	res, err := ec.unmarshalInputSaveViewerCount(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNStampChallenge2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐStampChallenge(ctx context.Context, sel ast.SelectionSet, v []*model.StampChallenge) graphql.Marshaler {

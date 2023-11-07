@@ -100,16 +100,6 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	return nil, nil
 }
 
-// SaveViewerCount is the resolver for the saveViewerCount field.
-func (r *mutationResolver) SaveViewerCount(ctx context.Context, input model.SaveViewerCount) (*bool, error) {
-	cn, err := value.NewConfName(value.ConferenceKind(input.ConfName))
-	err = r.DkUiService.Get().SaveViewerCount(ctx, cn)
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
-
 // ViewingTrack is the resolver for the viewingTrack field.
 func (r *mutationResolver) ViewingTrack(ctx context.Context, input model.ViewingTrackInput) (*bool, error) {
 	pID, err := value.NewProfileID(int32(input.ProfileID))

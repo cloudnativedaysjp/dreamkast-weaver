@@ -253,23 +253,17 @@ func (evs *ViewEvents) AddImmutable(ev ViewEvent) *ViewEvents {
 	}
 }
 
-func NewViewerCount(trackID value.TrackID, ca value.ChannelArn, tn value.TrackName, count int64) *ViewerCount {
+func NewViewerCount(tn value.TrackName, count int64) *ViewerCount {
 	return &ViewerCount{
-		TrackID:    trackID,
-		ChannelArn: ca,
-		TrackName:  tn,
-		Count:      count,
-		UpdateAt:   nowJST(),
+		TrackName: tn,
+		Count:     count,
 	}
 }
 
 type ViewerCount struct {
 	weaver.AutoMarshal
-	TrackID    value.TrackID
-	ChannelArn value.ChannelArn
-	TrackName  value.TrackName
-	Count      int64
-	UpdateAt   time.Time
+	TrackName value.TrackName
+	Count     int64
 }
 
 type ViewerCounts struct {

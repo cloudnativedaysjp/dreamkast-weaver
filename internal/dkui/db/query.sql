@@ -28,20 +28,6 @@ REPLACE
 VALUES
   (?, ?, ?);
 
--- name: UpsertViewerCount :exec
-REPLACE
-  viewer_counts (conference_name, track_id, channel_arn, track_name, count, updated_at)
-VALUES
-  (?, ?, ?, ?, ?, NOW());
-
--- name: ListViewerCount :many
-SELECT
-  *
-FROM
-  viewer_counts
-WHERE
-  conference_name = ?;
-
 -- name: InsertTrackViewer :exec
 INSERT INTO
   track_viewer (created_at, track_name, profile_id)

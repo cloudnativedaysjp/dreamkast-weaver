@@ -8,8 +8,6 @@ import (
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/infra/aws"
-	"dreamkast-weaver/internal/dkui/infra/dreamkast"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/sqlhelper"
@@ -40,7 +38,6 @@ type Service interface {
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
-	SaveViewerCount(ctx context.Context, confName value.ConfName) error
 	ListViewerCounts(ctx context.Context) (*domain.ViewerCounts, error)
 	ViewingTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
 }
@@ -249,48 +246,6 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 		}
 		return nil
 	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfName) (err error) {
-	defer func() {
-		v.HandleError("save viewer count", err)
-	}()
-
-	ic, err := aws.NewAWSIVSClientImpl()
-	if err != nil {
-		return err
-	}
-
-	dc := dreamkast.NewDkApiClientImpl()
-	tracks, err := dc.GetTracks(ctx, confName)
-	if err != nil {
-		return err
-	}
-
-	r := repo.NewDkUiRepo(v.sh.DB())
-	for _, track := range tracks.Items {
-		logger := v.Logger().With(slog.String("arn", track.ChannelArn.String()))
-
-		var count int64
-		stream, err := ic.GetStream(ctx, track.ChannelArn)
-		if err == nil {
-			count = stream.ViewerCount
-		} else {
-			logger.Warn("failed IVS GetStream", slog.String("err", err.Error()))
-		}
-
-		dvc := domain.NewViewerCount(track.TrackID, track.ChannelArn, track.TrackName, count)
-		if err := r.UpsertViewerCount(ctx, confName, *dvc); err != nil {
-			logger.Warn("failed UpsertViewerCount", slog.String("err", err.Error()))
-		}
-		viewerCount.WithLabelValues(dvc.TrackName.String()).Set(float64(dvc.Count))
-	}
-
-	if err := v.pusher.Push(); err != nil {
 		return err
 	}
 

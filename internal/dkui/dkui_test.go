@@ -244,12 +244,6 @@ func newStampCondition(v value.StampConditionKind) value.StampCondition {
 	return o
 }
 
-func newChannelArn(v string) value.ChannelArn {
-	o, err := value.NewChannelArn(v)
-	mustNil(err)
-	return o
-}
-
 func newTrackName(v string) value.TrackName {
 	o, err := value.NewTrackName(v)
 	mustNil(err)

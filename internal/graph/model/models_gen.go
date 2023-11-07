@@ -17,10 +17,6 @@ type CreateViewEventInput struct {
 	SlotID    int      `json:"slotID"`
 }
 
-type SaveViewerCount struct {
-	ConfName ConfName `json:"confName"`
-}
-
 type StampChallenge struct {
 	SlotID    int                `json:"slotID"`
 	Condition ChallengeCondition `json:"condition"`

@@ -41,29 +41,6 @@ please file an issue at https://github.com/ServiceWeaver/weaver/issues.
 
 // AutoMarshal implementations.
 
-var _ codegen.AutoMarshal = (*ChannelArn)(nil)
-
-type __is_ChannelArn[T ~struct {
-	weaver.AutoMarshal
-	value string
-}] struct{}
-
-var _ __is_ChannelArn[ChannelArn]
-
-func (x *ChannelArn) WeaverMarshal(enc *codegen.Encoder) {
-	if x == nil {
-		panic(fmt.Errorf("ChannelArn.WeaverMarshal: nil receiver"))
-	}
-	enc.String(x.value)
-}
-
-func (x *ChannelArn) WeaverUnmarshal(dec *codegen.Decoder) {
-	if x == nil {
-		panic(fmt.Errorf("ChannelArn.WeaverUnmarshal: nil receiver"))
-	}
-	x.value = dec.String()
-}
-
 var _ codegen.AutoMarshal = (*ConfName)(nil)
 
 type __is_ConfName[T ~struct {

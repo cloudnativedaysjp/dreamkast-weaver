@@ -5,7 +5,6 @@ import (
 	"regexp"
 
 	"github.com/ServiceWeaver/weaver"
-	"github.com/aws/aws-sdk-go-v2/aws/arn"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -232,36 +231,6 @@ var (
 func init() {
 	ViewingSeconds120, _ = NewViewingSeconds(120)
 	ViewingSeconds2400, _ = NewViewingSeconds(2400)
-}
-
-// ChannelArn represents an ARN of Channel.
-type ChannelArn struct {
-	weaver.AutoMarshal
-	value string
-}
-
-func NewChannelArn(v string) (ChannelArn, error) {
-	o := ChannelArn{value: v}
-	return o, o.Validate()
-}
-
-func (v *ChannelArn) Value() arn.ARN {
-	a, _ := arn.Parse((v.value))
-	return a
-}
-
-func (v *ChannelArn) String() string {
-	return v.value
-}
-
-func (v *ChannelArn) Validate() error {
-	if !arn.IsARN(v.value) {
-		return fmt.Errorf("is not ARN : %v", v.value)
-	}
-	if _, err := arn.Parse(v.value); err != nil {
-		return fmt.Errorf("value(%v) cannot be parsed: %w", v.value, err)
-	}
-	return nil
 }
 
 // TrackName represents a track name of Dreamkast.
