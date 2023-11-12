@@ -21,7 +21,7 @@ test: fmt vet
 
 .PHONY: build
 build:
-	go build -o dkw cmd/main.go
+	go build -o dkw cmd/dkw/main.go
 
 .PHONY: generate
 generate:

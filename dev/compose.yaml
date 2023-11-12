@@ -5,16 +5,12 @@ services:
       dockerfile: dev/app/Dockerfile
     environment:
       SERVICEWEAVER_CONFIG: weaver.toml
-      UID: ${UID}
-      XDG_DATA_HOME: /mnt
-      PROM_PUSHGATEWAY_ENDPOINT: localhost:9091
+      PROM_PUSHGATEWAY_ENDPOINT: pushgateway:9091
     working_dir: /app
-    network_mode: host
-    #ports:
-    #  - "8080:8080"
+    ports:
+      - "8088:8080"
     volumes:
       - ../:/app
-      - ${HOME}/.local/share/serviceweaver/:/mnt/serviceweaver
   db:
     image: mysql/mysql-server:8.0
     environment:
