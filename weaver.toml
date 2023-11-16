@@ -4,21 +4,21 @@ binary = "./dkw"
 args = ["serve"]
 
 [single]
-listeners.graphql = {address = "localhost:8080"}
+listeners.graphql = {address = "0.0.0.0:8080"}
 
 [multi]
-listeners.graphql = {address = "localhost:8080"}
+listeners.graphql = {address = "0.0.0.0:8080"}
 
 ["dreamkast-weaver/internal/cfp/Service"]
 db_user = "user"
 db_password = "password"
-db_endpoint = "127.0.0.1"
-db_port = "13306"
+db_endpoint = "db"
+db_port = "3306"
 db_name = "cfp"
 
 ["dreamkast-weaver/internal/dkui/Service"]
 db_user = "user"
 db_password = "password"
-db_endpoint = "127.0.0.1"
-db_port = "13306"
+db_endpoint = "db"
+db_port = "3306"
 db_name = "dkui"
