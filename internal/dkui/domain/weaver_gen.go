@@ -279,7 +279,7 @@ var _ codegen.AutoMarshal = (*ViewerCount)(nil)
 type __is_ViewerCount[T ~struct {
 	weaver.AutoMarshal
 	TrackName value.TrackName
-	Count     int64
+	Count     int
 }] struct{}
 
 var _ __is_ViewerCount[ViewerCount]
@@ -289,7 +289,7 @@ func (x *ViewerCount) WeaverMarshal(enc *codegen.Encoder) {
 		panic(fmt.Errorf("ViewerCount.WeaverMarshal: nil receiver"))
 	}
 	(x.TrackName).WeaverMarshal(enc)
-	enc.Int64(x.Count)
+	enc.Int(x.Count)
 }
 
 func (x *ViewerCount) WeaverUnmarshal(dec *codegen.Decoder) {
@@ -297,7 +297,7 @@ func (x *ViewerCount) WeaverUnmarshal(dec *codegen.Decoder) {
 		panic(fmt.Errorf("ViewerCount.WeaverUnmarshal: nil receiver"))
 	}
 	(&x.TrackName).WeaverUnmarshal(dec)
-	x.Count = dec.Int64()
+	x.Count = dec.Int()
 }
 
 var _ codegen.AutoMarshal = (*ViewerCounts)(nil)

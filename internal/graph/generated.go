@@ -50,7 +50,7 @@ type ComplexityRoot struct {
 		CreateViewEvent func(childComplexity int, input model.CreateViewEventInput) int
 		StampOnSite     func(childComplexity int, input model.StampOnSiteInput) int
 		StampOnline     func(childComplexity int, input model.StampOnlineInput) int
-		ViewingTrack    func(childComplexity int, input model.ViewingTrackInput) int
+		ViewTrack       func(childComplexity int, input model.ViewTrackInput) int
 		Vote            func(childComplexity int, input model.VoteInput) int
 	}
 
@@ -88,7 +88,7 @@ type MutationResolver interface {
 	StampOnline(ctx context.Context, input model.StampOnlineInput) (*bool, error)
 	StampOnSite(ctx context.Context, input model.StampOnSiteInput) (*bool, error)
 	CreateViewEvent(ctx context.Context, input model.CreateViewEventInput) (*bool, error)
-	ViewingTrack(ctx context.Context, input model.ViewingTrackInput) (*bool, error)
+	ViewTrack(ctx context.Context, input model.ViewTrackInput) (*bool, error)
 }
 type QueryResolver interface {
 	VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error)
@@ -148,17 +148,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.StampOnline(childComplexity, args["input"].(model.StampOnlineInput)), true
 
-	case "Mutation.viewingTrack":
-		if e.complexity.Mutation.ViewingTrack == nil {
+	case "Mutation.viewTrack":
+		if e.complexity.Mutation.ViewTrack == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_viewingTrack_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_viewTrack_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.ViewingTrack(childComplexity, args["input"].(model.ViewingTrackInput)), true
+		return e.complexity.Mutation.ViewTrack(childComplexity, args["input"].(model.ViewTrackInput)), true
 
 	case "Mutation.vote":
 		if e.complexity.Mutation.Vote == nil {
@@ -294,9 +294,9 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateViewEventInput,
 		ec.unmarshalInputStampOnSiteInput,
 		ec.unmarshalInputStampOnlineInput,
+		ec.unmarshalInputViewTrackInput,
 		ec.unmarshalInputVoteInput,
 		ec.unmarshalInputVotingTerm,
-		ec.unmarshalInputviewingTrackInput,
 	)
 	first := true
 
@@ -458,13 +458,13 @@ func (ec *executionContext) field_Mutation_stampOnline_args(ctx context.Context,
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_viewingTrack_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_viewTrack_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.ViewingTrackInput
+	var arg0 model.ViewTrackInput
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNviewingTrackInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingTrackInput(ctx, tmp)
+		arg0, err = ec.unmarshalNViewTrackInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewTrackInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -845,8 +845,8 @@ func (ec *executionContext) fieldContext_Mutation_createViewEvent(ctx context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_viewingTrack(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_viewingTrack(ctx, field)
+func (ec *executionContext) _Mutation_viewTrack(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_viewTrack(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -859,7 +859,7 @@ func (ec *executionContext) _Mutation_viewingTrack(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ViewingTrack(rctx, fc.Args["input"].(model.ViewingTrackInput))
+		return ec.resolvers.Mutation().ViewTrack(rctx, fc.Args["input"].(model.ViewTrackInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -873,7 +873,7 @@ func (ec *executionContext) _Mutation_viewingTrack(ctx context.Context, field gr
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_viewingTrack(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_viewTrack(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -890,7 +890,7 @@ func (ec *executionContext) fieldContext_Mutation_viewingTrack(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_viewingTrack_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_viewTrack_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3618,6 +3618,44 @@ func (ec *executionContext) unmarshalInputStampOnlineInput(ctx context.Context, 
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputViewTrackInput(ctx context.Context, obj interface{}) (model.ViewTrackInput, error) {
+	var it model.ViewTrackInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"profileID", "trackName"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "profileID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.ProfileID = data
+		case "trackName":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackName"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TrackName = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj interface{}) (model.VoteInput, error) {
 	var it model.VoteInput
 	asMap := map[string]interface{}{}
@@ -3694,44 +3732,6 @@ func (ec *executionContext) unmarshalInputVotingTerm(ctx context.Context, obj in
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputviewingTrackInput(ctx context.Context, obj interface{}) (model.ViewingTrackInput, error) {
-	var it model.ViewingTrackInput
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"profileID", "trackName"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "profileID":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ProfileID = data
-		case "trackName":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackName"))
-			data, err := ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.TrackName = data
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3775,9 +3775,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createViewEvent(ctx, field)
 			})
-		case "viewingTrack":
+		case "viewTrack":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_viewingTrack(ctx, field)
+				return ec._Mutation_viewTrack(ctx, field)
 			})
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -4565,6 +4565,11 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNViewTrackInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewTrackInput(ctx context.Context, v interface{}) (model.ViewTrackInput, error) {
+	res, err := ec.unmarshalInputViewTrackInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNViewerCount2ᚕᚖdreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewerCountᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.ViewerCount) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
@@ -4983,11 +4988,6 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNviewingTrackInput2dreamkastᚑweaverᚋinternalᚋgraphᚋmodelᚐViewingTrackInput(ctx context.Context, v interface{}) (model.ViewingTrackInput, error) {
-	res, err := ec.unmarshalInputviewingTrackInput(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {

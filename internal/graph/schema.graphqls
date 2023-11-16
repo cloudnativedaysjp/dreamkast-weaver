@@ -58,7 +58,7 @@ type Mutation {
   stampOnline(input: StampOnlineInput!): Boolean
   stampOnSite(input: StampOnSiteInput!): Boolean
   createViewEvent(input: CreateViewEventInput!): Boolean
-  viewingTrack(input: ViewingTrackInput!): Boolean
+  viewTrack(input: ViewTrackInput!): Boolean
 }
 
 input VoteInput {
@@ -88,7 +88,7 @@ input CreateViewEventInput {
   slotID: Int!
 }
 
-input ViewingTrackInput {
+input ViewTrackInput {
   profileID: Int!
   trackName: String!
 }

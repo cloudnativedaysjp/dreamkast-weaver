@@ -100,8 +100,8 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	return nil, nil
 }
 
-// ViewingTrack is the resolver for the viewingTrack field.
-func (r *mutationResolver) ViewingTrack(ctx context.Context, input model.ViewingTrackInput) (*bool, error) {
+// ViewTrack is the resolver for the ViewTrack field.
+func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackInput) (*bool, error) {
 	pID, err := value.NewProfileID(int32(input.ProfileID))
 	if err != nil {
 		return nil, err
@@ -111,7 +111,7 @@ func (r *mutationResolver) ViewingTrack(ctx context.Context, input model.Viewing
 		return nil, err
 	}
 
-	if err := r.DkUiService.Get().ViewingTrack(ctx, pID, tn); err != nil {
+	if err := r.DkUiService.Get().ViewTrack(ctx, pID, tn); err != nil {
 		return nil, err
 	}
 	return nil, nil

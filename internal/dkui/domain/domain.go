@@ -253,7 +253,7 @@ func (evs *ViewEvents) AddImmutable(ev ViewEvent) *ViewEvents {
 	}
 }
 
-func NewViewerCount(tn value.TrackName, count int64) *ViewerCount {
+func NewViewerCount(tn value.TrackName, count int) *ViewerCount {
 	return &ViewerCount{
 		TrackName: tn,
 		Count:     count,
@@ -263,7 +263,7 @@ func NewViewerCount(tn value.TrackName, count int64) *ViewerCount {
 type ViewerCount struct {
 	weaver.AutoMarshal
 	TrackName value.TrackName
-	Count     int64
+	Count     int
 }
 
 type ViewerCounts struct {
@@ -308,7 +308,7 @@ func (v *TrackViewers) GetViewerCounts() ViewerCounts {
 	for k, v := range aa {
 		items = append(items, ViewerCount{
 			TrackName: k,
-			Count:     int64(v),
+			Count:     v,
 		})
 	}
 

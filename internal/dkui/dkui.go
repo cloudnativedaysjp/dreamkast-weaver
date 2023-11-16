@@ -39,7 +39,7 @@ type Service interface {
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
 	ListViewerCounts(ctx context.Context) (*domain.ViewerCounts, error)
-	ViewingTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
+	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
 }
 
 type Profile struct {
@@ -69,6 +69,7 @@ type ServiceImpl struct {
 	sh     *sqlhelper.SqlHelper
 	pusher *push.Pusher
 	domain domain.DkUiDomain
+	cache  domain.ViewerCounts
 }
 
 var _ Service = (*ServiceImpl)(nil)
@@ -256,16 +257,10 @@ func (s *ServiceImpl) ListViewerCounts(ctx context.Context) (dvc *domain.ViewerC
 	defer func() {
 		s.HandleError("list viewer count", err)
 	}()
-
-	dvc, err = s.getViewerCount(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return dvc, nil
+	return &s.cache, nil
 }
 
-func (s *ServiceImpl) ViewingTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error) {
+func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error) {
 	defer func() {
 		s.HandleError("viewing track", err)
 	}()
@@ -310,6 +305,7 @@ func (s *ServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts,
 	}
 
 	dvc := dtv.GetViewerCounts()
+	s.cache = dvc
 
 	return &dvc, nil
 }
