@@ -25,10 +25,7 @@ var (
 	corsOpts = cors.Options{
 		AllowedOrigins: []string{"https://*", "http://*"},
 		AllowedMethods: []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders: []string{
-			"Content-Type", "Accept", "Authorization",
-			"X-Amz-Date", "X-Api-Key", "X-Amz-Security-Token", "X-Amz-User-Agent",
-		},
+		AllowedHeaders: []string{"*"},
 	}
 )
 
