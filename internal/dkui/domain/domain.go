@@ -285,6 +285,9 @@ type TrackViewers struct {
 
 func (v *TrackViewers) GetViewerCounts() ViewerCounts {
 	aa := map[value.TrackName]int{}
+	for _, n := range value.TrackNames() {
+		aa[n] = 0
+	}
 
 	type key struct {
 		tn        value.TrackName
