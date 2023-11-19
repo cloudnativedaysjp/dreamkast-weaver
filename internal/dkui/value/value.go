@@ -262,7 +262,7 @@ func (v *TrackName) Validate() error {
 func TrackNames() []TrackName {
 	var names []TrackName
 	for i := 0; i < 6; i++ {
-		names = append(names, TrackName{value: string('A' + i)})
+		names = append(names, TrackName{value: string(rune('A' + i))})
 	}
 	return names
 }

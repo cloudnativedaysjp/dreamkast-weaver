@@ -152,12 +152,12 @@ func TestDkUiServiceImpl_ListTrackViewer(t *testing.T) {
 		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(733), tnc))
 		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(734), tnc))
 
-		ans := map[value.TrackName]int64{}
+		ans := map[value.TrackName]int{}
 		ans[tna] = 1
 		ans[tnb] = 1
 		ans[tnc] = 2
 
-		dvc, err := svc.ListViewerCounts(ctx)
+		dvc, err := svc.ListViewerCounts(ctx, false)
 		assert.NoError(t, err)
 
 		for _, v := range dvc.Items {
