@@ -13,6 +13,12 @@ type SchemaMigration struct {
 	Version string
 }
 
+type TrackViewer struct {
+	CreatedAt time.Time
+	TrackName string
+	ProfileID int32
+}
+
 type TrailmapStamp struct {
 	ConferenceName string
 	ProfileID      int32

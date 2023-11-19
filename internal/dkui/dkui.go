@@ -4,11 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"os"
+	"time"
 
 	"dreamkast-weaver/internal/derrors"
 	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/infra/aws"
-	"dreamkast-weaver/internal/dkui/infra/dreamkast"
 	"dreamkast-weaver/internal/dkui/repo"
 	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/sqlhelper"
@@ -39,8 +38,8 @@ type Service interface {
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
-	SaveViewerCount(ctx context.Context, confName value.ConfName) error
-	ListViewerCounts(ctx context.Context, confName value.ConfName) (*domain.ViewerCounts, error)
+	ListViewerCounts(ctx context.Context) (*domain.ViewerCounts, error)
+	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
 }
 
 type Profile struct {
@@ -70,6 +69,7 @@ type ServiceImpl struct {
 	sh     *sqlhelper.SqlHelper
 	pusher *push.Pusher
 	domain domain.DkUiDomain
+	cache  domain.ViewerCounts
 }
 
 var _ Service = (*ServiceImpl)(nil)
@@ -118,6 +118,7 @@ func (s *ServiceImpl) Init(ctx context.Context) error {
 	registry.MustRegister(viewerCount)
 	s.pusher = push.New(endpoint, "dkw_dkui").Gatherer(registry)
 
+	s.measureViewerCount(ctx)
 	return nil
 }
 
@@ -252,59 +253,59 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 	return nil
 }
 
-func (v *ServiceImpl) SaveViewerCount(ctx context.Context, confName value.ConfName) (err error) {
+func (s *ServiceImpl) ListViewerCounts(ctx context.Context) (dvc *domain.ViewerCounts, err error) {
 	defer func() {
-		v.HandleError("save viewer count", err)
+		s.HandleError("list viewer count", err)
+	}()
+	return &s.cache, nil
+}
+
+func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error) {
+	defer func() {
+		s.HandleError("viewing track", err)
 	}()
 
-	ic, err := aws.NewAWSIVSClientImpl()
-	if err != nil {
+	r := repo.NewDkUiRepo(s.sh.DB())
+	if err := r.InsertTrackViewer(ctx, profileID, trackName); err != nil {
 		return err
 	}
-
-	dc := dreamkast.NewDkApiClientImpl()
-	tracks, err := dc.GetTracks(ctx, confName)
-	if err != nil {
-		return err
-	}
-
-	r := repo.NewDkUiRepo(v.sh.DB())
-	for _, track := range tracks.Items {
-		logger := v.Logger().With(slog.String("arn", track.ChannelArn.String()))
-
-		var count int64
-		stream, err := ic.GetStream(ctx, track.ChannelArn)
-		if err == nil {
-			count = stream.ViewerCount
-		} else {
-			logger.Warn("failed IVS GetStream", slog.String("err", err.Error()))
-		}
-
-		dvc := domain.NewViewerCount(track.TrackID, track.ChannelArn, track.TrackName, count)
-		if err := r.UpsertViewerCount(ctx, confName, *dvc); err != nil {
-			logger.Warn("failed UpsertViewerCount", slog.String("err", err.Error()))
-		}
-		viewerCount.WithLabelValues(dvc.TrackName.String()).Set(float64(dvc.Count))
-	}
-
-	if err := v.pusher.Push(); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func (v *ServiceImpl) ListViewerCounts(ctx context.Context, confName value.ConfName) (dvc *domain.ViewerCounts, err error) {
-	defer func() {
-		v.HandleError("get viewer count", err)
+func (s *ServiceImpl) measureViewerCount(ctx context.Context) {
+	logger := s.Logger()
+	go func() {
+		for {
+			vc, err := s.getViewerCount(ctx)
+			if err != nil {
+				logger.Warn("failed push metrics", slog.String("err", err.Error()))
+			}
+
+			for _, v := range vc.Items {
+				viewerCount.WithLabelValues(v.TrackName.String()).Set(float64(v.Count))
+			}
+
+			if err := s.pusher.Push(); err != nil {
+				logger.Warn("failed push metrics", slog.String("err", err.Error()))
+			}
+
+			time.Sleep(value.METRICS_UPDATE_INTERVAL * time.Second)
+		}
 	}()
+}
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+func (s *ServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts, error) {
+	to := time.Now()
+	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
 
-	dvc, err = r.ListViewerCounts(ctx, confName)
+	r := repo.NewDkUiRepo(s.sh.DB())
+	dtv, err := r.ListTrackViewer(ctx, from, to)
 	if err != nil {
 		return nil, err
 	}
 
-	return dvc, nil
+	dvc := dtv.GetViewerCounts()
+	s.cache = dvc
+
+	return &dvc, nil
 }

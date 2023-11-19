@@ -100,11 +100,18 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	return nil, nil
 }
 
-// SaveViewerCount is the resolver for the saveViewerCount field.
-func (r *mutationResolver) SaveViewerCount(ctx context.Context, input model.SaveViewerCount) (*bool, error) {
-	cn, err := value.NewConfName(value.ConferenceKind(input.ConfName))
-	err = r.DkUiService.Get().SaveViewerCount(ctx, cn)
+// ViewTrack is the resolver for the ViewTrack field.
+func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackInput) (*bool, error) {
+	pID, err := value.NewProfileID(int32(input.ProfileID))
 	if err != nil {
+		return nil, err
+	}
+	tn, err := value.NewTrackName(input.TrackName)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.DkUiService.Get().ViewTrack(ctx, pID, tn); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -202,13 +209,8 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 }
 
 // ViewerCount is the resolver for the viewerCount field.
-func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName) ([]*model.ViewerCount, error) {
-	cn, err := value.NewConfName(value.ConferenceKind((confName.String())))
-	if err != nil {
-		return nil, err
-	}
-
-	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx, cn)
+func (r *queryResolver) ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error) {
+	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -216,11 +218,8 @@ func (r *queryResolver) ViewerCount(ctx context.Context, confName model.ConfName
 	var vcs []*model.ViewerCount
 	for _, dvc := range dvcs.Items {
 		vcs = append(vcs, &model.ViewerCount{
-			TrackID:    int(dvc.TrackID.Value()),
-			ChannelArn: dvc.ChannelArn.String(),
-			TrackName:  dvc.TrackName.String(),
-			Count:      int(dvc.Count),
-			UpdateAt:   int(dvc.UpdateAt.Unix()),
+			TrackName: dvc.TrackName.String(),
+			Count:     int(dvc.Count),
 		})
 	}
 	return vcs, nil

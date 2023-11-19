@@ -84,27 +84,6 @@ func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.
 	return nil
 }
 
-func (r *DkUiRepoImpl) UpsertViewerCount(ctx context.Context, cn value.ConfName, vc domain.ViewerCount) error {
-	if err := r.q.UpsertViewerCount(ctx, UpsertViewerCountParams{
-		ConferenceName: string(cn.Value()),
-		TrackID:        vc.TrackID.Value(),
-		ChannelArn:     vc.ChannelArn.String(),
-		TrackName:      vc.TrackName.String(),
-		Count:          vc.Count,
-	}); err != nil {
-		return stacktrace.With(fmt.Errorf("upsert viewer count: %w", err))
-	}
-	return nil
-}
-
-func (r *DkUiRepoImpl) ListViewerCounts(ctx context.Context, cn value.ConfName) (*domain.ViewerCounts, error) {
-	data, err := r.q.ListViewerCount(ctx, cn.String())
-	if err != nil {
-		return nil, stacktrace.With(fmt.Errorf("list viewer count: %w", err))
-	}
-	return viewerCountConv.fromDB(data)
-}
-
 var stampChallengeConv _stampChallengeConv
 
 type _stampChallengeConv struct{}
@@ -243,62 +222,75 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 // 	return events
 // }
 
-var viewerCountConv _viewerCountConv
+func (r *DkUiRepoImpl) InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error {
+	if err := r.q.InsertTrackViewer(ctx, InsertTrackViewerParams{
+		ProfileID: profileID.Value(),
+		TrackName: trackName.String(),
+	}); err != nil {
+		return stacktrace.With(fmt.Errorf("insert viewing track: %w", err))
+	}
+	return nil
+}
 
-type _viewerCountConv struct{}
+func (r *DkUiRepoImpl) ListTrackViewer(ctx context.Context, from, to time.Time) (*domain.TrackViewers, error) {
+	tvs, err := r.q.ListTrackViewer(ctx, ListTrackViewerParams{
+		FromCreatedAt: from,
+		ToCreatedAt:   to,
+	})
+	if err != nil {
+		return nil, stacktrace.With(fmt.Errorf("list viewing track: %w", err))
+	}
 
-func (_viewerCountConv) fromDB(vcs []ViewerCount) (*domain.ViewerCounts, error) {
-	conv := func(v *ViewerCount) (*domain.ViewerCount, error) {
-		trackID, err := value.NewTrackID(v.TrackID)
-		if err != nil {
-			return nil, err
-		}
-		ca, err := value.NewChannelArn(v.ChannelArn)
-		if err != nil {
-			return nil, err
-		}
+	return trackViewerConv.fromDB(tvs)
+}
+
+var trackViewerConv _trackViewerConv
+
+type _trackViewerConv struct{}
+
+func (_trackViewerConv) fromDB(tvs []TrackViewer) (*domain.TrackViewers, error) {
+	conv := func(v *TrackViewer) (*domain.TrackViewer, error) {
 		tn, err := value.NewTrackName(v.TrackName)
 		if err != nil {
 			return nil, err
 		}
+		pID, err := value.NewProfileID(v.ProfileID)
+		if err != nil {
+			return nil, err
+		}
 
-		return &domain.ViewerCount{
-			TrackID:    trackID,
-			ChannelArn: ca,
-			TrackName:  tn,
-			Count:      v.Count,
-			UpdateAt:   v.UpdatedAt,
+		return &domain.TrackViewer{
+			TrackName: tn,
+			ProfileID: pID,
+			CreatedAt: v.CreatedAt,
 		}, nil
 	}
 
-	var items []domain.ViewerCount
+	var items []domain.TrackViewer
 
-	for _, vc := range vcs {
-		v := vc
-		dvc, err := conv(&v)
+	for _, tv := range tvs {
+		v := tv
+		dv, err := conv(&v)
 		if err != nil {
-			return nil, stacktrace.With(fmt.Errorf("convert viewer count from DB: %w", err))
+			return nil, stacktrace.With(fmt.Errorf("convert track viewer from DB: %w", err))
 		}
-		items = append(items, *dvc)
+		items = append(items, *dv)
 	}
 
-	return &domain.ViewerCounts{Items: items}, nil
+	return &domain.TrackViewers{Items: items}, nil
 }
 
-// func (_viewerCountConv) toDB(confName value.ConfName, v *domain.ViewerCounts) []ViewerCount {
-// 	conv := func(dvc *domain.ViewerCount) *ViewerCount {
-// 		return &ViewerCount{
-// 			ConferenceName: string(confName.Value()),
-// 			TrackID:        dvc.TrackID.Value(),
-// 			ChannelArn:     dvc.ChannelArn.String(),
-// 			TrackName:      dvc.TrackName.String(),
-// 			Count:          dvc.Count,
-// 			UpdatedAt:      dvc.UpdateAt,
+// func (_trackViewerConv) toDB(v *domain.TrackViewers) []TrackViewer {
+// 	conv := func(dtv *domain.TrackViewer) *TrackViewer {
+// 		return &TrackViewer{
+// 			TrackName: dtv.TrackName.String(),
+// 			ProfileID: dtv.ProfileID.Value(),
+// 			CreatedAt: dtv.CreatedAt,
 // 		}
 // 	}
-// 	var vcs []ViewerCount
+// 	var tvs []TrackViewer
 // 	for _, vc := range v.Items {
-// 		vcs = append(vcs, *conv(&vc))
+// 		tvs = append(tvs, *conv(&vc))
 // 	}
-// 	return vcs
+// 	return tvs
 // }

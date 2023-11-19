@@ -253,26 +253,66 @@ func (evs *ViewEvents) AddImmutable(ev ViewEvent) *ViewEvents {
 	}
 }
 
-func NewViewerCount(trackID value.TrackID, ca value.ChannelArn, tn value.TrackName, count int64) *ViewerCount {
+func NewViewerCount(tn value.TrackName, count int) *ViewerCount {
 	return &ViewerCount{
-		TrackID:    trackID,
-		ChannelArn: ca,
-		TrackName:  tn,
-		Count:      count,
-		UpdateAt:   nowJST(),
+		TrackName: tn,
+		Count:     count,
 	}
 }
 
 type ViewerCount struct {
 	weaver.AutoMarshal
-	TrackID    value.TrackID
-	ChannelArn value.ChannelArn
-	TrackName  value.TrackName
-	Count      int64
-	UpdateAt   time.Time
+	TrackName value.TrackName
+	Count     int
 }
 
 type ViewerCounts struct {
 	weaver.AutoMarshal
 	Items []ViewerCount
+}
+
+type TrackViewer struct {
+	weaver.AutoMarshal
+	CreatedAt time.Time
+	TrackName value.TrackName
+	ProfileID value.ProfileID
+}
+
+type TrackViewers struct {
+	weaver.AutoMarshal
+	Items []TrackViewer
+}
+
+func (v *TrackViewers) GetViewerCounts() ViewerCounts {
+	aa := map[value.TrackName]int{}
+
+	type key struct {
+		tn        value.TrackName
+		profileID value.ProfileID
+	}
+	counted := map[key]bool{}
+
+	for _, v := range v.Items {
+		k := key{
+			tn:        v.TrackName,
+			profileID: v.ProfileID,
+		}
+		if _, isThere := counted[k]; isThere {
+			continue
+		}
+		counted[k] = true
+		aa[v.TrackName]++
+	}
+
+	var items []ViewerCount
+	for k, v := range aa {
+		items = append(items, ViewerCount{
+			TrackName: k,
+			Count:     v,
+		})
+	}
+
+	return ViewerCounts{
+		Items: items,
+	}
 }
