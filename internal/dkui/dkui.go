@@ -38,7 +38,7 @@ type Service interface {
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
-	ListViewerCounts(ctx context.Context) (*domain.ViewerCounts, error)
+	ListViewerCounts(ctx context.Context, useCache bool) (*domain.ViewerCounts, error)
 	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
 }
 
@@ -253,10 +253,15 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 	return nil
 }
 
-func (s *ServiceImpl) ListViewerCounts(ctx context.Context) (dvc *domain.ViewerCounts, err error) {
+func (s *ServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *domain.ViewerCounts, err error) {
 	defer func() {
 		s.HandleError("list viewer count", err)
 	}()
+	if !useCache {
+		if _, err := s.getViewerCount(ctx); err != nil {
+			return nil, err
+		}
+	}
 	return &s.cache, nil
 }
 

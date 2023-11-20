@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	TIMEWINDOW_VIEWER_COUNT = 30
-	METRICS_UPDATE_INTERVAL = 60
+	TIMEWINDOW_VIEWER_COUNT = 60
+	METRICS_UPDATE_INTERVAL = 30
 )
 
 // ConfName represents a conference name.
@@ -257,4 +257,12 @@ func (v *TrackName) Validate() error {
 		// dreamkast has a maximum of 6 tracks
 		validation.Match(regexp.MustCompile("^[A-F]$")),
 	)
+}
+
+func TrackNames() []TrackName {
+	var names []TrackName
+	for i := 0; i < 6; i++ {
+		names = append(names, TrackName{value: string(rune('A' + i))})
+	}
+	return names
 }

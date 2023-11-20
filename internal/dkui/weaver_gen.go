@@ -97,7 +97,7 @@ func (s service_local_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1 
 	return s.impl.CreateViewEvent(ctx, a0, a1)
 }
 
-func (s service_local_stub) ListViewerCounts(ctx context.Context) (r0 *domain.ViewerCounts, err error) {
+func (s service_local_stub) ListViewerCounts(ctx context.Context, a0 bool) (r0 *domain.ViewerCounts, err error) {
 	// Update metrics.
 	begin := s.listViewerCountsMetrics.Begin()
 	defer func() { s.listViewerCountsMetrics.End(begin, err != nil, 0, 0) }()
@@ -114,7 +114,7 @@ func (s service_local_stub) ListViewerCounts(ctx context.Context) (r0 *domain.Vi
 		}()
 	}
 
-	return s.impl.ListViewerCounts(ctx)
+	return s.impl.ListViewerCounts(ctx, a0)
 }
 
 func (s service_local_stub) StampChallenges(ctx context.Context, a0 Profile) (r0 *domain.StampChallenges, err error) {
@@ -284,7 +284,7 @@ func (s service_client_stub) CreateViewEvent(ctx context.Context, a0 Profile, a1
 	return
 }
 
-func (s service_client_stub) ListViewerCounts(ctx context.Context) (r0 *domain.ViewerCounts, err error) {
+func (s service_client_stub) ListViewerCounts(ctx context.Context, a0 bool) (r0 *domain.ViewerCounts, err error) {
 	// Update metrics.
 	var requestBytes, replyBytes int
 	begin := s.listViewerCountsMetrics.Begin()
@@ -313,11 +313,20 @@ func (s service_client_stub) ListViewerCounts(ctx context.Context) (r0 *domain.V
 
 	}()
 
+	// Preallocate a buffer of the right size.
+	size := 0
+	size += 1
+	enc := codegen.NewEncoder()
+	enc.Reset(size)
+
+	// Encode arguments.
+	enc.Bool(a0)
 	var shardKey uint64
 
 	// Call the remote method.
+	requestBytes = len(enc.Data())
 	var results []byte
-	results, err = s.stub.Run(ctx, 1, nil, shardKey)
+	results, err = s.stub.Run(ctx, 1, enc.Data(), shardKey)
 	replyBytes = len(results)
 	if err != nil {
 		err = errors.Join(weaver.RemoteCallError, err)
@@ -652,10 +661,15 @@ func (s service_server_stub) listViewerCounts(ctx context.Context, args []byte) 
 		}
 	}()
 
+	// Decode arguments.
+	dec := codegen.NewDecoder(args)
+	var a0 bool
+	a0 = dec.Bool()
+
 	// TODO(rgrandl): The deferred function above will recover from panics in the
 	// user code: fix this.
 	// Call the local method.
-	r0, appErr := s.impl.ListViewerCounts(ctx)
+	r0, appErr := s.impl.ListViewerCounts(ctx, a0)
 
 	// Encode the results.
 	enc := codegen.NewEncoder()

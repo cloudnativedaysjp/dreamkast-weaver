@@ -210,7 +210,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 
 // ViewerCount is the resolver for the viewerCount field.
 func (r *queryResolver) ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error) {
-	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx)
+	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx, true)
 	if err != nil {
 		return nil, err
 	}
