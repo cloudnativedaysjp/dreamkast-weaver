@@ -61,7 +61,7 @@ func NewSqlHelper(opt *SqlOption) (*SqlHelper, error) {
 	}
 
 	info := fmt.Sprintf(
-		"%s:%s@(%s:%s)/%s?parseTime=true&loc=Asia%%2FTokyo",
+		"%s:%s@(%s:%s)/%s?parseTime=true&loc=UTC",
 		opt.User,
 		opt.Password,
 		opt.Endpoint,

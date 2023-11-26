@@ -300,7 +300,7 @@ func (s *ServiceImpl) measureViewerCount(ctx context.Context) {
 }
 
 func (s *ServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts, error) {
-	to := time.Now()
+	to := time.Now().UTC()
 	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
 
 	r := repo.NewDkUiRepo(s.sh.DB())
