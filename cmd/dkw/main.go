@@ -21,7 +21,7 @@ var dkwCmd = &cobra.Command{
 func init() {
 	envName := os.Getenv("DREAMKAST_NAMESPACE")
 	err := sentry.Init(sentry.ClientOptions{
-		Dsn:         "https://2bc14788d5f791a60e53c881f7aa438b@sentry.cloudnativedays.jp/8",
+		Dsn:         "https://bc734925efbe13019e05eaa6f6c098ec@sentry.cloudnativedays.jp/5",
 		Environment: envName,
 		// Set TracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
