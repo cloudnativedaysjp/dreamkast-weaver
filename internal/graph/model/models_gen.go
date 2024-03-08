@@ -116,17 +116,19 @@ const (
 	ConfNameCicd2023 ConfName = "cicd2023"
 	ConfNameCndf2023 ConfName = "cndf2023"
 	ConfNameCndt2023 ConfName = "cndt2023"
+	ConfNameCnds2024 ConfName = "cnds2024"
 )
 
 var AllConfName = []ConfName{
 	ConfNameCicd2023,
 	ConfNameCndf2023,
 	ConfNameCndt2023,
+	ConfNameCnds2024,
 }
 
 func (e ConfName) IsValid() bool {
 	switch e {
-	case ConfNameCicd2023, ConfNameCndf2023, ConfNameCndt2023:
+	case ConfNameCicd2023, ConfNameCndf2023, ConfNameCndt2023, ConfNameCnds2024:
 		return true
 	}
 	return false
