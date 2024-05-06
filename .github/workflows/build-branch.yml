@@ -1,6 +1,8 @@
-name: build dreamkast-weaver image
+name: build dreamkast-weaver image when branches are pushed
 
-on: push
+on:
+  push:
+    branches: ["*"]
 
 jobs:
   build:
@@ -18,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-1
+          aws-region: us-west-2
 
       - name: Login to Amazon ECR
         id: login-ecr
