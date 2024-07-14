@@ -11,21 +11,21 @@ jobs:
       - uses: actions/github-script@v6
         with:
           script: |
-            # MEMO: please comment out the follwoing if you execute this script in local
-            #import { Octokit } from "@octokit/rest";
-            #import fetch from "node-fetch";
-            #const github = new Octokit({
-            #  auth: "${YOUR_TOKEN}",
-            #  request: {
-            #    fetch: fetch,
-            #  },
-            #})
-            #const context = {
-            #  "repo": {
-            #    "owner": "cloudnativedaysjp",
-            #    "repo": "dreamkast-weaver",
-            #  }
-            #}
+            // MEMO: please comment out the follwoing if you execute this script in local
+            //import { Octokit } from "@octokit/rest";
+            //import fetch from "node-fetch";
+            //const github = new Octokit({
+            //  auth: "${YOUR_TOKEN}",
+            //  request: {
+            //    fetch: fetch,
+            //  },
+            //})
+            //const context = {
+            //  "repo": {
+            //    "owner": "cloudnativedaysjp",
+            //    "repo": "dreamkast-weaver",
+            //  }
+            //}
 
             const targetLabel = 'reviewapps';
             const now = new Date();
