@@ -41,10 +41,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PREFIX: weaver-
-        shell: bash -x {0}
+        shell: bash -xe {0}
         run: |
           EXPECTED="$(gh pr list --repo ${{ github.repository }} --label 'reviewapps' --json number --jq '.[].number' | sed 's/^\(.*\)$/'$PREFIX'\1/g')"
           ACTUAL="$(ls | grep -E ^$PREFIX)"
+
           # If present only in ACTUAL, cleanup
           for act in $ACTUAL; do
             EXIST=false
@@ -55,6 +56,7 @@ jobs:
             bash -x $act/cleanup.sh
             rm -rf $act
           done
+
       - name: Commit files
         id: commit_files
         continue-on-error: true
@@ -67,6 +69,12 @@ jobs:
           git commit -a -F- <<EOM
           cleanup ReviewApps by GHA in ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}
           EOM
+
+      - name: Set current unixtime as env variable
+        env:
+          TZ: 'Asia/Tokyo'
+        run: echo "UNIXTIME=$(date +'+%s')" >> $GITHUB_ENV
+
       - name: Push changes
         if: steps.commit_files.outcome == 'success'
         uses: ad-m/github-push-action@master
@@ -74,7 +82,7 @@ jobs:
           github_token: ${{ steps.generate_token.outputs.token }}
           repository: cloudnativedaysjp/dreamkast-infra
           directory: dreamkast-infra
-          branch: staging/weaver-main
+          branch: gitops/development/weaver-main_${{ env.UNIXTIME }}
 
       - name: Create and Merge Pull Request
         if: steps.commit_files.outcome == 'success'
@@ -85,9 +93,9 @@ jobs:
             const pr = await github.rest.pulls.create({
               owner: "cloudnativedaysjp",
               repo: "dreamkast-infra",
-              title: "Automated PR (staging/weaver-main)",
+              title: "Automated PR (gitops/development/weaver-main)",
               body: "**this PR is automatically created & merged**",
-              head: "staging/weaver-main",
+              head: "gitops/development/weaver-main_${{ env.UNIXTIME }}",
               base: "main"
             });
             await github.rest.pulls.merge({

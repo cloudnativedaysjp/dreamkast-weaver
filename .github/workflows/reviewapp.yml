@@ -101,7 +101,7 @@ jobs:
           github_token: ${{ steps.generate_token.outputs.token }}
           repository: cloudnativedaysjp/dreamkast-infra
           directory: dreamkast-infra
-          branch: staging/weaver-main
+          branch: gitops/development/weaver-main
 
       - name: Create and Merge Pull Request
         if: steps.commit_files.outcome == 'success'
@@ -112,9 +112,9 @@ jobs:
             const pr = await github.rest.pulls.create({
               owner: "cloudnativedaysjp",
               repo: "dreamkast-infra",
-              title: "Automated PR (staging/weaver-main)",
+              title: "Automated PR (gitops/development/weaver-main)",
               body: "**this PR is automatically created & merged**",
-              head: "staging/weaver-main",
+              head: "gitops/development/weaver-main",
               base: "main"
             });
             await github.rest.pulls.merge({
