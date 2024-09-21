@@ -45,11 +45,13 @@ var (
 	cndf2023 ConferenceKind = "cndf2023"
 	cndt2023 ConferenceKind = "cndt2023"
 	cnds2024 ConferenceKind = "cnds2024"
+	cndw2024 ConferenceKind = "cndw2024"
 
 	CICD2023 ConfName
 	CNDF2023 ConfName
 	CNDT2023 ConfName
 	CNDS2024 ConfName
+	CNDW2024 ConfName
 )
 
 func init() {
@@ -57,6 +59,7 @@ func init() {
 	CNDF2023, _ = NewConfName(cndf2023)
 	CNDT2023, _ = NewConfName(cndt2023)
 	CNDS2024, _ = NewConfName(cnds2024)
+	CNDW2024, _ = NewConfName(cndw2024)
 }
 
 // ProfileID represents an ID of user profile.
