@@ -9,6 +9,7 @@ enum ConfName {
   cndf2023
   cndt2023
   cnds2024
+  cndw2024
 }
 
 type Query {

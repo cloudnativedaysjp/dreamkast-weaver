@@ -37,7 +37,7 @@ func ChangeGuardSecondsForTest(sec int) {
 	viewEventGuardSeconds = sec
 }
 
-func ChangeStampReadySecondsForTest(sec int) {
+func ChangeStampReadySecondsForTest(sec int32) {
 	stampReadySeconds = sec
 }
 
@@ -222,7 +222,7 @@ func (evs *ViewEvents) IsFulfilled(slotID value.SlotID) bool {
 			total += ev.ViewingSeconds.Value()
 		}
 	}
-	return total >= int32(stampReadySeconds)
+	return total >= stampReadySeconds
 }
 
 func (evs *ViewEvents) LastCreated() time.Time {
