@@ -223,10 +223,10 @@ func (v *ViewingSeconds) Validate() error {
 }
 
 const (
-	TALK_SECONDS        = 2400
-	STAMP_READY_SECONDS = 1200
-	INTERVAL_SECONDS    = 120
-	GUARD_SECONDS       = INTERVAL_SECONDS - 10
+	TALK_SECONDS              = 2400
+	STAMP_READY_SECONDS int32 = 1200
+	INTERVAL_SECONDS          = 120
+	GUARD_SECONDS             = INTERVAL_SECONDS - 10
 )
 
 var (
