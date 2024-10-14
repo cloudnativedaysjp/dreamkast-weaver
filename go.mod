@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.35
 	github.com/ServiceWeaver/weaver v0.17.0
 	github.com/amacneil/dbmate/v2 v2.6.0
-	github.com/getsentry/sentry-go v0.25.0
+	github.com/getsentry/sentry-go v0.29.1
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/prometheus/client_golang v1.17.0
@@ -81,7 +81,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.13.3 // indirect
 	github.com/DataDog/hyperloglog v0.0.0-20220214164406-974598347557 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
-	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
@@ -98,7 +98,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
-	github.com/klauspost/compress v1.17.1 // indirect
+	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/lightstep/varopt v1.3.0 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
