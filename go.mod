@@ -1,6 +1,8 @@
 module dreamkast-weaver
 
-go 1.22
+go 1.22.0
+
+toolchain go1.23.4
 
 require (
 	github.com/99designs/gqlgen v0.17.35
@@ -13,8 +15,8 @@ require (
 	github.com/spf13/cobra-cli v1.3.0
 	github.com/sqlc-dev/sqlc v1.27.0
 	github.com/vektah/gqlparser/v2 v2.5.8
-	go.opentelemetry.io/otel v1.19.0
-	go.opentelemetry.io/otel/trace v1.19.0
+	go.opentelemetry.io/otel v1.33.0
+	go.opentelemetry.io/otel/trace v1.33.0
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 )
 
@@ -55,7 +57,8 @@ require (
 	github.com/tetratelabs/wazero v1.7.3 // indirect
 	github.com/wasilibs/go-pgquery v0.0.0-20240606042535-c0843d6592cc // indirect
 	github.com/wasilibs/wazero-helpers v0.0.0-20240604052452-61d7981e9a38 // indirect
-	go.opentelemetry.io/otel/metric v1.19.0 // indirect
+	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
+	go.opentelemetry.io/otel/metric v1.33.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
@@ -89,7 +92,7 @@ require (
 	github.com/go-chi/cors v1.2.1
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.6.1 // indirect
-	github.com/go-logr/logr v1.2.4 // indirect
+	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/google/pprof v0.0.0-20240409012703-83162a5b38cd // indirect
@@ -116,7 +119,7 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v2 v2.25.7 // indirect
 	github.com/xrash/smetrics v0.0.0-20201216005158-039620a65673 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.7.0 // indirect
