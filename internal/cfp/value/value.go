@@ -55,6 +55,7 @@ func (v *ConfName) Validate() error {
 		validation.In(
 			cicd2023, cndf2023, cndt2023,
 			cnds2024, cndw2024,
+			cnds2025,
 		),
 	)
 }
@@ -67,12 +68,14 @@ var (
 	cndt2023 ConferenceKind = "cndt2023"
 	cnds2024 ConferenceKind = "cnds2024"
 	cndw2024 ConferenceKind = "cndw2024"
+	cnds2025 ConferenceKind = "cnds2025"
 
 	CICD2023 ConfName
 	CNDF2023 ConfName
 	CNDT2023 ConfName
 	CNDS2024 ConfName
 	CNDW2024 ConfName
+	CNDS2025 ConfName
 )
 
 func init() {
@@ -81,6 +84,7 @@ func init() {
 	CNDT2023, _ = NewConfName(cndt2023)
 	CNDS2024, _ = NewConfName(cnds2024)
 	CNDW2024, _ = NewConfName(cndw2024)
+	CNDS2025, _ = NewConfName(cnds2025)
 }
 
 var (
