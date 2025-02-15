@@ -3,7 +3,6 @@ linters:
     - bodyclose
     - errorlint
     - exhaustive
-    - exportloopref
     - goconst
     - godot
     - gosec
