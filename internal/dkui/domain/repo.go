@@ -14,6 +14,6 @@ type DkUiRepo interface {
 	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*StampChallenges, error)
 	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *StampChallenges) error
 
-	InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error)
+	InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error)
 	ListTrackViewer(ctx context.Context, from, to time.Time) (*TrackViewers, error)
 }

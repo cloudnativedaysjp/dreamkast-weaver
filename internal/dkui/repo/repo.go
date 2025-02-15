@@ -222,10 +222,11 @@ func (_viewEventConv) fromDB(v []ViewEvent) (*domain.ViewEvents, error) {
 // 	return events
 // }
 
-func (r *DkUiRepoImpl) InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error {
+func (r *DkUiRepoImpl) InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) error {
 	if err := r.q.InsertTrackViewer(ctx, InsertTrackViewerParams{
 		ProfileID: profileID.Value(),
 		TrackName: trackName.String(),
+		TalkID:    talkID.Value(),
 	}); err != nil {
 		return stacktrace.With(fmt.Errorf("insert viewing track: %w", err))
 	}
