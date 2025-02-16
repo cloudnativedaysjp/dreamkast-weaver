@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"dreamkast-weaver/internal/dkui/value"
@@ -16,4 +17,9 @@ type DkUiRepo interface {
 
 	InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error)
 	ListTrackViewer(ctx context.Context, from, to time.Time) (*TrackViewers, error)
+}
+
+type CfpRepo interface {
+	ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*CfpVotes, error)
+	InsertCfpVote(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error
 }
