@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/value"
 )
 
 type DkUiRepo interface {

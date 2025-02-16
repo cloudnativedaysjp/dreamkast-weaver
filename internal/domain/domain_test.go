@@ -5,14 +5,14 @@ import (
 	"testing"
 	"time"
 
-	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/domain"
+	"dreamkast-weaver/internal/value"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	svc = domain.DkUiDomain{}
+	svcDkui = domain.DkUiDomain{}
 )
 
 func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
@@ -66,7 +66,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 			events := tt.given()
 			evLen := len(events.Items)
 
-			got, err := svc.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
+			got, err := svcDkui.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
 
 			assert.NoError(t, err)
 			assert.Equal(t, trackID, got.TrackID)
@@ -109,7 +109,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 	for _, tt := range errTests {
 		t.Run("err:"+tt.name, func(t *testing.T) {
 			events, stamps := tt.given()
-			_, err := svc.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
+			_, err := svcDkui.CreateOnlineViewEvent(trackID, talkID, slotID, stamps, events)
 			assert.Error(t, err)
 		})
 	}
@@ -125,7 +125,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 			*domain.NewStampChallenge(newSlotID(43)),
 		}}
 
-		err := svc.StampOnline(slotID, stamps)
+		err := svcDkui.StampOnline(slotID, stamps)
 
 		assert.NoError(t, err)
 		for _, stamp := range stamps.Items {
@@ -162,7 +162,7 @@ func TestDkUiService_StampOnline(t *testing.T) {
 		t.Run("err:"+tt.name, func(t *testing.T) {
 			stamps := tt.given()
 
-			err := svc.StampOnline(slotID, stamps)
+			err := svcDkui.StampOnline(slotID, stamps)
 
 			assert.Error(t, err)
 			if stamps != nil {
@@ -208,7 +208,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 		t.Run("ok"+tt.name, func(t *testing.T) {
 			stamps := tt.given()
 
-			got, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
+			got, err := svcDkui.StampOnSite(trackID, talkID, slotID, stamps)
 
 			assert.NoError(t, err)
 			assert.Equal(t, trackID, got.TrackID)
@@ -253,7 +253,7 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 		t.Run("err"+tt.name, func(t *testing.T) {
 			stamps := tt.given()
 
-			_, err := svc.StampOnSite(trackID, talkID, slotID, stamps)
+			_, err := svcDkui.StampOnSite(trackID, talkID, slotID, stamps)
 
 			assert.Error(t, err)
 			if stamps != nil {

@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/ServiceWeaver/weaver"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 )
 
@@ -16,7 +15,6 @@ const (
 
 // ConfName represents a conference name.
 type ConfName struct {
-	weaver.AutoMarshal
 	value ConferenceKind
 }
 
@@ -72,7 +70,6 @@ func init() {
 
 // ProfileID represents an ID of user profile.
 type ProfileID struct {
-	weaver.AutoMarshal
 	value int32
 }
 
@@ -95,7 +92,6 @@ func (v *ProfileID) Validate() error {
 
 // TrackID represents an ID of talk track.
 type TrackID struct {
-	weaver.AutoMarshal
 	value int32
 }
 
@@ -118,7 +114,6 @@ func (v *TrackID) Validate() error {
 
 // TalkID represents an ID of talk.
 type TalkID struct {
-	weaver.AutoMarshal
 	value int32
 }
 
@@ -141,7 +136,6 @@ func (v *TalkID) Validate() error {
 
 // SlotID represents an ID of talk slot.
 type SlotID struct {
-	weaver.AutoMarshal
 	value int32
 }
 
@@ -164,7 +158,6 @@ func (v *SlotID) Validate() error {
 
 // StampCondition represents a condition of the stamp of talk slot.
 type StampCondition struct {
-	weaver.AutoMarshal
 	value StampConditionKind
 }
 
@@ -207,7 +200,6 @@ func init() {
 
 // ViewingSeconds represents a talk viewing seconds.
 type ViewingSeconds struct {
-	weaver.AutoMarshal
 	value int32
 }
 
@@ -249,7 +241,6 @@ func init() {
 
 // TrackName represents a track name of Dreamkast.
 type TrackName struct {
-	weaver.AutoMarshal
 	value string
 }
 
@@ -300,7 +291,6 @@ func init() {
 }
 
 type VotingTerm struct {
-	weaver.AutoMarshal
 	start time.Time
 	end   time.Time
 }
@@ -339,7 +329,6 @@ func (v *VotingTerm) Validate() error {
 }
 
 type SpanSeconds struct {
-	weaver.AutoMarshal
 	value int
 }
 

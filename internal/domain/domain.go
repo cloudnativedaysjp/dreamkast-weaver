@@ -6,10 +6,8 @@ import (
 	"time"
 
 	"dreamkast-weaver/internal/derrors"
-	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/stacktrace"
-
-	"github.com/ServiceWeaver/weaver"
+	"dreamkast-weaver/internal/value"
 )
 
 var (
@@ -94,7 +92,6 @@ func (DkUiDomain) StampOnSite(
 }
 
 type StampChallenge struct {
-	weaver.AutoMarshal
 	SlotID    value.SlotID
 	Condition value.StampCondition
 	UpdatedAt time.Time
@@ -119,7 +116,6 @@ func (sc *StampChallenge) Skip() {
 }
 
 type StampChallenges struct {
-	weaver.AutoMarshal
 	Items []StampChallenge
 }
 
@@ -183,7 +179,6 @@ func (scs *StampChallenges) Get(slotID value.SlotID) *StampChallenge {
 }
 
 type ViewEvent struct {
-	weaver.AutoMarshal
 	TrackID        value.TrackID
 	TalkID         value.TalkID
 	SlotID         value.SlotID
@@ -212,7 +207,6 @@ func NewOnSiteViewEvent(trackID value.TrackID, talkID value.TalkID, slotID value
 }
 
 type ViewEvents struct {
-	weaver.AutoMarshal
 	Items []ViewEvent
 }
 
@@ -262,25 +256,21 @@ func NewViewerCount(tn value.TrackName, count int) *ViewerCount {
 }
 
 type ViewerCount struct {
-	weaver.AutoMarshal
 	TrackName value.TrackName
 	Count     int
 }
 
 type ViewerCounts struct {
-	weaver.AutoMarshal
 	Items []ViewerCount
 }
 
 type TrackViewer struct {
-	weaver.AutoMarshal
 	CreatedAt time.Time
 	TrackName value.TrackName
 	ProfileID value.ProfileID
 }
 
 type TrackViewers struct {
-	weaver.AutoMarshal
 	Items []TrackViewer
 }
 
@@ -322,19 +312,16 @@ func (v *TrackViewers) GetViewerCounts() ViewerCounts {
 }
 
 type CfpVote struct {
-	weaver.AutoMarshal
 	TalkID    value.TalkID
 	ClientIp  net.IP
 	CreatedAt time.Time
 }
 
 type CfpVotes struct {
-	weaver.AutoMarshal
 	Items []CfpVote
 }
 
 type VoteCount struct {
-	weaver.AutoMarshal
 	TalkID value.TalkID
 	Count  int
 }
