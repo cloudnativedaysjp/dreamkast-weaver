@@ -1,23 +1,12 @@
 version: "2"
 sql:
   - engine: "mysql"
-    queries: "cfp/db/query.sql"
-    schema: "cfp/db/schema.sql"
+    queries: "infrastructure/db/query.sql"
+    schema: "infrastructure/db/schema.sql"
     gen:
       go:
-        package: "repo"
-        out: "cfp/repo"
-    database:
-      uri: "user:password@tcp(127.0.0.1:13306)/cfp"
-    rules:
-    - sqlc/db-prepare
-  - engine: "mysql"
-    queries: "dkui/db/query.sql"
-    schema: "dkui/db/schema.sql"
-    gen:
-      go:
-        package: "repo"
-        out: "dkui/repo"
+        package: "dbgen"
+        out: "infrastructure/db/dbgen"
     database:
       uri: "user:password@tcp(127.0.0.1:13306)/dkui"
     rules:

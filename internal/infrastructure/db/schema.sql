@@ -10,6 +10,20 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `cfp_votes`
+--
+
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `cfp_votes` (
+  `conference_name` char(36) NOT NULL,
+  `talk_id` int NOT NULL,
+  `created_at` datetime NOT NULL,
+  `client_ip` char(16) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `schema_migrations`
 --
 
@@ -110,5 +124,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20230624132258'),
   ('20231107104801'),
   ('20231126063758'),
-  ('20250215110715');
+  ('20250215110715'),
+  ('20250216022526');
 UNLOCK TABLES;
