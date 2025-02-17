@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"testing"
 
-	"dreamkast-weaver/internal/stacktrace"
+	"dreamkast-weaver/internal/pkg/stacktrace"
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

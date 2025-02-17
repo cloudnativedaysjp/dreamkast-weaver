@@ -6,12 +6,13 @@ package graph
 
 import (
 	"context"
-	"dreamkast-weaver/internal/domain/value"
-	"dreamkast-weaver/internal/graph/middleware"
-	"dreamkast-weaver/internal/graph/model"
-	"dreamkast-weaver/internal/usecase"
 	"errors"
 	"net"
+
+	"dreamkast-weaver/internal/domain/value"
+	"dreamkast-weaver/internal/server/graph/model"
+	"dreamkast-weaver/internal/server/middleware"
+	"dreamkast-weaver/internal/usecase"
 )
 
 // Vote is the resolver for the vote field.
