@@ -1,12 +1,12 @@
 version: "2"
 sql:
   - engine: "mysql"
-    queries: "infrastructure/db/query.sql"
-    schema: "infrastructure/db/schema.sql"
+    queries: "query.sql"
+    schema: "schema.sql"
     gen:
       go:
         package: "dbgen"
-        out: "infrastructure/db/dbgen"
+        out: "dbgen"
     database:
       uri: "user:password@tcp(127.0.0.1:13306)/dkui"
     rules:

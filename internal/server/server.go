@@ -2,8 +2,6 @@ package server
 
 import (
 	"context"
-	"dreamkast-weaver/internal/graph"
-	"dreamkast-weaver/internal/sqlhelper"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -11,7 +9,9 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 
+	"dreamkast-weaver/internal/graph"
 	gm "dreamkast-weaver/internal/graph/middleware"
+	"dreamkast-weaver/internal/pkg/sqlhelper"
 )
 
 var (

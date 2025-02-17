@@ -6,7 +6,7 @@ import (
 
 	derrors "dreamkast-weaver/internal/domain/errors"
 	"dreamkast-weaver/internal/domain/value"
-	"dreamkast-weaver/internal/stacktrace"
+	"dreamkast-weaver/internal/pkg/stacktrace"
 )
 
 var (

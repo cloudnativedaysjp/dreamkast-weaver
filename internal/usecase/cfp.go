@@ -8,9 +8,9 @@ import (
 	dmodel "dreamkast-weaver/internal/domain/model"
 	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/infrastructure/db/repo"
-	"dreamkast-weaver/internal/logger"
-	"dreamkast-weaver/internal/sqlhelper"
-	"dreamkast-weaver/internal/stacktrace"
+	"dreamkast-weaver/internal/pkg/logger"
+	"dreamkast-weaver/internal/pkg/sqlhelper"
+	"dreamkast-weaver/internal/pkg/stacktrace"
 )
 
 type CfpService interface {
