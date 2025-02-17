@@ -26,7 +26,6 @@ build:
 .PHONY: generate
 generate:
 	go generate -x ./...
-	go run github.com/ServiceWeaver/weaver/cmd/weaver generate ./...
 
 .PHONY: lint
 lint:
