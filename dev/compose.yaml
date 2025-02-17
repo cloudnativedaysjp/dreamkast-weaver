@@ -4,8 +4,11 @@ services:
       context: ../
       dockerfile: dev/app/Dockerfile
     environment:
-      SERVICEWEAVER_CONFIG: weaver.toml
       PROM_PUSHGATEWAY_ENDPOINT: pushgateway:9091
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_ENDPOINT: db
+      DB_PORT: 3306
     working_dir: /app
     ports:
       - "8088:8080"
