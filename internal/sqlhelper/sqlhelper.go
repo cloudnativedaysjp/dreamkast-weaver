@@ -33,13 +33,13 @@ type SqlOption struct {
 	DbName   string
 }
 
-func NewOptionFromEnv(dbName string) *SqlOption {
+func NewOptionFromEnv() *SqlOption {
 	return &SqlOption{
 		User:     os.Getenv(envDBUser),
 		Password: os.Getenv(envDBPassword),
 		Endpoint: os.Getenv(envDBEndpoint),
 		Port:     os.Getenv(envDBPort),
-		DbName:   dbName,
+		DbName:   "dkui",
 	}
 }
 

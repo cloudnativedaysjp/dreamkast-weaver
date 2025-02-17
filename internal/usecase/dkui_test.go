@@ -28,6 +28,7 @@ func setup() {
 	uu, _ := url.Parse(dkuiDBUrl)
 	db := dbmate.New(uu)
 	db.AutoDumpSchema = false
+	db.MigrationsDir = []string{"../infrastructure/db/migrations"}
 
 	mustNil(db.Drop())
 	mustNil(db.CreateAndMigrate())
