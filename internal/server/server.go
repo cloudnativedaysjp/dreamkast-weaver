@@ -9,9 +9,9 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 
-	"dreamkast-weaver/internal/graph"
-	gm "dreamkast-weaver/internal/graph/middleware"
 	"dreamkast-weaver/internal/pkg/sqlhelper"
+	"dreamkast-weaver/internal/server/graph"
+	gm "dreamkast-weaver/internal/server/middleware"
 )
 
 var (

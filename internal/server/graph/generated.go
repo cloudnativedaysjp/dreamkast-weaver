@@ -5,7 +5,6 @@ package graph
 import (
 	"bytes"
 	"context"
-	"dreamkast-weaver/internal/graph/model"
 	"embed"
 	"errors"
 	"fmt"
@@ -18,6 +17,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/introspection"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
+
+	"dreamkast-weaver/internal/server/graph/model"
 )
 
 // region    ************************** generated!.gotpl **************************
