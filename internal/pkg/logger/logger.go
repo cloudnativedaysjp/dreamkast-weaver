@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"dreamkast-weaver/internal/utils"
+	"dreamkast-weaver/internal/pkg/utils"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

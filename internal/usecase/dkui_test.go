@@ -5,13 +5,13 @@ import (
 	"net/url"
 	"testing"
 
-	dmodel "dreamkast-weaver/internal/domain/model"
-	"dreamkast-weaver/internal/domain/value"
-	"dreamkast-weaver/internal/sqlhelper"
-
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
 	"github.com/stretchr/testify/assert"
+
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/value"
+	"dreamkast-weaver/internal/pkg/sqlhelper"
 )
 
 const (

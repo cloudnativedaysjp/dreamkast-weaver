@@ -1,7 +1,7 @@
 package graph
 
 import (
-	"dreamkast-weaver/internal/sqlhelper"
+	"dreamkast-weaver/internal/pkg/sqlhelper"
 	"dreamkast-weaver/internal/usecase"
 )
 

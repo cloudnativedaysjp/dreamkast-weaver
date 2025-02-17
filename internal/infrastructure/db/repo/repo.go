@@ -13,7 +13,7 @@ import (
 	"dreamkast-weaver/internal/domain/repo"
 	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/infrastructure/db/dbgen"
-	"dreamkast-weaver/internal/stacktrace"
+	"dreamkast-weaver/internal/pkg/stacktrace"
 )
 
 type DkUiRepoImpl struct {

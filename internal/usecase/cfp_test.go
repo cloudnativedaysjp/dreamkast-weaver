@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"dreamkast-weaver/internal/domain/value"
-	"dreamkast-weaver/internal/sqlhelper"
-
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
 	"github.com/stretchr/testify/assert"
+
+	"dreamkast-weaver/internal/domain/value"
+	"dreamkast-weaver/internal/pkg/sqlhelper"
 )
 
 func TestCfpVoteImpl(t *testing.T) {
