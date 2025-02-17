@@ -1,19 +1,18 @@
-package dkui
+package usecase
 
 import (
 	"context"
 	"database/sql"
-	"os"
 	"time"
 
 	"dreamkast-weaver/internal/derrors"
-	"dreamkast-weaver/internal/dkui/domain"
-	"dreamkast-weaver/internal/dkui/repo"
-	"dreamkast-weaver/internal/dkui/value"
+	"dreamkast-weaver/internal/domain"
+	"dreamkast-weaver/internal/infrastructure/db/repo"
+	"dreamkast-weaver/internal/logger"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
+	"dreamkast-weaver/internal/value"
 
-	"github.com/ServiceWeaver/weaver"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
 	"golang.org/x/exp/slog"
@@ -32,7 +31,7 @@ var (
 	}, []string{"trackName"})
 )
 
-type Service interface {
+type DkUiService interface {
 	CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) error
 	StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) error
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
@@ -43,36 +42,30 @@ type Service interface {
 }
 
 type Profile struct {
-	weaver.AutoMarshal
 	ID       value.ProfileID
 	ConfName value.ConfName
 }
 
 type CreateViewEventRequest struct {
-	weaver.AutoMarshal
 	TrackID value.TrackID
 	TalkID  value.TalkID
 	SlotID  value.SlotID
 }
 
 type StampRequest struct {
-	weaver.AutoMarshal
 	TrackID value.TrackID
 	TalkID  value.TalkID
 	SlotID  value.SlotID
 }
 
-type ServiceImpl struct {
-	weaver.Implements[Service]
-	weaver.WithConfig[Config]
-
+type DkUiServiceImpl struct {
 	sh     *sqlhelper.SqlHelper
 	pusher *push.Pusher
 	domain domain.DkUiDomain
 	cache  domain.ViewerCounts
 }
 
-var _ Service = (*ServiceImpl)(nil)
+var _ DkUiService = (*DkUiServiceImpl)(nil)
 
 type Config struct {
 	DBUser              string `toml:"db_user"`
@@ -93,48 +86,30 @@ func (c *Config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewService(sh *sqlhelper.SqlHelper) Service {
-	return &ServiceImpl{
+func NewDkUiService(sh *sqlhelper.SqlHelper) DkUiService {
+	return &DkUiServiceImpl{
 		sh: sh,
 	}
 }
 
-func (s *ServiceImpl) Init(ctx context.Context) error {
-	opt := s.Config().SqlOption()
-	if err := opt.Validate(); err != nil {
-		opt = sqlhelper.NewOptionFromEnv("dkui")
-	}
-	sh, err := sqlhelper.NewSqlHelper(opt)
-	if err != nil {
-		return err
-	}
-	s.sh = sh
-
-	endpoint := s.Config().PushGatewayEndpoint
-	if endpoint == "" {
-		endpoint = os.Getenv(envPushGatewayEndpoint)
-	}
-	registry := prometheus.NewRegistry()
-	registry.MustRegister(viewerCount)
-	s.pusher = push.New(endpoint, "dkw_dkui").Gatherer(registry)
-
-	s.measureViewerCount(ctx)
+func (s *DkUiServiceImpl) Init(ctx context.Context) error {
 	return nil
 }
 
-func (s *ServiceImpl) HandleError(msg string, err error) {
+func (s *DkUiServiceImpl) HandleError(ctx context.Context, msg string, err error) {
+	logger := logger.FromCtx(ctx)
 	if err != nil {
 		if derrors.IsUserError(err) {
-			s.Logger().With("errorType", "user-side").Info(msg, err)
+			logger.With("errorType", "user-side").Info(msg, err)
 		} else {
-			s.Logger().With("stacktrace", stacktrace.Get(err)).Error(msg, err)
+			logger.With("stacktrace", stacktrace.Get(err)).Error(msg, err)
 		}
 	}
 }
 
-func (s *ServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
+func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
 	defer func() {
-		s.HandleError("create viewEvent", err)
+		s.HandleError(ctx, "create viewEvent", err)
 	}()
 
 	r := repo.NewDkUiRepo(s.sh.DB())
@@ -169,9 +144,9 @@ func (s *ServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req 
 	return nil
 }
 
-func (v *ServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *domain.ViewEvents, err error) {
+func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *domain.ViewEvents, err error) {
 	defer func() {
-		v.HandleError("get viewingEvents", err)
+		v.HandleError(ctx, "get viewingEvents", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
@@ -183,9 +158,9 @@ func (v *ServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp 
 	return resp, nil
 }
 
-func (v *ServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *domain.StampChallenges, err error) {
+func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *domain.StampChallenges, err error) {
 	defer func() {
-		v.HandleError("get stampChallenges", err)
+		v.HandleError(ctx, "get stampChallenges", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
@@ -197,9 +172,9 @@ func (v *ServiceImpl) StampChallenges(ctx context.Context, profile Profile) (res
 	return resp, nil
 }
 
-func (v *ServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
+func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
 	defer func() {
-		v.HandleError("stamp from online", err)
+		v.HandleError(ctx, "stamp from online", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
@@ -220,9 +195,9 @@ func (v *ServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID v
 	return nil
 }
 
-func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
+func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
 	defer func() {
-		v.HandleError("stamp from onsite", err)
+		v.HandleError(ctx, "stamp from onsite", err)
 	}()
 
 	r := repo.NewDkUiRepo(v.sh.DB())
@@ -253,9 +228,9 @@ func (v *ServiceImpl) StampOnSite(ctx context.Context, profile Profile, req Stam
 	return nil
 }
 
-func (s *ServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *domain.ViewerCounts, err error) {
+func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *domain.ViewerCounts, err error) {
 	defer func() {
-		s.HandleError("list viewer count", err)
+		s.HandleError(ctx, "list viewer count", err)
 	}()
 	if !useCache {
 		if _, err := s.getViewerCount(ctx); err != nil {
@@ -265,9 +240,9 @@ func (s *ServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc 
 	return &s.cache, nil
 }
 
-func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error) {
+func (s *DkUiServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error) {
 	defer func() {
-		s.HandleError("viewing track", err)
+		s.HandleError(ctx, "viewing track", err)
 	}()
 
 	r := repo.NewDkUiRepo(s.sh.DB())
@@ -277,8 +252,8 @@ func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, 
 	return nil
 }
 
-func (s *ServiceImpl) measureViewerCount(ctx context.Context) {
-	logger := s.Logger()
+func (s *DkUiServiceImpl) measureViewerCount(ctx context.Context) {
+	logger := logger.FromCtx(ctx)
 	go func() {
 		for {
 			vc, err := s.getViewerCount(ctx)
@@ -299,7 +274,7 @@ func (s *ServiceImpl) measureViewerCount(ctx context.Context) {
 	}()
 }
 
-func (s *ServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts, error) {
+func (s *DkUiServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts, error) {
 	to := time.Now().UTC()
 	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
 
