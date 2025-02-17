@@ -1,27 +1,18 @@
-package domain
+package model
 
 import (
-	"errors"
 	"net"
 	"time"
 
-	"dreamkast-weaver/internal/derrors"
+	derrors "dreamkast-weaver/internal/domain/errors"
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/stacktrace"
-	"dreamkast-weaver/internal/value"
 )
 
 var (
 	viewEventGuardSeconds = value.GUARD_SECONDS
 	stampReadySeconds     = value.STAMP_READY_SECONDS
 	jst                   *time.Location
-)
-
-var (
-	ErrTooShortRequest = derrors.NewUserError("too short requests")
-	ErrStampNotReady   = derrors.NewUserError("stamp is not ready")
-	ErrAlreadyStamped  = derrors.NewUserError("already stamped")
-
-	ErrMissingParams = errors.New("missing required params")
 )
 
 func init() {
@@ -53,13 +44,13 @@ func (DkUiDomain) CreateOnlineViewEvent(
 	stamps *StampChallenges,
 	events *ViewEvents) (*ViewEvent, error) {
 	if stamps == nil || events == nil {
-		return nil, stacktrace.With(ErrMissingParams)
+		return nil, stacktrace.With(derrors.ErrMissingParams)
 	}
 	ev := NewOnlineViewEvent(trackID, talkID, slotID)
 
 	lastCreatedAt := events.LastCreated()
 	if ev.CreatedAt.Sub(lastCreatedAt) < time.Duration(viewEventGuardSeconds)*time.Second {
-		return nil, ErrTooShortRequest
+		return nil, derrors.ErrTooShortRequest
 	}
 
 	stamps.MakeReadyIfFulfilled(slotID, events.AddImmutable(*ev))
@@ -70,7 +61,7 @@ func (DkUiDomain) StampOnline(
 	slotID value.SlotID,
 	stamps *StampChallenges) error {
 	if stamps == nil {
-		return stacktrace.With(ErrMissingParams)
+		return stacktrace.With(derrors.ErrMissingParams)
 	}
 
 	return stamps.StampIfReady(slotID)
@@ -82,7 +73,7 @@ func (DkUiDomain) StampOnSite(
 	slotID value.SlotID,
 	stamps *StampChallenges) (*ViewEvent, error) {
 	if stamps == nil {
-		return nil, stacktrace.With(ErrMissingParams)
+		return nil, stacktrace.With(derrors.ErrMissingParams)
 	}
 
 	if err := stamps.ForceStamp(slotID); err != nil {
@@ -128,7 +119,7 @@ func (scs *StampChallenges) MakeReadyIfFulfilled(slotID value.SlotID, evs *ViewE
 func (scs *StampChallenges) StampIfReady(slotID value.SlotID) error {
 	sc := scs.Get(slotID)
 	if sc == nil || sc.Condition != value.StampReady {
-		return ErrStampNotReady
+		return derrors.ErrStampNotReady
 	}
 
 	for i, sc := range scs.Items {
@@ -149,7 +140,7 @@ func (scs *StampChallenges) ForceStamp(slotID value.SlotID) error {
 		scs.setReadyChallenge(slotID)
 	}
 	if sc != nil && sc.Condition == value.StampStamped {
-		return ErrAlreadyStamped
+		return derrors.ErrAlreadyStamped
 	}
 
 	for i, sc := range scs.Items {

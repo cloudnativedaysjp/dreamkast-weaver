@@ -5,9 +5,9 @@ import (
 	"net/url"
 	"testing"
 
-	"dreamkast-weaver/internal/domain"
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/sqlhelper"
-	"dreamkast-weaver/internal/value"
 
 	"github.com/amacneil/dbmate/v2/pkg/dbmate"
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
@@ -37,8 +37,8 @@ func setup() {
 func teardown() {}
 
 func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
-	domain.ChangeGuardSecondsForTest(0)
-	domain.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
+	dmodel.ChangeGuardSecondsForTest(0)
+	dmodel.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
 
 	ctx := context.Background()
 
@@ -184,7 +184,7 @@ func mustNil(err error) {
 	}
 }
 
-func assertStampCondition(t *testing.T, stamps *domain.StampChallenges, slotID int32, status value.StampConditionKind) {
+func assertStampCondition(t *testing.T, stamps *dmodel.StampChallenges, slotID int32, status value.StampConditionKind) {
 	t.Helper()
 	var found bool
 	for _, sc := range stamps.Items {
@@ -196,7 +196,7 @@ func assertStampCondition(t *testing.T, stamps *domain.StampChallenges, slotID i
 	assert.True(t, found)
 }
 
-func assertViewEvents(t *testing.T, events *domain.ViewEvents, slotID int32, vt int32) {
+func assertViewEvents(t *testing.T, events *dmodel.ViewEvents, slotID int32, vt int32) {
 	t.Helper()
 	var total int32
 	for _, ev := range events.Items {

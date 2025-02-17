@@ -9,24 +9,25 @@ import (
 	"net"
 	"time"
 
-	"dreamkast-weaver/internal/domain"
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/repo"
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/infrastructure/db/dbgen"
 	"dreamkast-weaver/internal/stacktrace"
-	"dreamkast-weaver/internal/value"
 )
 
 type DkUiRepoImpl struct {
 	q *dbgen.Queries
 }
 
-func NewDkUiRepo(db dbgen.DBTX) domain.DkUiRepo {
+func NewDkUiRepo(db dbgen.DBTX) repo.DkUiRepo {
 	q := dbgen.New(db)
 	return &DkUiRepoImpl{q}
 }
 
-var _ domain.DkUiRepo = (*DkUiRepoImpl)(nil)
+var _ repo.DkUiRepo = (*DkUiRepoImpl)(nil)
 
-func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*domain.StampChallenges, error) {
+func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*dmodel.StampChallenges, error) {
 	data, err := r.q.GetTrailmapStamps(ctx, dbgen.GetTrailmapStampsParams{
 		ConferenceName: confName.String(),
 		ProfileID:      profileID.Value(),
@@ -42,7 +43,7 @@ func (r *DkUiRepoImpl) GetTrailMapStamps(ctx context.Context, confName value.Con
 	return stampChallengeConv.fromDB(data.Stamps)
 }
 
-func (r *DkUiRepoImpl) InsertViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *domain.ViewEvent) error {
+func (r *DkUiRepoImpl) InsertViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *dmodel.ViewEvent) error {
 	if err := r.q.InsertViewEvents(ctx, dbgen.InsertViewEventsParams{
 		ConferenceName: string(confName.Value()),
 		ProfileID:      profileID.Value(),
@@ -56,7 +57,7 @@ func (r *DkUiRepoImpl) InsertViewEvents(ctx context.Context, confName value.Conf
 	return nil
 }
 
-func (r *DkUiRepoImpl) ListViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*domain.ViewEvents, error) {
+func (r *DkUiRepoImpl) ListViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*dmodel.ViewEvents, error) {
 	data, err := r.q.ListViewEvents(ctx, dbgen.ListViewEventsParams{
 		ConferenceName: string(confName.Value()),
 		ProfileID:      profileID.Value(),
@@ -70,7 +71,7 @@ func (r *DkUiRepoImpl) ListViewEvents(ctx context.Context, confName value.ConfNa
 	return viewEventConv.fromDB(data)
 }
 
-func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *domain.StampChallenges) error {
+func (r *DkUiRepoImpl) UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *dmodel.StampChallenges) error {
 	buf, err := stampChallengeConv.toDB(scs)
 	if err != nil {
 		return stacktrace.With(err)
@@ -96,8 +97,8 @@ type _stampChallenge struct {
 	UpdatedAt time.Time
 }
 
-func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, error) {
-	conv := func(dsc *domain.StampChallenge) *_stampChallenge {
+func (_stampChallengeConv) toDB(v *dmodel.StampChallenges) (json.RawMessage, error) {
+	conv := func(dsc *dmodel.StampChallenge) *_stampChallenge {
 		return &_stampChallenge{
 			SlotID:    dsc.SlotID.Value(),
 			Condition: string(dsc.Condition.Value()),
@@ -118,8 +119,8 @@ func (_stampChallengeConv) toDB(v *domain.StampChallenges) (json.RawMessage, err
 	return json.RawMessage(buf), nil
 }
 
-func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, error) {
-	conv := func(sc *_stampChallenge) (*domain.StampChallenge, error) {
+func (_stampChallengeConv) fromDB(v json.RawMessage) (*dmodel.StampChallenges, error) {
+	conv := func(sc *_stampChallenge) (*dmodel.StampChallenge, error) {
 		slotID, err := value.NewSlotID(sc.SlotID)
 		if err != nil {
 			return nil, err
@@ -129,7 +130,7 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 			return nil, err
 		}
 
-		return &domain.StampChallenge{
+		return &dmodel.StampChallenge{
 			SlotID:    slotID,
 			Condition: cond,
 			UpdatedAt: sc.UpdatedAt,
@@ -137,7 +138,7 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 	}
 
 	if v == nil {
-		return &domain.StampChallenges{}, nil
+		return &dmodel.StampChallenges{}, nil
 	}
 
 	var stamps []_stampChallenge
@@ -145,7 +146,7 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 		return nil, stacktrace.With(fmt.Errorf("convert stamp challenges from DB: %w", err))
 	}
 
-	var items []domain.StampChallenge
+	var items []dmodel.StampChallenge
 	for _, p := range stamps {
 		st := p
 		dst, err := conv(&st)
@@ -155,15 +156,15 @@ func (_stampChallengeConv) fromDB(v json.RawMessage) (*domain.StampChallenges, e
 		items = append(items, *dst)
 	}
 
-	return &domain.StampChallenges{Items: items}, nil
+	return &dmodel.StampChallenges{Items: items}, nil
 }
 
 var viewEventConv _viewEventConv
 
 type _viewEventConv struct{}
 
-func (_viewEventConv) fromDB(v []dbgen.ViewEvent) (*domain.ViewEvents, error) {
-	conv := func(v *dbgen.ViewEvent) (*domain.ViewEvent, error) {
+func (_viewEventConv) fromDB(v []dbgen.ViewEvent) (*dmodel.ViewEvents, error) {
+	conv := func(v *dbgen.ViewEvent) (*dmodel.ViewEvent, error) {
 		trackID, err := value.NewTrackID(v.TrackID)
 		if err != nil {
 			return nil, err
@@ -180,7 +181,7 @@ func (_viewEventConv) fromDB(v []dbgen.ViewEvent) (*domain.ViewEvents, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &domain.ViewEvent{
+		return &dmodel.ViewEvent{
 			TrackID:        trackID,
 			TalkID:         talkID,
 			SlotID:         slotID,
@@ -189,7 +190,7 @@ func (_viewEventConv) fromDB(v []dbgen.ViewEvent) (*domain.ViewEvents, error) {
 		}, nil
 	}
 
-	var items []domain.ViewEvent
+	var items []dmodel.ViewEvent
 
 	for _, p := range v {
 		ev := p
@@ -200,11 +201,11 @@ func (_viewEventConv) fromDB(v []dbgen.ViewEvent) (*domain.ViewEvents, error) {
 		items = append(items, *dev)
 	}
 
-	return &domain.ViewEvents{Items: items}, nil
+	return &dmodel.ViewEvents{Items: items}, nil
 }
 
-// func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *domain.ViewEvents) []ViewEvent {
-// 	conv := func(dev *domain.ViewEvent) *ViewEvent {
+// func (_viewEventConv) toDB(confName value.ConfName, profileID value.ProfileID, v *dmodel.ViewEvents) []ViewEvent {
+// 	conv := func(dev *dmodel.ViewEvent) *ViewEvent {
 // 		return &ViewEvent{
 // 			ConferenceName: string(confName.Value()),
 // 			ProfileID:      profileID.Value(),
@@ -235,7 +236,7 @@ func (r *DkUiRepoImpl) InsertTrackViewer(ctx context.Context, profileID value.Pr
 	return nil
 }
 
-func (r *DkUiRepoImpl) ListTrackViewer(ctx context.Context, from, to time.Time) (*domain.TrackViewers, error) {
+func (r *DkUiRepoImpl) ListTrackViewer(ctx context.Context, from, to time.Time) (*dmodel.TrackViewers, error) {
 	tvs, err := r.q.ListTrackViewer(ctx, dbgen.ListTrackViewerParams{
 		FromCreatedAt: from,
 		ToCreatedAt:   to,
@@ -251,8 +252,8 @@ var trackViewerConv _trackViewerConv
 
 type _trackViewerConv struct{}
 
-func (_trackViewerConv) fromDB(tvs []dbgen.TrackViewer) (*domain.TrackViewers, error) {
-	conv := func(v *dbgen.TrackViewer) (*domain.TrackViewer, error) {
+func (_trackViewerConv) fromDB(tvs []dbgen.TrackViewer) (*dmodel.TrackViewers, error) {
+	conv := func(v *dbgen.TrackViewer) (*dmodel.TrackViewer, error) {
 		tn, err := value.NewTrackName(v.TrackName)
 		if err != nil {
 			return nil, err
@@ -262,14 +263,14 @@ func (_trackViewerConv) fromDB(tvs []dbgen.TrackViewer) (*domain.TrackViewers, e
 			return nil, err
 		}
 
-		return &domain.TrackViewer{
+		return &dmodel.TrackViewer{
 			TrackName: tn,
 			ProfileID: pID,
 			CreatedAt: v.CreatedAt,
 		}, nil
 	}
 
-	var items []domain.TrackViewer
+	var items []dmodel.TrackViewer
 
 	for _, tv := range tvs {
 		v := tv
@@ -280,11 +281,11 @@ func (_trackViewerConv) fromDB(tvs []dbgen.TrackViewer) (*domain.TrackViewers, e
 		items = append(items, *dv)
 	}
 
-	return &domain.TrackViewers{Items: items}, nil
+	return &dmodel.TrackViewers{Items: items}, nil
 }
 
-// func (_trackViewerConv) toDB(v *domain.TrackViewers) []TrackViewer {
-// 	conv := func(dtv *domain.TrackViewer) *TrackViewer {
+// func (_trackViewerConv) toDB(v *dmodel.TrackViewers) []TrackViewer {
+// 	conv := func(dtv *dmodel.TrackViewer) *TrackViewer {
 // 		return &TrackViewer{
 // 			TrackName: dtv.TrackName.String(),
 // 			ProfileID: dtv.ProfileID.Value(),
@@ -302,12 +303,12 @@ type CfpRepoImpl struct {
 	q *dbgen.Queries
 }
 
-func NewCfpRepo(db dbgen.DBTX) domain.CfpRepo {
+func NewCfpRepo(db dbgen.DBTX) repo.CfpRepo {
 	q := dbgen.New(db)
 	return &CfpRepoImpl{q}
 }
 
-func (r *CfpRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*domain.CfpVotes, error) {
+func (r *CfpRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*dmodel.CfpVotes, error) {
 	s, e := vt.Value()
 	req := dbgen.ListCfpVotesParams{
 		ConferenceName: string(confName.Value()),
@@ -343,21 +344,21 @@ var cfpVoteConv _cfpVoteConv
 
 type _cfpVoteConv struct{}
 
-func (_cfpVoteConv) fromDB(v []dbgen.CfpVote) (*domain.CfpVotes, error) {
-	conv := func(v *dbgen.CfpVote) (*domain.CfpVote, error) {
+func (_cfpVoteConv) fromDB(v []dbgen.CfpVote) (*dmodel.CfpVotes, error) {
+	conv := func(v *dbgen.CfpVote) (*dmodel.CfpVote, error) {
 		talkID, err := value.NewTalkID(v.TalkID)
 		if err != nil {
 			return nil, err
 		}
 		ip := net.ParseIP(v.ClientIp.String)
-		return &domain.CfpVote{
+		return &dmodel.CfpVote{
 			TalkID:    talkID,
 			ClientIp:  ip,
 			CreatedAt: v.CreatedAt,
 		}, nil
 	}
 
-	var items []domain.CfpVote
+	var items []dmodel.CfpVote
 	for _, p := range v {
 		cv := p
 		dcv, err := conv(&cv)
@@ -367,5 +368,5 @@ func (_cfpVoteConv) fromDB(v []dbgen.CfpVote) (*domain.CfpVotes, error) {
 		items = append(items, *dcv)
 	}
 
-	return &domain.CfpVotes{Items: items}, nil
+	return &dmodel.CfpVotes{Items: items}, nil
 }
