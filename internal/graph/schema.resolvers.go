@@ -6,12 +6,10 @@ package graph
 
 import (
 	"context"
-	"dreamkast-weaver/internal/cfp"
-	cvalue "dreamkast-weaver/internal/cfp/value"
-	"dreamkast-weaver/internal/dkui"
-	"dreamkast-weaver/internal/dkui/value"
 	"dreamkast-weaver/internal/graph/middleware"
 	"dreamkast-weaver/internal/graph/model"
+	"dreamkast-weaver/internal/usecase"
+	"dreamkast-weaver/internal/value"
 	"errors"
 	"net"
 )
@@ -20,17 +18,17 @@ import (
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
 	var e, err error
 
-	req := cfp.VoteRequest{}
-	req.ConfName, e = cvalue.NewConfName(cvalue.ConferenceKind((input.ConfName.String())))
+	req := usecase.VoteRequest{}
+	req.ConfName, e = value.NewConfName(value.ConferenceKind((input.ConfName.String())))
 	err = errors.Join(err, e)
-	req.TalkID, e = cvalue.NewTalkID(int32(input.TalkID))
+	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
 	err = errors.Join(err, e)
 	req.ClientIp = net.ParseIP(middleware.ClientIPFromContext(ctx))
 	if err != nil {
 		return nil, err
 	}
 
-	if err := r.CfpService.Get().Vote(ctx, req); err != nil {
+	if err := r.cfpSrv.Vote(ctx, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -48,7 +46,7 @@ func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnl
 		return nil, err
 	}
 
-	if err := r.DkUiService.Get().StampOnline(ctx, profile, slotID); err != nil {
+	if err := r.dkUiSrv.StampOnline(ctx, profile, slotID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -60,7 +58,7 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 	profile, err := newProfile(input.ConfName, input.ProfileID)
 	err = errors.Join(err, e)
 
-	req := dkui.StampRequest{}
+	req := usecase.StampRequest{}
 	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
 	err = errors.Join(err, e)
 	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
@@ -71,7 +69,7 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 		return nil, err
 	}
 
-	if err := r.DkUiService.Get().StampOnSite(ctx, profile, req); err != nil {
+	if err := r.dkUiSrv.StampOnSite(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -83,7 +81,7 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	profile, err := newProfile(input.ConfName, input.ProfileID)
 	err = errors.Join(err, e)
 
-	req := dkui.CreateViewEventRequest{}
+	req := usecase.CreateViewEventRequest{}
 	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
 	err = errors.Join(err, e)
 	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
@@ -94,7 +92,7 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 		return nil, err
 	}
 
-	if err := r.DkUiService.Get().CreateViewEvent(ctx, profile, req); err != nil {
+	if err := r.dkUiSrv.CreateViewEvent(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -115,7 +113,7 @@ func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackI
 		return nil, err
 	}
 
-	if err := r.DkUiService.Get().ViewTrack(ctx, pID, tn, tID); err != nil {
+	if err := r.dkUiSrv.ViewTrack(ctx, pID, tn, tID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -123,33 +121,33 @@ func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackI
 
 // VoteCounts is the resolver for the voteCounts field.
 func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error) {
-	vcn, err := cvalue.NewConfName(cvalue.ConferenceKind((confName.String())))
+	vcn, err := value.NewConfName(value.ConferenceKind((confName.String())))
 	if err != nil {
 		return nil, err
 	}
 
-	var vvt cvalue.VotingTerm
+	var vvt value.VotingTerm
 	if votingTerm == nil {
-		vvt, err = cvalue.NewVotingTerm(nil, nil)
+		vvt, err = value.NewVotingTerm(nil, nil)
 	} else {
-		vvt, err = cvalue.NewVotingTerm(votingTerm.Start, votingTerm.End)
+		vvt, err = value.NewVotingTerm(votingTerm.Start, votingTerm.End)
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	vss, err := cvalue.NewSpanSeconds(spanSeconds)
+	vss, err := value.NewSpanSeconds(spanSeconds)
 	if err != nil {
 		return nil, err
 	}
 
-	req := cfp.VoteCountsRequest{
+	req := usecase.VoteCountsRequest{
 		ConfName:    vcn,
 		VotingTerm:  vvt,
 		SpanSeconds: vss,
 	}
 
-	resp, err := r.CfpService.Get().VoteCounts(ctx, req)
+	resp, err := r.cfpSrv.VoteCounts(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -172,7 +170,7 @@ func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfNam
 		return nil, err
 	}
 
-	devents, err := r.DkUiService.Get().ViewingEvents(ctx, profile)
+	devents, err := r.dkUiSrv.ViewingEvents(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +193,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 		return nil, err
 	}
 
-	dstamps, err := r.DkUiService.Get().StampChallenges(ctx, profile)
+	dstamps, err := r.dkUiSrv.StampChallenges(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -214,7 +212,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 
 // ViewerCount is the resolver for the viewerCount field.
 func (r *queryResolver) ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error) {
-	dvcs, err := r.DkUiService.Get().ListViewerCounts(ctx, true)
+	dvcs, err := r.dkUiSrv.ListViewerCounts(ctx, true)
 	if err != nil {
 		return nil, err
 	}
@@ -244,9 +242,9 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func newProfile(confName model.ConfName, profileID int) (dkui.Profile, error) {
+func newProfile(confName model.ConfName, profileID int) (usecase.Profile, error) {
 	var e, err error
-	profile := dkui.Profile{}
+	profile := usecase.Profile{}
 	profile.ConfName, e = value.NewConfName(value.ConferenceKind(confName))
 	err = errors.Join(err, e)
 	profile.ID, e = value.NewProfileID(int32(profileID))

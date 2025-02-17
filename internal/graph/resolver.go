@@ -1,10 +1,8 @@
 package graph
 
 import (
-	"github.com/ServiceWeaver/weaver"
-
-	"dreamkast-weaver/internal/cfp"
-	"dreamkast-weaver/internal/dkui"
+	"dreamkast-weaver/internal/sqlhelper"
+	"dreamkast-weaver/internal/usecase"
 )
 
 // This file will not be regenerated automatically.
@@ -14,8 +12,15 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	weaver.Implements[weaver.Main]
-	CfpService  weaver.Ref[cfp.Service]
-	DkUiService weaver.Ref[dkui.Service]
-	Graphql     weaver.Listener `weaver:"graphql"`
+	dkUiSrv usecase.DkUiService
+	cfpSrv  usecase.CfpService
+}
+
+func New(sh *sqlhelper.SqlHelper) Config {
+	return Config{
+		Resolvers: &Resolver{
+			dkUiSrv: usecase.NewDkUiService(sh),
+			cfpSrv:  usecase.NewCFPService(sh),
+		},
+	}
 }
