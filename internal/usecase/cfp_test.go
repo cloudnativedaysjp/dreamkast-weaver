@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/sqlhelper"
-	"dreamkast-weaver/internal/value"
 
 	_ "github.com/amacneil/dbmate/v2/pkg/driver/mysql"
 	"github.com/stretchr/testify/assert"

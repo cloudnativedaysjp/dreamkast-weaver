@@ -4,18 +4,18 @@ import (
 	"context"
 	"net"
 
-	"dreamkast-weaver/internal/derrors"
-	"dreamkast-weaver/internal/domain"
+	derrors "dreamkast-weaver/internal/domain/errors"
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/infrastructure/db/repo"
 	"dreamkast-weaver/internal/logger"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
-	"dreamkast-weaver/internal/value"
 )
 
 type CfpService interface {
 	Vote(ctx context.Context, req VoteRequest) error
-	VoteCounts(ctx context.Context, req VoteCountsRequest) ([]*domain.VoteCount, error)
+	VoteCounts(ctx context.Context, req VoteCountsRequest) ([]*dmodel.VoteCount, error)
 }
 
 type VoteRequest struct {
@@ -31,8 +31,8 @@ type VoteCountsRequest struct {
 }
 
 type CfpServiceImpl struct {
-	sh     *sqlhelper.SqlHelper
-	domain domain.CfpDomain
+	sh        *sqlhelper.SqlHelper
+	cfpDomain dmodel.CfpDomain
 }
 
 var _ CfpService = (*CfpServiceImpl)(nil)
@@ -56,7 +56,7 @@ func (s *CfpServiceImpl) HandleError(ctx context.Context, msg string, err error)
 	}
 }
 
-func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*domain.VoteCount, err error) {
+func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*dmodel.VoteCount, err error) {
 	defer func() {
 		s.HandleError(ctx, "get voteCounts", err)
 	}()
@@ -68,7 +68,7 @@ func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) 
 		return nil, err
 	}
 
-	dvc := s.domain.TallyCfpVotes(dvotes, req.SpanSeconds)
+	dvc := s.cfpDomain.TallyCfpVotes(dvotes, req.SpanSeconds)
 
 	return dvc, nil
 }

@@ -5,13 +5,13 @@ import (
 	"database/sql"
 	"time"
 
-	"dreamkast-weaver/internal/derrors"
-	"dreamkast-weaver/internal/domain"
+	derrors "dreamkast-weaver/internal/domain/errors"
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/infrastructure/db/repo"
 	"dreamkast-weaver/internal/logger"
 	"dreamkast-weaver/internal/sqlhelper"
 	"dreamkast-weaver/internal/stacktrace"
-	"dreamkast-weaver/internal/value"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/push"
@@ -35,9 +35,9 @@ type DkUiService interface {
 	CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) error
 	StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) error
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
-	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
-	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
-	ListViewerCounts(ctx context.Context, useCache bool) (*domain.ViewerCounts, error)
+	ViewingEvents(ctx context.Context, profile Profile) (*dmodel.ViewEvents, error)
+	StampChallenges(ctx context.Context, profile Profile) (*dmodel.StampChallenges, error)
+	ListViewerCounts(ctx context.Context, useCache bool) (*dmodel.ViewerCounts, error)
 	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) error
 }
 
@@ -59,10 +59,10 @@ type StampRequest struct {
 }
 
 type DkUiServiceImpl struct {
-	sh     *sqlhelper.SqlHelper
-	pusher *push.Pusher
-	domain domain.DkUiDomain
-	cache  domain.ViewerCounts
+	sh         *sqlhelper.SqlHelper
+	pusher     *push.Pusher
+	dkUiDomain dmodel.DkUiDomain
+	cache      dmodel.ViewerCounts
 }
 
 var _ DkUiService = (*DkUiServiceImpl)(nil)
@@ -123,7 +123,7 @@ func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, 
 		return err
 	}
 
-	ev, err := s.domain.CreateOnlineViewEvent(req.TrackID, req.TalkID, req.SlotID, dstamps, devents)
+	ev, err := s.dkUiDomain.CreateOnlineViewEvent(req.TrackID, req.TalkID, req.SlotID, dstamps, devents)
 	if err != nil {
 		return err
 	}
@@ -144,7 +144,7 @@ func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, 
 	return nil
 }
 
-func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *domain.ViewEvents, err error) {
+func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *dmodel.ViewEvents, err error) {
 	defer func() {
 		v.HandleError(ctx, "get viewingEvents", err)
 	}()
@@ -158,7 +158,7 @@ func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (r
 	return resp, nil
 }
 
-func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *domain.StampChallenges, err error) {
+func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *dmodel.StampChallenges, err error) {
 	defer func() {
 		v.HandleError(ctx, "get stampChallenges", err)
 	}()
@@ -184,7 +184,7 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slot
 		return err
 	}
 
-	if err := v.domain.StampOnline(slotID, dstamps); err != nil {
+	if err := v.dkUiDomain.StampOnline(slotID, dstamps); err != nil {
 		return err
 	}
 
@@ -207,7 +207,7 @@ func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req 
 		return err
 	}
 
-	ev, err := v.domain.StampOnSite(req.TrackID, req.TalkID, req.SlotID, dstamps)
+	ev, err := v.dkUiDomain.StampOnSite(req.TrackID, req.TalkID, req.SlotID, dstamps)
 	if err != nil {
 		return err
 	}
@@ -228,7 +228,7 @@ func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req 
 	return nil
 }
 
-func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *domain.ViewerCounts, err error) {
+func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *dmodel.ViewerCounts, err error) {
 	defer func() {
 		s.HandleError(ctx, "list viewer count", err)
 	}()
@@ -274,7 +274,7 @@ func (s *DkUiServiceImpl) measureViewerCount(ctx context.Context) {
 	}()
 }
 
-func (s *DkUiServiceImpl) getViewerCount(ctx context.Context) (*domain.ViewerCounts, error) {
+func (s *DkUiServiceImpl) getViewerCount(ctx context.Context) (*dmodel.ViewerCounts, error) {
 	to := time.Now().UTC()
 	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
 

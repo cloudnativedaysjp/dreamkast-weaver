@@ -1,8 +1,16 @@
-package derrors
+package errors
 
 import (
 	"errors"
 	"fmt"
+)
+
+var (
+	ErrTooShortRequest = NewUserError("too short requests")
+	ErrStampNotReady   = NewUserError("stamp is not ready")
+	ErrAlreadyStamped  = NewUserError("already stamped")
+
+	ErrMissingParams = errors.New("missing required params")
 )
 
 type UserError struct {
