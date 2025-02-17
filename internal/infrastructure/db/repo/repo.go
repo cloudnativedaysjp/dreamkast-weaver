@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"dreamkast-weaver/internal/domain"
-	"dreamkast-weaver/internal/infrastructure/mysql/dbgen"
+	"dreamkast-weaver/internal/infrastructure/db/dbgen"
 	"dreamkast-weaver/internal/stacktrace"
 	"dreamkast-weaver/internal/value"
 )
@@ -298,7 +298,16 @@ func (_trackViewerConv) fromDB(tvs []dbgen.TrackViewer) (*domain.TrackViewers, e
 // 	return tvs
 // }
 
-func (r *DkUiRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*domain.CfpVotes, error) {
+type CfpRepoImpl struct {
+	q *dbgen.Queries
+}
+
+func NewCfpRepo(db dbgen.DBTX) domain.CfpRepo {
+	q := dbgen.New(db)
+	return &CfpRepoImpl{q}
+}
+
+func (r *CfpRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*domain.CfpVotes, error) {
 	s, e := vt.Value()
 	req := dbgen.ListCfpVotesParams{
 		ConferenceName: string(confName.Value()),
@@ -314,7 +323,7 @@ func (r *DkUiRepoImpl) ListCfpVotes(ctx context.Context, confName value.ConfName
 	return cfpVoteConv.fromDB(votes)
 }
 
-func (r *DkUiRepoImpl) InsertCfpVote(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error {
+func (r *CfpRepoImpl) InsertCfpVote(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error {
 	req := dbgen.InsertCfpVoteParams{
 		ConferenceName: string(confName.Value()),
 		TalkID:         talkID.Value(),
