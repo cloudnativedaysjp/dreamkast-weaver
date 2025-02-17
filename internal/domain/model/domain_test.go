@@ -1,18 +1,18 @@
-package domain_test
+package model_test
 
 import (
 	"net"
 	"testing"
 	"time"
 
-	"dreamkast-weaver/internal/domain"
-	"dreamkast-weaver/internal/value"
+	dmodel "dreamkast-weaver/internal/domain/model"
+	"dreamkast-weaver/internal/domain/value"
 
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	svcDkui = domain.DkUiDomain{}
+	svcDkui = dmodel.DkUiDomain{}
 )
 
 func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
@@ -22,15 +22,15 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 
 	tests := []struct {
 		name                      string
-		given                     func() *domain.ViewEvents
+		given                     func() *dmodel.ViewEvents
 		shouldStampChallengeAdded bool
 	}{
 		{
 			name: "stamp condition fulfilled",
-			given: func() *domain.ViewEvents {
-				events := &domain.ViewEvents{}
+			given: func() *dmodel.ViewEvents {
+				events := &dmodel.ViewEvents{}
 				for i := 0; i < 9; i++ {
-					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
+					ev := *dmodel.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 					ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS + 1) * time.Second)
 					events = events.AddImmutable(ev)
 				}
@@ -40,10 +40,10 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 		},
 		{
 			name: "stamp condition not fulfilled",
-			given: func() *domain.ViewEvents {
-				events := &domain.ViewEvents{}
+			given: func() *dmodel.ViewEvents {
+				events := &dmodel.ViewEvents{}
 				for i := 0; i < 8; i++ {
-					ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
+					ev := *dmodel.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 					ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS + 1) * time.Second)
 					events = events.AddImmutable(ev)
 				}
@@ -53,8 +53,8 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 		},
 		{
 			name: "first event",
-			given: func() *domain.ViewEvents {
-				return &domain.ViewEvents{}
+			given: func() *dmodel.ViewEvents {
+				return &dmodel.ViewEvents{}
 			},
 			shouldStampChallengeAdded: false,
 		},
@@ -62,7 +62,7 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run("ok:"+tt.name, func(t *testing.T) {
-			stamps := &domain.StampChallenges{}
+			stamps := &dmodel.StampChallenges{}
 			events := tt.given()
 			evLen := len(events.Items)
 
@@ -86,21 +86,21 @@ func TestDkUiService_CreateOnlineViewEvent(t *testing.T) {
 
 	errTests := []struct {
 		name  string
-		given func() (*domain.ViewEvents, *domain.StampChallenges)
+		given func() (*dmodel.ViewEvents, *dmodel.StampChallenges)
 	}{
 		{
 			name: "too short request",
-			given: func() (*domain.ViewEvents, *domain.StampChallenges) {
-				events := &domain.ViewEvents{}
-				ev := *domain.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
+			given: func() (*dmodel.ViewEvents, *dmodel.StampChallenges) {
+				events := &dmodel.ViewEvents{}
+				ev := *dmodel.NewOnlineViewEvent(newTrackID(11), newTalkID(22), slotID)
 				ev.CreatedAt = ev.CreatedAt.Add(-1 * (value.GUARD_SECONDS - 9) * time.Second)
 				events = events.AddImmutable(ev)
-				return events, &domain.StampChallenges{}
+				return events, &dmodel.StampChallenges{}
 			},
 		},
 		{
 			name: "nil given",
-			given: func() (*domain.ViewEvents, *domain.StampChallenges) {
+			given: func() (*dmodel.ViewEvents, *dmodel.StampChallenges) {
 				return nil, nil
 			},
 		},
@@ -119,10 +119,10 @@ func TestDkUiService_StampOnline(t *testing.T) {
 	slotID := newSlotID(42)
 
 	t.Run("ok", func(t *testing.T) {
-		stamps := &domain.StampChallenges{Items: []domain.StampChallenge{
-			*domain.NewStampChallenge(newSlotID(41)),
-			*domain.NewStampChallenge(newSlotID(42)),
-			*domain.NewStampChallenge(newSlotID(43)),
+		stamps := &dmodel.StampChallenges{Items: []dmodel.StampChallenge{
+			*dmodel.NewStampChallenge(newSlotID(41)),
+			*dmodel.NewStampChallenge(newSlotID(42)),
+			*dmodel.NewStampChallenge(newSlotID(43)),
 		}}
 
 		err := svcDkui.StampOnline(slotID, stamps)
@@ -139,20 +139,20 @@ func TestDkUiService_StampOnline(t *testing.T) {
 
 	errTests := []struct {
 		name  string
-		given func() *domain.StampChallenges
+		given func() *dmodel.StampChallenges
 	}{
 		{
 			name: "ready stamp not found",
-			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{Items: []domain.StampChallenge{
-					*domain.NewStampChallenge(newSlotID(41)),
-					*domain.NewStampChallenge(newSlotID(43)),
+			given: func() *dmodel.StampChallenges {
+				return &dmodel.StampChallenges{Items: []dmodel.StampChallenge{
+					*dmodel.NewStampChallenge(newSlotID(41)),
+					*dmodel.NewStampChallenge(newSlotID(43)),
 				}}
 			},
 		},
 		{
 			name: "nil given",
-			given: func() *domain.StampChallenges {
+			given: func() *dmodel.StampChallenges {
 				return nil
 			},
 		},
@@ -181,24 +181,24 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 
 	tests := []struct {
 		name  string
-		given func() *domain.StampChallenges
+		given func() *dmodel.StampChallenges
 	}{
 		{
 			name: "stamp not exist",
-			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{Items: []domain.StampChallenge{
-					*domain.NewStampChallenge(newSlotID(41)),
-					*domain.NewStampChallenge(newSlotID(43)),
+			given: func() *dmodel.StampChallenges {
+				return &dmodel.StampChallenges{Items: []dmodel.StampChallenge{
+					*dmodel.NewStampChallenge(newSlotID(41)),
+					*dmodel.NewStampChallenge(newSlotID(43)),
 				}}
 			},
 		},
 		{
 			name: "ready stamp exists",
-			given: func() *domain.StampChallenges {
-				return &domain.StampChallenges{Items: []domain.StampChallenge{
-					*domain.NewStampChallenge(newSlotID(41)),
-					*domain.NewStampChallenge(newSlotID(42)),
-					*domain.NewStampChallenge(newSlotID(43)),
+			given: func() *dmodel.StampChallenges {
+				return &dmodel.StampChallenges{Items: []dmodel.StampChallenge{
+					*dmodel.NewStampChallenge(newSlotID(41)),
+					*dmodel.NewStampChallenge(newSlotID(42)),
+					*dmodel.NewStampChallenge(newSlotID(43)),
 				}}
 			},
 		},
@@ -227,23 +227,23 @@ func TestDkUiService_StampOnSite(t *testing.T) {
 
 	errTests := []struct {
 		name  string
-		given func() *domain.StampChallenges
+		given func() *dmodel.StampChallenges
 	}{
 		{
 			name: "already stamped",
-			given: func() *domain.StampChallenges {
-				sc := domain.NewStampChallenge(newSlotID(42))
+			given: func() *dmodel.StampChallenges {
+				sc := dmodel.NewStampChallenge(newSlotID(42))
 				sc.Stamp()
-				return &domain.StampChallenges{Items: []domain.StampChallenge{
-					*domain.NewStampChallenge(newSlotID(41)),
+				return &dmodel.StampChallenges{Items: []dmodel.StampChallenge{
+					*dmodel.NewStampChallenge(newSlotID(41)),
 					*sc,
-					*domain.NewStampChallenge(newSlotID(43)),
+					*dmodel.NewStampChallenge(newSlotID(43)),
 				}}
 			},
 		},
 		{
 			name: "nil given",
-			given: func() *domain.StampChallenges {
+			given: func() *dmodel.StampChallenges {
 				return nil
 			},
 		},
@@ -294,7 +294,7 @@ func newTalkID(v int32) value.TalkID {
 }
 
 var (
-	svc = domain.CfpDomain{}
+	svc = dmodel.CfpDomain{}
 )
 
 func TestCfpDomain_TallyCfpVotes(t *testing.T) {
@@ -305,13 +305,13 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 
 	tests := []struct {
 		name   string
-		given  func() (cvs *domain.CfpVotes)
+		given  func() (cvs *dmodel.CfpVotes)
 		counts map[value.TalkID]int
 	}{
 		{
 			name: "votes within a span are summarized",
-			given: func() (cvs *domain.CfpVotes) {
-				cvs = &domain.CfpVotes{Items: []domain.CfpVote{
+			given: func() (cvs *dmodel.CfpVotes) {
+				cvs = &dmodel.CfpVotes{Items: []dmodel.CfpVote{
 					{
 						TalkID:    id,
 						ClientIp:  ip,
@@ -336,8 +336,8 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 		},
 		{
 			name: "different IPs or IDs are different votes",
-			given: func() (cvs *domain.CfpVotes) {
-				cvs = &domain.CfpVotes{Items: []domain.CfpVote{
+			given: func() (cvs *dmodel.CfpVotes) {
+				cvs = &dmodel.CfpVotes{Items: []dmodel.CfpVote{
 					{
 						TalkID:    id,
 						ClientIp:  ip,

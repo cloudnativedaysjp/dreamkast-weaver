@@ -3,7 +3,7 @@ package value_test
 import (
 	"testing"
 
-	"dreamkast-weaver/internal/value"
+	"dreamkast-weaver/internal/domain/value"
 
 	"github.com/stretchr/testify/assert"
 )
