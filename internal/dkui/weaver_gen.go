@@ -177,7 +177,7 @@ func (s service_local_stub) StampOnline(ctx context.Context, a0 Profile, a1 valu
 	return s.impl.StampOnline(ctx, a0, a1)
 }
 
-func (s service_local_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName) (err error) {
+func (s service_local_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName, a2 value.TalkID) (err error) {
 	// Update metrics.
 	begin := s.viewTrackMetrics.Begin()
 	defer func() { s.viewTrackMetrics.End(begin, err != nil, 0, 0) }()
@@ -194,7 +194,7 @@ func (s service_local_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, a
 		}()
 	}
 
-	return s.impl.ViewTrack(ctx, a0, a1)
+	return s.impl.ViewTrack(ctx, a0, a1, a2)
 }
 
 func (s service_local_stub) ViewingEvents(ctx context.Context, a0 Profile) (r0 *domain.ViewEvents, err error) {
@@ -493,7 +493,7 @@ func (s service_client_stub) StampOnline(ctx context.Context, a0 Profile, a1 val
 	return
 }
 
-func (s service_client_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName) (err error) {
+func (s service_client_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, a1 value.TrackName, a2 value.TalkID) (err error) {
 	// Update metrics.
 	var requestBytes, replyBytes int
 	begin := s.viewTrackMetrics.Begin()
@@ -526,6 +526,7 @@ func (s service_client_stub) ViewTrack(ctx context.Context, a0 value.ProfileID, 
 	enc := codegen.NewEncoder()
 	(a0).WeaverMarshal(enc)
 	(a1).WeaverMarshal(enc)
+	(a2).WeaverMarshal(enc)
 	var shardKey uint64
 
 	// Call the remote method.
@@ -769,11 +770,13 @@ func (s service_server_stub) viewTrack(ctx context.Context, args []byte) (res []
 	(&a0).WeaverUnmarshal(dec)
 	var a1 value.TrackName
 	(&a1).WeaverUnmarshal(dec)
+	var a2 value.TalkID
+	(&a2).WeaverUnmarshal(dec)
 
 	// TODO(rgrandl): The deferred function above will recover from panics in the
 	// user code: fix this.
 	// Call the local method.
-	appErr := s.impl.ViewTrack(ctx, a0, a1)
+	appErr := s.impl.ViewTrack(ctx, a0, a1, a2)
 
 	// Encode the results.
 	enc := codegen.NewEncoder()

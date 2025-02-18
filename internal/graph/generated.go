@@ -3625,7 +3625,7 @@ func (ec *executionContext) unmarshalInputViewTrackInput(ctx context.Context, ob
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"profileID", "trackName"}
+	fieldsInOrder := [...]string{"profileID", "trackName", "talkID"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -3650,6 +3650,15 @@ func (ec *executionContext) unmarshalInputViewTrackInput(ctx context.Context, ob
 				return it, err
 			}
 			it.TrackName = data
+		case "talkID":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TalkID = data
 		}
 	}
 

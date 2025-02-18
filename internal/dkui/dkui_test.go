@@ -145,12 +145,15 @@ func TestDkUiServiceImpl_ListTrackViewer(t *testing.T) {
 		tna := newTrackName("A")
 		tnb := newTrackName("B")
 		tnc := newTrackName("C")
+		tIDa := newTalkID(1)
+		tIDb := newTalkID(2)
+		tIDc := newTalkID(3)
 
-		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna))
-		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna))
-		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(732), tnb))
-		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(733), tnc))
-		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(734), tnc))
+		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna, tIDa))
+		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna, tIDa))
+		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(732), tnb, tIDb))
+		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(733), tnc, tIDb))
+		assert.NoError(t, svc.ViewTrack(ctx, newProfileID(734), tnc, tIDc))
 
 		ans := map[value.TrackName]int{}
 		ans[tna] = 1

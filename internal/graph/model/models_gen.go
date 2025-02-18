@@ -40,6 +40,7 @@ type StampOnlineInput struct {
 type ViewTrackInput struct {
 	ProfileID int    `json:"profileID"`
 	TrackName string `json:"trackName"`
+	TalkID    int    `json:"talkID"`
 }
 
 type ViewerCount struct {

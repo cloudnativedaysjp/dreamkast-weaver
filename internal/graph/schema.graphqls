@@ -94,4 +94,5 @@ input CreateViewEventInput {
 input ViewTrackInput {
   profileID: Int!
   trackName: String!
+  talkID: Int!
 }

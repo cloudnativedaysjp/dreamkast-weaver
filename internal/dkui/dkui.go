@@ -39,7 +39,7 @@ type Service interface {
 	ViewingEvents(ctx context.Context, profile Profile) (*domain.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*domain.StampChallenges, error)
 	ListViewerCounts(ctx context.Context, useCache bool) (*domain.ViewerCounts, error)
-	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) error
+	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) error
 }
 
 type Profile struct {
@@ -265,13 +265,13 @@ func (s *ServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc 
 	return &s.cache, nil
 }
 
-func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName) (err error) {
+func (s *ServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error) {
 	defer func() {
 		s.HandleError("viewing track", err)
 	}()
 
 	r := repo.NewDkUiRepo(s.sh.DB())
-	if err := r.InsertTrackViewer(ctx, profileID, trackName); err != nil {
+	if err := r.InsertTrackViewer(ctx, profileID, trackName, talkID); err != nil {
 		return err
 	}
 	return nil

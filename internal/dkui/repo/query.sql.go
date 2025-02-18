@@ -35,18 +35,19 @@ func (q *Queries) GetTrailmapStamps(ctx context.Context, arg GetTrailmapStampsPa
 
 const insertTrackViewer = `-- name: InsertTrackViewer :exec
 INSERT INTO
-  track_viewer (created_at, track_name, profile_id)
+  track_viewer (created_at, track_name, profile_id, talk_id)
 VALUES
-  (NOW(3), ?, ?)
+  (NOW(3), ?, ?,?)
 `
 
 type InsertTrackViewerParams struct {
 	TrackName string
 	ProfileID int32
+	TalkID    int32
 }
 
 func (q *Queries) InsertTrackViewer(ctx context.Context, arg InsertTrackViewerParams) error {
-	_, err := q.db.ExecContext(ctx, insertTrackViewer, arg.TrackName, arg.ProfileID)
+	_, err := q.db.ExecContext(ctx, insertTrackViewer, arg.TrackName, arg.ProfileID, arg.TalkID)
 	return err
 }
 
@@ -80,7 +81,7 @@ func (q *Queries) InsertViewEvents(ctx context.Context, arg InsertViewEventsPara
 
 const listTrackViewer = `-- name: ListTrackViewer :many
 SELECT
-  created_at, track_name, profile_id
+  created_at, track_name, profile_id, talk_id
 FROM
   track_viewer
 WHERE
@@ -101,7 +102,12 @@ func (q *Queries) ListTrackViewer(ctx context.Context, arg ListTrackViewerParams
 	var items []TrackViewer
 	for rows.Next() {
 		var i TrackViewer
-		if err := rows.Scan(&i.CreatedAt, &i.TrackName, &i.ProfileID); err != nil {
+		if err := rows.Scan(
+			&i.CreatedAt,
+			&i.TrackName,
+			&i.ProfileID,
+			&i.TalkID,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
