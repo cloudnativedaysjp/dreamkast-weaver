@@ -5,7 +5,7 @@ go 1.22.9
 require (
 	github.com/99designs/gqlgen v0.17.35
 	github.com/ServiceWeaver/weaver v0.17.0
-	github.com/amacneil/dbmate/v2 v2.6.0
+	github.com/amacneil/dbmate/v2 v2.26.0
 	github.com/getsentry/sentry-go v0.25.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-sql-driver/mysql v1.8.1
