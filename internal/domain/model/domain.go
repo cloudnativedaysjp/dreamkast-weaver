@@ -317,9 +317,7 @@ type VoteCount struct {
 	Count  int
 }
 
-type CfpDomain struct{}
-
-func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes, spanSeconds value.SpanSeconds) []*VoteCount {
+func (cvs *CfpVotes) Tally(spanSeconds value.SpanSeconds) []*VoteCount {
 	type key struct {
 		talkId    int32
 		ip        string
@@ -327,7 +325,7 @@ func (cd *CfpDomain) TallyCfpVotes(cfpVotes *CfpVotes, spanSeconds value.SpanSec
 	}
 	voted := map[key]bool{}
 	counts := map[value.TalkID]int{}
-	for _, v := range cfpVotes.Items {
+	for _, v := range cvs.Items {
 		k := key{
 			talkId:    v.TalkID.Value(),
 			ip:        v.ClientIp.String(),

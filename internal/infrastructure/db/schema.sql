@@ -82,23 +82,6 @@ CREATE TABLE `view_events` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `viewer_counts`
---
-
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `viewer_counts` (
-  `conference_name` varchar(32) NOT NULL,
-  `track_id` int NOT NULL,
-  `channel_arn` varchar(128) NOT NULL,
-  `track_name` varchar(32) NOT NULL,
-  `count` bigint NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`track_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Dumping routines for database 'dkui'
 --
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -125,5 +108,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20231107104801'),
   ('20231126063758'),
   ('20250215110715'),
-  ('20250216022526');
+  ('20250216022526'),
+  ('20250221012526');
 UNLOCK TABLES;

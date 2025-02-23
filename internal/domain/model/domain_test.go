@@ -293,10 +293,6 @@ func newTalkID(v int32) value.TalkID {
 	return id
 }
 
-var (
-	svc = dmodel.CfpDomain{}
-)
-
 func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 	ss := newSpanSeconds(value.SPAN_SECONDS)
 	tn := time.Unix(time.Now().Unix()/value.SPAN_SECONDS*value.SPAN_SECONDS, 0)
@@ -367,7 +363,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 		t.Run("ok:"+tt.name, func(t *testing.T) {
 			cvs := tt.given()
 
-			got := svc.TallyCfpVotes(cvs, ss)
+			got := cvs.Tally(ss)
 
 			for _, v := range got {
 				assert.Equal(t, tt.counts[v.TalkID], v.Count)
