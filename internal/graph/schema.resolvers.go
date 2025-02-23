@@ -110,8 +110,12 @@ func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackI
 	if err != nil {
 		return nil, err
 	}
+	tID, err := value.NewTalkID(int32(input.TalkID))
+	if err != nil {
+		return nil, err
+	}
 
-	if err := r.DkUiService.Get().ViewTrack(ctx, pID, tn); err != nil {
+	if err := r.DkUiService.Get().ViewTrack(ctx, pID, tn, tID); err != nil {
 		return nil, err
 	}
 	return nil, nil

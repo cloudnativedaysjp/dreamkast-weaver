@@ -17,6 +17,7 @@ type TrackViewer struct {
 	CreatedAt time.Time
 	TrackName string
 	ProfileID int32
+	TalkID    int32
 }
 
 type TrailmapStamp struct {

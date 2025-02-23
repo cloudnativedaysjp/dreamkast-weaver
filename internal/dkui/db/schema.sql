@@ -31,6 +31,7 @@ CREATE TABLE `track_viewer` (
   `created_at` datetime(3) NOT NULL,
   `track_name` char(1) NOT NULL,
   `profile_id` int NOT NULL,
+  `talk_id` int NOT NULL,
   PRIMARY KEY (`created_at`,`profile_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -108,5 +109,6 @@ INSERT INTO `schema_migrations` (version) VALUES
   ('20230413015514'),
   ('20230624132258'),
   ('20231107104801'),
-  ('20231126063758');
+  ('20231126063758'),
+  ('20250215110715');
 UNLOCK TABLES;
