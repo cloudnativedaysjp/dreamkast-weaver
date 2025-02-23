@@ -9,18 +9,22 @@ import (
 	"dreamkast-weaver/internal/domain/value"
 )
 
-type DkUiRepo interface {
-	ListViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*model.ViewEvents, error)
-	InsertViewEvents(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *model.ViewEvent) error
-
-	GetTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*model.StampChallenges, error)
-	UpsertTrailMapStamps(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *model.StampChallenges) error
-
-	InsertTrackViewer(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error)
-	ListTrackViewer(ctx context.Context, from, to time.Time) (*model.TrackViewers, error)
+type CfpVoteRepo interface {
+	List(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*model.CfpVotes, error)
+	Insert(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error
 }
 
-type CfpRepo interface {
-	ListCfpVotes(ctx context.Context, confName value.ConfName, vt value.VotingTerm) (*model.CfpVotes, error)
-	InsertCfpVote(ctx context.Context, confName value.ConfName, talkID value.TalkID, clientIp net.IP) error
+type TrackViewerRepo interface {
+	Insert(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error)
+	List(ctx context.Context, from, to time.Time) (*model.TrackViewers, error)
+}
+
+type TrailMapStampsRepo interface {
+	Get(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*model.StampChallenges, error)
+	Upsert(ctx context.Context, confName value.ConfName, profileID value.ProfileID, scs *model.StampChallenges) error
+}
+
+type ViewEventRepo interface {
+	List(ctx context.Context, confName value.ConfName, profileID value.ProfileID) (*model.ViewEvents, error)
+	Insert(ctx context.Context, confName value.ConfName, profileID value.ProfileID, ev *model.ViewEvent) error
 }

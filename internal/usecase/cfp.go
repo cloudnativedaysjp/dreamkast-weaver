@@ -31,8 +31,7 @@ type VoteCountsRequest struct {
 }
 
 type CfpServiceImpl struct {
-	sh        *sqlhelper.SqlHelper
-	cfpDomain dmodel.CfpDomain
+	sh *sqlhelper.SqlHelper
 }
 
 var _ CfpService = (*CfpServiceImpl)(nil)
@@ -41,11 +40,7 @@ func NewCFPService(sh *sqlhelper.SqlHelper) CfpService {
 	return &CfpServiceImpl{sh: sh}
 }
 
-func (s *CfpServiceImpl) Init(ctx context.Context) error {
-	return nil
-}
-
-func (s *CfpServiceImpl) HandleError(ctx context.Context, msg string, err error) {
+func (s *CfpServiceImpl) handleError(ctx context.Context, msg string, err error) {
 	logger := logger.FromCtx(ctx)
 	if err != nil {
 		if derrors.IsUserError(err) {
@@ -58,27 +53,27 @@ func (s *CfpServiceImpl) HandleError(ctx context.Context, msg string, err error)
 
 func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*dmodel.VoteCount, err error) {
 	defer func() {
-		s.HandleError(ctx, "get voteCounts", err)
+		s.handleError(ctx, "get voteCounts", err)
 	}()
 
-	r := repo.NewCfpRepo(s.sh.DB())
+	r := repo.NewCfpVoteRepo(s.sh.DB())
 
-	dvotes, err := r.ListCfpVotes(ctx, req.ConfName, req.VotingTerm)
+	dvotes, err := r.List(ctx, req.ConfName, req.VotingTerm)
 	if err != nil {
 		return nil, err
 	}
 
-	dvc := s.cfpDomain.TallyCfpVotes(dvotes, req.SpanSeconds)
+	dvc := dvotes.Tally(req.SpanSeconds)
 
 	return dvc, nil
 }
 
 func (s *CfpServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	defer func() {
-		s.HandleError(ctx, "vote", err)
+		s.handleError(ctx, "vote", err)
 	}()
 
-	r := repo.NewCfpRepo(s.sh.DB())
+	r := repo.NewCfpVoteRepo(s.sh.DB())
 
-	return r.InsertCfpVote(ctx, req.ConfName, req.TalkID, req.ClientIp)
+	return r.Insert(ctx, req.ConfName, req.TalkID, req.ClientIp)
 }

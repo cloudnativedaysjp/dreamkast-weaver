@@ -92,11 +92,7 @@ func NewDkUiService(sh *sqlhelper.SqlHelper) DkUiService {
 	}
 }
 
-func (s *DkUiServiceImpl) Init(ctx context.Context) error {
-	return nil
-}
-
-func (s *DkUiServiceImpl) HandleError(ctx context.Context, msg string, err error) {
+func (s *DkUiServiceImpl) handleError(ctx context.Context, msg string, err error) {
 	logger := logger.FromCtx(ctx)
 	if err != nil {
 		if derrors.IsUserError(err) {
@@ -109,16 +105,17 @@ func (s *DkUiServiceImpl) HandleError(ctx context.Context, msg string, err error
 
 func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
 	defer func() {
-		s.HandleError(ctx, "create viewEvent", err)
+		s.handleError(ctx, "create viewEvent", err)
 	}()
 
-	r := repo.NewDkUiRepo(s.sh.DB())
+	vr := repo.NewViewEventRepo(s.sh.DB())
+	tr := repo.NewTrailMapStampsRepo(s.sh.DB())
 
-	devents, err := r.ListViewEvents(ctx, profile.ConfName, profile.ID)
+	devents, err := vr.List(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
-	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
+	dstamps, err := tr.Get(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
@@ -129,11 +126,13 @@ func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, 
 	}
 
 	if err := s.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertViewEvents(ctx, profile.ConfName, profile.ID, ev); err != nil {
+		ver := repo.NewViewEventRepo(tx)
+		tsr := repo.NewTrailMapStampsRepo(s.sh.DB())
+
+		if err := ver.Insert(ctx, profile.ConfName, profile.ID, ev); err != nil {
 			return err
 		}
-		if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
+		if err := tsr.Upsert(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 			return err
 		}
 		return nil
@@ -146,12 +145,12 @@ func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, 
 
 func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *dmodel.ViewEvents, err error) {
 	defer func() {
-		v.HandleError(ctx, "get viewingEvents", err)
+		v.handleError(ctx, "get viewingEvents", err)
 	}()
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+	r := repo.NewViewEventRepo(v.sh.DB())
 
-	resp, err = r.ListViewEvents(ctx, profile.ConfName, profile.ID)
+	resp, err = r.List(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -160,12 +159,12 @@ func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (r
 
 func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *dmodel.StampChallenges, err error) {
 	defer func() {
-		v.HandleError(ctx, "get stampChallenges", err)
+		v.handleError(ctx, "get stampChallenges", err)
 	}()
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+	r := repo.NewTrailMapStampsRepo(v.sh.DB())
 
-	resp, err = r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
+	resp, err = r.Get(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -174,12 +173,12 @@ func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) 
 
 func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
 	defer func() {
-		v.HandleError(ctx, "stamp from online", err)
+		v.handleError(ctx, "stamp from online", err)
 	}()
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+	r := repo.NewTrailMapStampsRepo(v.sh.DB())
 
-	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
+	dstamps, err := r.Get(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
@@ -188,7 +187,7 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slot
 		return err
 	}
 
-	if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
+	if err := r.Upsert(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 		return err
 	}
 
@@ -197,12 +196,12 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slot
 
 func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
 	defer func() {
-		v.HandleError(ctx, "stamp from onsite", err)
+		v.handleError(ctx, "stamp from onsite", err)
 	}()
 
-	r := repo.NewDkUiRepo(v.sh.DB())
+	r := repo.NewTrailMapStampsRepo(v.sh.DB())
 
-	dstamps, err := r.GetTrailMapStamps(ctx, profile.ConfName, profile.ID)
+	dstamps, err := r.Get(ctx, profile.ConfName, profile.ID)
 	if err != nil {
 		return err
 	}
@@ -213,11 +212,10 @@ func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req 
 	}
 
 	if err := v.sh.RunTX(ctx, func(ctx context.Context, tx *sql.Tx) error {
-		r := repo.NewDkUiRepo(tx)
-		if err := r.InsertViewEvents(ctx, profile.ConfName, profile.ID, ev); err != nil {
+		if err := repo.NewViewEventRepo(tx).Insert(ctx, profile.ConfName, profile.ID, ev); err != nil {
 			return err
 		}
-		if err := r.UpsertTrailMapStamps(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
+		if err := repo.NewTrailMapStampsRepo(tx).Upsert(ctx, profile.ConfName, profile.ID, dstamps); err != nil {
 			return err
 		}
 		return nil
@@ -230,7 +228,7 @@ func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req 
 
 func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *dmodel.ViewerCounts, err error) {
 	defer func() {
-		s.HandleError(ctx, "list viewer count", err)
+		s.handleError(ctx, "list viewer count", err)
 	}()
 	if !useCache {
 		if _, err := s.getViewerCount(ctx); err != nil {
@@ -242,11 +240,11 @@ func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (
 
 func (s *DkUiServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error) {
 	defer func() {
-		s.HandleError(ctx, "viewing track", err)
+		s.handleError(ctx, "viewing track", err)
 	}()
 
-	r := repo.NewDkUiRepo(s.sh.DB())
-	if err := r.InsertTrackViewer(ctx, profileID, trackName, talkID); err != nil {
+	r := repo.NewTrackViewerRepo(s.sh.DB())
+	if err := r.Insert(ctx, profileID, trackName, talkID); err != nil {
 		return err
 	}
 	return nil
@@ -278,8 +276,8 @@ func (s *DkUiServiceImpl) getViewerCount(ctx context.Context) (*dmodel.ViewerCou
 	to := time.Now().UTC()
 	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
 
-	r := repo.NewDkUiRepo(s.sh.DB())
-	dtv, err := r.ListTrackViewer(ctx, from, to)
+	r := repo.NewTrackViewerRepo(s.sh.DB())
+	dtv, err := r.List(ctx, from, to)
 	if err != nil {
 		return nil, err
 	}
