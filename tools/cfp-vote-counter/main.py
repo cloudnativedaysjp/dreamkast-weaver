@@ -14,11 +14,12 @@ VOTING_TERM: Final[dict[str, tuple[str,str]]] = {
     "cndt2023": ('2023-09-01T00:00:00+09:00', '2023-10-23T18:00:00+09:00'),
     "cnds2024": ('2024-03-08T00:00:00+09:00', '2024-04-09T19:00:00+09:00'),
     "cndw2024": ('2024-09-24T00:00:00+09:00', '2024-10-15T19:00:00+09:00'),
+    "cnds2025": ('2025-01-24T00:00:00+09:00', '2025-10-15T19:00:00+09:00'),
 }
 
 
 DKW_ENDPOINT: Final[dict[str, str]] = {
-    "dev": "http://localhost:8080/query",
+    "dev": "http://localhost:8088/query",
     "stg": "https://dkw.dev.cloudnativedays.jp/query",
     "prd": "https://dkw.cloudnativedays.jp/query",
 }
