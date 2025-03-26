@@ -3,7 +3,7 @@ module dreamkast-weaver
 go 1.22.9
 
 require (
-	github.com/99designs/gqlgen v0.17.35
+	github.com/99designs/gqlgen v0.17.70
 	github.com/ServiceWeaver/weaver v0.17.0
 	github.com/amacneil/dbmate/v2 v2.6.0
 	github.com/getsentry/sentry-go v0.25.0
@@ -12,10 +12,10 @@ require (
 	github.com/prometheus/client_golang v1.17.0
 	github.com/spf13/cobra-cli v1.3.0
 	github.com/sqlc-dev/sqlc v1.28.0
-	github.com/vektah/gqlparser/v2 v2.5.8
+	github.com/vektah/gqlparser/v2 v2.5.23
 	go.opentelemetry.io/otel v1.31.0
 	go.opentelemetry.io/otel/trace v1.31.0
-	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
+	golang.org/x/exp 054e65f0b394
 )
 
 require (
