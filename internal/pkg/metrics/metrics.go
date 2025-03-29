@@ -4,7 +4,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// メトリクス定義
+// メトリクス定義.
 var (
 	ViewerCount = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{

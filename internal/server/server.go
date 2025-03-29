@@ -54,9 +54,16 @@ func Run(ctx context.Context) error {
 	router.Handle("/query", srv)
 	router.Handle("/metrics", promhttp.Handler())
 
-	fmt.Println("Starting server...")
-	return http.ListenAndServe(fmt.Sprintf(":%s", Port), router)
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%s", Port),
+		Handler:      router,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
 
+	fmt.Println("Starting server...")
+	return server.ListenAndServe()
 }
 
 func newServer(es graphql.ExecutableSchema) *handler.Server {

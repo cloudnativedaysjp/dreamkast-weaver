@@ -41,7 +41,6 @@ type StampRequest struct {
 type StampRallyAppImpl struct {
 	sh         *sqlhelper.SqlHelper
 	dkUiDomain dmodel.DkUiDomain
-	cache      dmodel.ViewerCounts
 }
 
 var _ StampRallyApp = (*StampRallyAppImpl)(nil)

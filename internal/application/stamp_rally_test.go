@@ -105,7 +105,6 @@ func TestStampRallyAppImpl_CreateViewEvent(t *testing.T) {
 }
 
 func TestStampRallyAppImpl_StampOnSite(t *testing.T) {
-
 	ctx := context.Background()
 	sq, _ := sqlhelper.NewSqlHelper(&sqlhelper.SqlOption{
 		User:     "user",
