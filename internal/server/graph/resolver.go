@@ -9,7 +9,7 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-//go:generate go run github.com/99designs/gqlgen generate
+//go:generate go tool github.com/99designs/gqlgen generate
 
 type Resolver struct {
 	stampRallyApp application.StampRallyApp

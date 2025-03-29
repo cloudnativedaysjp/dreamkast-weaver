@@ -1,18 +1,20 @@
 # syntax=docker/dockerfile:1.4
 ### builder ###
-FROM golang:1.22-bullseye as builder
+FROM golang:1.24-bullseye as builder
 
 WORKDIR /workspace
 
 # Copy the Go Modules
-COPY --link go.mod go.sum ./
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=bind,source=go.mod,target=go.mod \
+    --mount=type=bind,source=go.sum,target=go.sum \
     go mod download
-COPY . .
+
 # Build
 ARG GOOS=linux
 ARG GOARCH=amd64
+COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -ldflags="-s -w" -trimpath -tags timetzdata -o dkw cmd/dkw/main.go
