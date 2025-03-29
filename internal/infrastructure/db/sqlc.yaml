@@ -1,0 +1,13 @@
+version: "2"
+sql:
+  - engine: "mysql"
+    queries: "query.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "dbgen"
+        out: "dbgen"
+    database:
+      uri: "user:password@tcp(127.0.0.1:13306)/dkui"
+    rules:
+    - sqlc/db-prepare

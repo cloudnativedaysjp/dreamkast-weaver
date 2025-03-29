@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
           cache-dependency-path: go.sum
@@ -37,7 +37,7 @@ jobs:
 
       - name: Run database
         run: |
-          docker compose -f ./dev/compose.yaml up -d db
+          docker compose up -d db
           sleep 10
 
       - name: Run Test

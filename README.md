@@ -1,6 +1,6 @@
 # dreamkast-weaver
 
-Microservices for dreamkast built on Service Weaver.
+Backend Server for dreamkast/dreamkast-ui.
 
 <div align="center">
 <img src="./images/icon.jpg" alt="dreamkast-weaver" width="300">
@@ -9,39 +9,38 @@ Microservices for dreamkast built on Service Weaver.
 ## Prerequisites
 
 - Docker
-- Docker Compose
-- [Service Weaver](https://serviceweaver.dev/docs.html#installation)
 
 ## How to run
 
 Run the dev container and database:
 
 ```bash
-docker-compose -f dev/compose.yaml up -d
+docker compose up -d
 ```
 
-Access `http://localhost:8080` then you can perform tests with a graphiql UI.
+Access `http://localhost:8088` then you can perform tests with a graphiql UI.
 
-Dev app container supports live-reloading since it is running on [air](https://github.com/cosmtrek/air).
-You don't need to rebuild the container image except for the case `go.mod` updated.
+For example, you can calculate the number of viewers using the graphql scripts below:
 
+the viewing script
 
-## Run on weaver
-
-Dreamkast-weaver is built on Service Weaver, so you can try multi-deploy mode using weaver CLI.
-
-- single deploy
-
-```bash
-DB_ENDPOINT=127.0.0.1 DB_PORT=13306 DB_USER=user DB_PASSWORD=password go run ./cmd/serve/main.go
-weaver single status
-```
--  multi deploy
-
-```bash
-make build
-weaver multi deploy weaver.toml
-weaver multi status
+```graphql
+mutation {
+  viewTrack(input: {
+    profileID: 123,
+    trackName: "A",
+    talkID: 456
+  })
+}
 ```
 
-For more information about weaver, see [serverweaver.dev](https://serviceweaver.dev/docs.html).
+and the retrieval script.
+
+```graphql
+query {
+  viewerCount(confName: cndt2023) {
+    trackName
+    count
+  }
+}
+```

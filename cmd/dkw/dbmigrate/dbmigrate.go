@@ -12,22 +12,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type db struct {
-	name         string
-	migrationDir string
-}
-
-var (
-	dbs = []db{
-		{
-			name:         "/dkui",
-			migrationDir: "internal/dkui/db/migrations",
-		},
-		{
-			name:         "/cfp",
-			migrationDir: "internal/cfp/db/migrations",
-		},
-	}
+const (
+	dbName         = "/dkui"
+	dbMigrationDir = "internal/infrastructure/db/migrations"
 )
 
 // Cmd represents the dbmigrate command.
@@ -47,30 +34,25 @@ var Cmd = &cobra.Command{
 		}
 
 		// Check for existing migration dir.
-		for _, db := range dbs {
-			mdp := filepath.Join(wd, db.migrationDir)
-			if _, err := os.Stat(mdp); err != nil {
-				log.Fatal(err)
-			}
+		mdp := filepath.Join(wd, dbMigrationDir)
+		if _, err := os.Stat(mdp); err != nil {
+			log.Fatal(err)
 		}
 
-		for _, db := range dbs {
-			u := &url.URL{
-				Scheme: "mysql",
-				User:   url.UserPassword(user, pw),
-				Host:   fmt.Sprintf("%s:%s", endpoint, port),
-				Path:   db.name,
-			}
-
-			dbm := dbmate.New(u)
-			dbm.MigrationsDir = []string{filepath.Join(wd, db.migrationDir)}
-			err := dbm.CreateAndMigrate()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			log.Printf("CreateAndMigrate for %s is complete", db.name)
+		u := &url.URL{
+			Scheme: "mysql",
+			User:   url.UserPassword(user, pw),
+			Host:   fmt.Sprintf("%s:%s", endpoint, port),
+			Path:   dbName,
 		}
+
+		dbm := dbmate.New(u)
+		dbm.MigrationsDir = []string{filepath.Join(wd, dbMigrationDir)}
+		if err := dbm.CreateAndMigrate(); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("CreateAndMigrate for %s is complete", dbName)
 	},
 }
 
