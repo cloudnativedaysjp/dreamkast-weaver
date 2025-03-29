@@ -1,4 +1,4 @@
-package usecase
+package application
 
 import (
 	"context"
@@ -36,7 +36,7 @@ func setup() {
 
 func teardown() {}
 
-func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
+func TestStampRallyAppImpl_CreateViewEvent(t *testing.T) {
 	dmodel.ChangeGuardSecondsForTest(0)
 	dmodel.ChangeStampReadySecondsForTest(value.INTERVAL_SECONDS * 2)
 
@@ -50,7 +50,7 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 		DbName:   "test_dkui",
 	})
 
-	svc := NewDkUiService(sq)
+	svc := NewStampRallyApp(sq)
 
 	profile := Profile{
 		ConfName: newConfName("cndt2023"),
@@ -104,7 +104,7 @@ func TestDkUiServiceImpl_CreateViewEvent(t *testing.T) {
 	assertStampCondition(t, stamps, 1000, "stamped")
 }
 
-func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
+func TestStampRallyAppImpl_StampOnSite(t *testing.T) {
 
 	ctx := context.Background()
 	sq, _ := sqlhelper.NewSqlHelper(&sqlhelper.SqlOption{
@@ -115,7 +115,7 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 		DbName:   "test_dkui",
 	})
 
-	svc := NewDkUiService(sq)
+	svc := NewStampRallyApp(sq)
 
 	profile := Profile{
 		ConfName: newConfName("cndt2023"),
@@ -138,44 +138,6 @@ func TestDkUiServiceImpl_StampOnSite(t *testing.T) {
 
 	assertViewEvents(t, slots, 1001, value.TALK_SECONDS)
 	assertStampCondition(t, stamps, 1001, "stamped")
-}
-
-func TestDkUiServiceImpl_ListTrackViewer(t *testing.T) {
-	ctx := context.Background()
-	sq, _ := sqlhelper.NewSqlHelper(&sqlhelper.SqlOption{
-		User:     "user",
-		Password: "password",
-		Endpoint: "127.0.0.1",
-		Port:     "13306",
-		DbName:   "test_dkui",
-	})
-
-	svc := NewDkUiService(sq)
-
-	tna := newTrackName("A")
-	tnb := newTrackName("B")
-	tnc := newTrackName("C")
-	tIDa := newTalkID(1)
-	tIDb := newTalkID(2)
-	tIDc := newTalkID(3)
-
-	assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna, tIDa))
-	assert.NoError(t, svc.ViewTrack(ctx, newProfileID(731), tna, tIDa))
-	assert.NoError(t, svc.ViewTrack(ctx, newProfileID(732), tnb, tIDb))
-	assert.NoError(t, svc.ViewTrack(ctx, newProfileID(733), tnc, tIDb))
-	assert.NoError(t, svc.ViewTrack(ctx, newProfileID(734), tnc, tIDc))
-
-	ans := map[value.TrackName]int{}
-	ans[tna] = 1
-	ans[tnb] = 1
-	ans[tnc] = 2
-
-	dvc, err := svc.ListViewerCounts(ctx, false)
-	assert.NoError(t, err)
-
-	for _, v := range dvc.Items {
-		assert.Equal(t, ans[v.TrackName], v.Count)
-	}
 }
 
 func mustNil(err error) {

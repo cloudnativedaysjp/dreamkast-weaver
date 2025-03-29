@@ -9,17 +9,17 @@ import (
 	"errors"
 	"net"
 
+	"dreamkast-weaver/internal/application"
 	"dreamkast-weaver/internal/domain/value"
 	"dreamkast-weaver/internal/server/graph/model"
 	"dreamkast-weaver/internal/server/middleware"
-	"dreamkast-weaver/internal/usecase"
 )
 
 // Vote is the resolver for the vote field.
 func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bool, error) {
 	var e, err error
 
-	req := usecase.VoteRequest{}
+	req := application.VoteRequest{}
 	req.ConfName, e = value.NewConfName(value.ConferenceKind((input.ConfName.String())))
 	err = errors.Join(err, e)
 	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
@@ -29,7 +29,7 @@ func (r *mutationResolver) Vote(ctx context.Context, input model.VoteInput) (*bo
 		return nil, err
 	}
 
-	if err := r.cfpSrv.Vote(ctx, req); err != nil {
+	if err := r.cfpApp.Vote(ctx, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -47,7 +47,7 @@ func (r *mutationResolver) StampOnline(ctx context.Context, input model.StampOnl
 		return nil, err
 	}
 
-	if err := r.dkUiSrv.StampOnline(ctx, profile, slotID); err != nil {
+	if err := r.stampRallyApp.StampOnline(ctx, profile, slotID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -59,7 +59,7 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 	profile, err := newProfile(input.ConfName, input.ProfileID)
 	err = errors.Join(err, e)
 
-	req := usecase.StampRequest{}
+	req := application.StampRequest{}
 	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
 	err = errors.Join(err, e)
 	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
@@ -70,7 +70,7 @@ func (r *mutationResolver) StampOnSite(ctx context.Context, input model.StampOnS
 		return nil, err
 	}
 
-	if err := r.dkUiSrv.StampOnSite(ctx, profile, req); err != nil {
+	if err := r.stampRallyApp.StampOnSite(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -82,7 +82,7 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 	profile, err := newProfile(input.ConfName, input.ProfileID)
 	err = errors.Join(err, e)
 
-	req := usecase.CreateViewEventRequest{}
+	req := application.CreateViewEventRequest{}
 	req.TrackID, e = value.NewTrackID(int32(input.TrackID))
 	err = errors.Join(err, e)
 	req.TalkID, e = value.NewTalkID(int32(input.TalkID))
@@ -93,7 +93,7 @@ func (r *mutationResolver) CreateViewEvent(ctx context.Context, input model.Crea
 		return nil, err
 	}
 
-	if err := r.dkUiSrv.CreateViewEvent(ctx, profile, req); err != nil {
+	if err := r.stampRallyApp.CreateViewEvent(ctx, profile, req); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -114,7 +114,7 @@ func (r *mutationResolver) ViewTrack(ctx context.Context, input model.ViewTrackI
 		return nil, err
 	}
 
-	if err := r.dkUiSrv.ViewTrack(ctx, pID, tn, tID); err != nil {
+	if err := r.vcManager.ViewTrack(ctx, pID, tn, tID); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -142,13 +142,13 @@ func (r *queryResolver) VoteCounts(ctx context.Context, confName model.ConfName,
 		return nil, err
 	}
 
-	req := usecase.VoteCountsRequest{
+	req := application.VoteCountsRequest{
 		ConfName:    vcn,
 		VotingTerm:  vvt,
 		SpanSeconds: vss,
 	}
 
-	resp, err := r.cfpSrv.VoteCounts(ctx, req)
+	resp, err := r.cfpApp.VoteCounts(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -171,7 +171,7 @@ func (r *queryResolver) ViewingSlots(ctx context.Context, confName model.ConfNam
 		return nil, err
 	}
 
-	devents, err := r.dkUiSrv.ViewingEvents(ctx, profile)
+	devents, err := r.stampRallyApp.ViewingEvents(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +194,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 		return nil, err
 	}
 
-	dstamps, err := r.dkUiSrv.StampChallenges(ctx, profile)
+	dstamps, err := r.stampRallyApp.StampChallenges(ctx, profile)
 	if err != nil {
 		return nil, err
 	}
@@ -212,8 +212,8 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 }
 
 // ViewerCount is the resolver for the viewerCount field.
-func (r *queryResolver) ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error) {
-	dvcs, err := r.dkUiSrv.ListViewerCounts(ctx, true)
+func (r *queryResolver) ViewerCount(ctx context.Context, _ *model.ConfName) ([]*model.ViewerCount, error) {
+	dvcs, err := r.vcManager.ListViewerCounts(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -243,9 +243,9 @@ type queryResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func newProfile(confName model.ConfName, profileID int) (usecase.Profile, error) {
+func newProfile(confName model.ConfName, profileID int) (application.Profile, error) {
 	var e, err error
-	profile := usecase.Profile{}
+	profile := application.Profile{}
 	profile.ConfName, e = value.NewConfName(value.ConferenceKind(confName))
 	err = errors.Join(err, e)
 	profile.ID, e = value.NewProfileID(int32(profileID))

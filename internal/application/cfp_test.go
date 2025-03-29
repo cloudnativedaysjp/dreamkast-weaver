@@ -1,4 +1,4 @@
-package usecase
+package application
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func TestCfpVoteImpl(t *testing.T) {
 		DbName:   "test_cfp",
 	})
 
-	svc := NewCFPService(sq)
+	svc := NewCfpApp(sq)
 
 	err := svc.Vote(ctx, VoteRequest{
 		ConfName: cn,

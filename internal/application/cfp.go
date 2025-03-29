@@ -1,4 +1,4 @@
-package usecase
+package application
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"dreamkast-weaver/internal/pkg/stacktrace"
 )
 
-type CfpService interface {
+type CfpApp interface {
 	Vote(ctx context.Context, req VoteRequest) error
 	VoteCounts(ctx context.Context, req VoteCountsRequest) ([]*dmodel.VoteCount, error)
 }
@@ -30,17 +30,17 @@ type VoteCountsRequest struct {
 	SpanSeconds value.SpanSeconds
 }
 
-type CfpServiceImpl struct {
+type CfpAppImpl struct {
 	sh *sqlhelper.SqlHelper
 }
 
-var _ CfpService = (*CfpServiceImpl)(nil)
+var _ CfpApp = (*CfpAppImpl)(nil)
 
-func NewCFPService(sh *sqlhelper.SqlHelper) CfpService {
-	return &CfpServiceImpl{sh: sh}
+func NewCfpApp(sh *sqlhelper.SqlHelper) CfpApp {
+	return &CfpAppImpl{sh: sh}
 }
 
-func (s *CfpServiceImpl) handleError(ctx context.Context, msg string, err error) {
+func (s *CfpAppImpl) handleError(ctx context.Context, msg string, err error) {
 	logger := logger.FromCtx(ctx)
 	if err != nil {
 		if derrors.IsUserError(err) {
@@ -51,7 +51,7 @@ func (s *CfpServiceImpl) handleError(ctx context.Context, msg string, err error)
 	}
 }
 
-func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*dmodel.VoteCount, err error) {
+func (s *CfpAppImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) (resp []*dmodel.VoteCount, err error) {
 	defer func() {
 		s.handleError(ctx, "get voteCounts", err)
 	}()
@@ -68,7 +68,7 @@ func (s *CfpServiceImpl) VoteCounts(ctx context.Context, req VoteCountsRequest) 
 	return dvc, nil
 }
 
-func (s *CfpServiceImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
+func (s *CfpAppImpl) Vote(ctx context.Context, req VoteRequest) (err error) {
 	defer func() {
 		s.handleError(ctx, "vote", err)
 	}()

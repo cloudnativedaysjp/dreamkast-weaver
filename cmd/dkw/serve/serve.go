@@ -9,10 +9,6 @@ import (
 	"dreamkast-weaver/internal/server"
 )
 
-var (
-	Port string
-)
-
 // serveCmd represents the serve command.
 var Cmd = &cobra.Command{
 	Use:   "serve",

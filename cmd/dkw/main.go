@@ -9,6 +9,7 @@ import (
 
 	"dreamkast-weaver/cmd/dkw/dbmigrate"
 	"dreamkast-weaver/cmd/dkw/serve"
+	"dreamkast-weaver/internal/server"
 )
 
 // dkwCmd represents the base command when called without any subcommands.
@@ -43,7 +44,7 @@ func init() {
 	}
 	// serve
 	dkwCmd.AddCommand(serve.Cmd)
-	serve.Cmd.Flags().StringVarP(&serve.Port, "port", "p", "", "listen port")
+	serve.Cmd.Flags().StringVarP(&server.Port, "port", "p", "8080", "listen port")
 
 	// dbmigrate
 	dkwCmd.AddCommand(dbmigrate.Cmd)

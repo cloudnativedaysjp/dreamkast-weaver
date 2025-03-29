@@ -1,13 +1,8 @@
-package usecase
+package application
 
 import (
 	"context"
 	"database/sql"
-	"time"
-
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/push"
-	"golang.org/x/exp/slog"
 
 	derrors "dreamkast-weaver/internal/domain/errors"
 	dmodel "dreamkast-weaver/internal/domain/model"
@@ -18,27 +13,12 @@ import (
 	"dreamkast-weaver/internal/pkg/stacktrace"
 )
 
-const (
-	envPushGatewayEndpoint = "PROM_PUSHGATEWAY_ENDPOINT"
-)
-
-var (
-	viewerCount = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Namespace: "dkw",
-		Subsystem: "dkui",
-		Name:      "viewer_count",
-		Help:      "Number of viewer_count",
-	}, []string{"trackName"})
-)
-
-type DkUiService interface {
+type StampRallyApp interface {
 	CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) error
 	StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) error
 	StampOnSite(ctx context.Context, profile Profile, req StampRequest) error
 	ViewingEvents(ctx context.Context, profile Profile) (*dmodel.ViewEvents, error)
 	StampChallenges(ctx context.Context, profile Profile) (*dmodel.StampChallenges, error)
-	ListViewerCounts(ctx context.Context, useCache bool) (*dmodel.ViewerCounts, error)
-	ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) error
 }
 
 type Profile struct {
@@ -58,14 +38,13 @@ type StampRequest struct {
 	SlotID  value.SlotID
 }
 
-type DkUiServiceImpl struct {
+type StampRallyAppImpl struct {
 	sh         *sqlhelper.SqlHelper
-	pusher     *push.Pusher
 	dkUiDomain dmodel.DkUiDomain
 	cache      dmodel.ViewerCounts
 }
 
-var _ DkUiService = (*DkUiServiceImpl)(nil)
+var _ StampRallyApp = (*StampRallyAppImpl)(nil)
 
 type Config struct {
 	DBUser              string `toml:"db_user"`
@@ -86,13 +65,13 @@ func (c *Config) SqlOption() *sqlhelper.SqlOption {
 	}
 }
 
-func NewDkUiService(sh *sqlhelper.SqlHelper) DkUiService {
-	return &DkUiServiceImpl{
+func NewStampRallyApp(sh *sqlhelper.SqlHelper) StampRallyApp {
+	return &StampRallyAppImpl{
 		sh: sh,
 	}
 }
 
-func (s *DkUiServiceImpl) handleError(ctx context.Context, msg string, err error) {
+func (s *StampRallyAppImpl) handleError(ctx context.Context, msg string, err error) {
 	logger := logger.FromCtx(ctx)
 	if err != nil {
 		if derrors.IsUserError(err) {
@@ -103,7 +82,7 @@ func (s *DkUiServiceImpl) handleError(ctx context.Context, msg string, err error
 	}
 }
 
-func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
+func (s *StampRallyAppImpl) CreateViewEvent(ctx context.Context, profile Profile, req CreateViewEventRequest) (err error) {
 	defer func() {
 		s.handleError(ctx, "create viewEvent", err)
 	}()
@@ -143,7 +122,7 @@ func (s *DkUiServiceImpl) CreateViewEvent(ctx context.Context, profile Profile, 
 	return nil
 }
 
-func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *dmodel.ViewEvents, err error) {
+func (v *StampRallyAppImpl) ViewingEvents(ctx context.Context, profile Profile) (resp *dmodel.ViewEvents, err error) {
 	defer func() {
 		v.handleError(ctx, "get viewingEvents", err)
 	}()
@@ -157,7 +136,7 @@ func (v *DkUiServiceImpl) ViewingEvents(ctx context.Context, profile Profile) (r
 	return resp, nil
 }
 
-func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) (resp *dmodel.StampChallenges, err error) {
+func (v *StampRallyAppImpl) StampChallenges(ctx context.Context, profile Profile) (resp *dmodel.StampChallenges, err error) {
 	defer func() {
 		v.handleError(ctx, "get stampChallenges", err)
 	}()
@@ -171,7 +150,7 @@ func (v *DkUiServiceImpl) StampChallenges(ctx context.Context, profile Profile) 
 	return resp, nil
 }
 
-func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
+func (v *StampRallyAppImpl) StampOnline(ctx context.Context, profile Profile, slotID value.SlotID) (err error) {
 	defer func() {
 		v.handleError(ctx, "stamp from online", err)
 	}()
@@ -194,7 +173,7 @@ func (v *DkUiServiceImpl) StampOnline(ctx context.Context, profile Profile, slot
 	return nil
 }
 
-func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
+func (v *StampRallyAppImpl) StampOnSite(ctx context.Context, profile Profile, req StampRequest) (err error) {
 	defer func() {
 		v.handleError(ctx, "stamp from onsite", err)
 	}()
@@ -224,66 +203,4 @@ func (v *DkUiServiceImpl) StampOnSite(ctx context.Context, profile Profile, req 
 	}
 
 	return nil
-}
-
-func (s *DkUiServiceImpl) ListViewerCounts(ctx context.Context, useCache bool) (dvc *dmodel.ViewerCounts, err error) {
-	defer func() {
-		s.handleError(ctx, "list viewer count", err)
-	}()
-	if !useCache {
-		if _, err := s.getViewerCount(ctx); err != nil {
-			return nil, err
-		}
-	}
-	return &s.cache, nil
-}
-
-func (s *DkUiServiceImpl) ViewTrack(ctx context.Context, profileID value.ProfileID, trackName value.TrackName, talkID value.TalkID) (err error) {
-	defer func() {
-		s.handleError(ctx, "viewing track", err)
-	}()
-
-	r := repo.NewTrackViewerRepo(s.sh.DB())
-	if err := r.Insert(ctx, profileID, trackName, talkID); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *DkUiServiceImpl) measureViewerCount(ctx context.Context) {
-	logger := logger.FromCtx(ctx)
-	go func() {
-		for {
-			vc, err := s.getViewerCount(ctx)
-			if err != nil {
-				logger.Warn("failed push metrics", slog.String("err", err.Error()))
-			}
-
-			for _, v := range vc.Items {
-				viewerCount.WithLabelValues(v.TrackName.String()).Set(float64(v.Count))
-			}
-
-			if err := s.pusher.Push(); err != nil {
-				logger.Warn("failed push metrics", slog.String("err", err.Error()))
-			}
-
-			time.Sleep(value.METRICS_UPDATE_INTERVAL * time.Second)
-		}
-	}()
-}
-
-func (s *DkUiServiceImpl) getViewerCount(ctx context.Context) (*dmodel.ViewerCounts, error) {
-	to := time.Now().UTC()
-	from := to.Add(-1 * value.TIMEWINDOW_VIEWER_COUNT * time.Second)
-
-	r := repo.NewTrackViewerRepo(s.sh.DB())
-	dtv, err := r.List(ctx, from, to)
-	if err != nil {
-		return nil, err
-	}
-
-	dvc := dtv.GetViewerCounts()
-	s.cache = dvc
-
-	return &dvc, nil
 }

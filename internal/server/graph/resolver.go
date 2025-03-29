@@ -1,8 +1,8 @@
 package graph
 
 import (
+	"dreamkast-weaver/internal/application"
 	"dreamkast-weaver/internal/pkg/sqlhelper"
-	"dreamkast-weaver/internal/usecase"
 )
 
 // This file will not be regenerated automatically.
@@ -12,15 +12,22 @@ import (
 //go:generate go run github.com/99designs/gqlgen generate
 
 type Resolver struct {
-	dkUiSrv usecase.DkUiService
-	cfpSrv  usecase.CfpService
+	stampRallyApp application.StampRallyApp
+	cfpApp        application.CfpApp
+	vcManager     application.ViewerCountManager
 }
 
-func New(sh *sqlhelper.SqlHelper) Config {
+func New(
+	sh *sqlhelper.SqlHelper,
+	stampRallyApp application.StampRallyApp,
+	cfpApp application.CfpApp,
+	vcManager application.ViewerCountManager,
+) Config {
 	return Config{
 		Resolvers: &Resolver{
-			dkUiSrv: usecase.NewDkUiService(sh),
-			cfpSrv:  usecase.NewCFPService(sh),
+			stampRallyApp: stampRallyApp,
+			cfpApp:        cfpApp,
+			vcManager:     vcManager,
 		},
 	}
 }
