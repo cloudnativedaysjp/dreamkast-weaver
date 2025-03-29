@@ -32,4 +32,4 @@ WORKDIR /
 COPY --link internal internal
 COPY --link --from=builder /workspace/dkw .
 
-ENTRYPOINT ["/dkw"]
+ENTRYPOINT ["/dkw","serve"]

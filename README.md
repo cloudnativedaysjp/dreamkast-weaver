@@ -9,18 +9,38 @@ Backend Server for dreamkast/dreamkast-ui.
 ## Prerequisites
 
 - Docker
-- Docker Compose
-- [Service Weaver](https://serviceweaver.dev/docs.html#installation)
 
 ## How to run
 
 Run the dev container and database:
 
 ```bash
-docker-compose -f dev/compose.yaml up -d
+docker compose up -d
 ```
 
-Access `http://localhost:8080` then you can perform tests with a graphiql UI.
+Access `http://localhost:8088` then you can perform tests with a graphiql UI.
 
-Dev app container supports live-reloading since it is running on [air](https://github.com/cosmtrek/air).
-You don't need to rebuild the container image except for the case `go.mod` updated.
+For example, you can calculate the number of viewers using the graphql scripts below:
+
+the viewing script
+
+```graphql
+mutation {
+  viewTrack(input: {
+    profileID: 123,
+    trackName: "A",
+    talkID: 456
+  })
+}
+```
+
+and the retrieval script.
+
+```graphql
+query {
+  viewerCount(confName: cndt2023) {
+    trackName
+    count
+  }
+}
+```
