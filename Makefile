@@ -7,13 +7,12 @@ fmt:
 
 .PHONY: dbmateup
 dbmateup:
-	cd internal/cfp  && go run github.com/amacneil/dbmate/v2 up
-	cd internal/dkui  && go run github.com/amacneil/dbmate/v2 up
+	cd internal/infrastructure  && go tool github.com/amacneil/dbmate/v2 up
 
 .PHONY: vet
 vet: dbmateup
 	go vet ./...
-	go run github.com/sqlc-dev/sqlc/cmd/sqlc vet -f internal/sqlc.yaml
+	go tool github.com/sqlc-dev/sqlc/cmd/sqlc vet -f internal/infrastructure/db/sqlc.yaml
 
 .PHONY: test
 test: fmt vet
@@ -26,7 +25,6 @@ build:
 .PHONY: generate
 generate:
 	go generate -x ./...
-	go run github.com/ServiceWeaver/weaver/cmd/weaver generate ./...
 
 .PHONY: lint
 lint:
