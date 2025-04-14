@@ -58,7 +58,7 @@ func TestCfpVoteImpl(t *testing.T) {
 	assert.True(t, ok, "talkID not found")
 }
 
-func newSpanSeconds(v int) value.SpanSeconds {
+func newSpanSeconds(v int32) value.SpanSeconds {
 	ss, err := value.NewSpanSeconds(&v)
 	mustNil(err)
 	return ss

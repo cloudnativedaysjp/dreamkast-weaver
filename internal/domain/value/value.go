@@ -336,13 +336,13 @@ const (
 	SPAN_SECONDS = 3600
 )
 
-func NewSpanSeconds(ss *int) (SpanSeconds, error) {
+func NewSpanSeconds(ss *int32) (SpanSeconds, error) {
 	o := SpanSeconds{
 		value: SPAN_SECONDS,
 	}
 
 	if ss != nil {
-		o.value = *ss
+		o.value = int(*ss)
 	}
 
 	return o, o.Validate()

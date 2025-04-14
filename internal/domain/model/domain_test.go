@@ -302,7 +302,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 	tests := []struct {
 		name   string
 		given  func() (cvs *dmodel.CfpVotes)
-		counts map[value.TalkID]int
+		counts map[value.TalkID]int32
 	}{
 		{
 			name: "votes within a span are summarized",
@@ -326,7 +326,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 				}}
 				return cvs
 			},
-			counts: map[value.TalkID]int{
+			counts: map[value.TalkID]int32{
 				id: 2,
 			},
 		},
@@ -352,7 +352,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 				}}
 				return cvs
 			},
-			counts: map[value.TalkID]int{
+			counts: map[value.TalkID]int32{
 				id:           2,
 				newTalkID(2): 1,
 			},
@@ -372,7 +372,7 @@ func TestCfpDomain_TallyCfpVotes(t *testing.T) {
 	}
 }
 
-func newSpanSeconds(v int) value.SpanSeconds {
+func newSpanSeconds(v int32) value.SpanSeconds {
 	ss, err := value.NewSpanSeconds(&v)
 	mustNil(err)
 	return ss

@@ -239,7 +239,7 @@ func (evs *ViewEvents) AddImmutable(ev ViewEvent) *ViewEvents {
 	}
 }
 
-func NewViewerCount(tn value.TrackName, count int) *ViewerCount {
+func NewViewerCount(tn value.TrackName, count int32) *ViewerCount {
 	return &ViewerCount{
 		TrackName: tn,
 		Count:     count,
@@ -248,7 +248,7 @@ func NewViewerCount(tn value.TrackName, count int) *ViewerCount {
 
 type ViewerCount struct {
 	TrackName value.TrackName
-	Count     int
+	Count     int32
 }
 
 type ViewerCounts struct {
@@ -266,7 +266,7 @@ type TrackViewers struct {
 }
 
 func (v *TrackViewers) GetViewerCounts() ViewerCounts {
-	aa := map[value.TrackName]int{}
+	aa := map[value.TrackName]int32{}
 	for _, n := range value.TrackNames() {
 		aa[n] = 0
 	}
@@ -314,7 +314,7 @@ type CfpVotes struct {
 
 type VoteCount struct {
 	TalkID value.TalkID
-	Count  int
+	Count  int32
 }
 
 func (cvs *CfpVotes) Tally(spanSeconds value.SpanSeconds) []*VoteCount {
@@ -324,7 +324,7 @@ func (cvs *CfpVotes) Tally(spanSeconds value.SpanSeconds) []*VoteCount {
 		timeFrame int64
 	}
 	voted := map[key]bool{}
-	counts := map[value.TalkID]int{}
+	counts := map[value.TalkID]int32{}
 	for _, v := range cvs.Items {
 		k := key{
 			talkId:    v.TalkID.Value(),

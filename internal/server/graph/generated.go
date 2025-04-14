@@ -57,10 +57,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		StampChallenges func(childComplexity int, confName model.ConfName, profileID int) int
+		StampChallenges func(childComplexity int, confName model.ConfName, profileID int32) int
 		ViewerCount     func(childComplexity int, confName *model.ConfName) int
-		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int) int
-		VoteCounts      func(childComplexity int, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) int
+		ViewingSlots    func(childComplexity int, confName model.ConfName, profileID int32) int
+		VoteCounts      func(childComplexity int, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int32) int
 	}
 
 	StampChallenge struct {
@@ -93,9 +93,9 @@ type MutationResolver interface {
 	ViewTrack(ctx context.Context, input model.ViewTrackInput) (*bool, error)
 }
 type QueryResolver interface {
-	VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int) ([]*model.VoteCount, error)
-	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int) ([]*model.ViewingSlot, error)
-	StampChallenges(ctx context.Context, confName model.ConfName, profileID int) ([]*model.StampChallenge, error)
+	VoteCounts(ctx context.Context, confName model.ConfName, votingTerm *model.VotingTerm, spanSeconds *int32) ([]*model.VoteCount, error)
+	ViewingSlots(ctx context.Context, confName model.ConfName, profileID int32) ([]*model.ViewingSlot, error)
+	StampChallenges(ctx context.Context, confName model.ConfName, profileID int32) ([]*model.StampChallenge, error)
 	ViewerCount(ctx context.Context, confName *model.ConfName) ([]*model.ViewerCount, error)
 }
 
@@ -188,7 +188,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.StampChallenges(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
+		return e.complexity.Query.StampChallenges(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int32)), true
 
 	case "Query.viewerCount":
 		if e.complexity.Query.ViewerCount == nil {
@@ -212,7 +212,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.ViewingSlots(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int)), true
+		return e.complexity.Query.ViewingSlots(childComplexity, args["confName"].(model.ConfName), args["profileID"].(int32)), true
 
 	case "Query.voteCounts":
 		if e.complexity.Query.VoteCounts == nil {
@@ -224,7 +224,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(model.ConfName), args["votingTerm"].(*model.VotingTerm), args["spanSeconds"].(*int)), true
+		return e.complexity.Query.VoteCounts(childComplexity, args["confName"].(model.ConfName), args["votingTerm"].(*model.VotingTerm), args["spanSeconds"].(*int32)), true
 
 	case "StampChallenge.condition":
 		if e.complexity.StampChallenge.Condition == nil {
@@ -623,18 +623,18 @@ func (ec *executionContext) field_Query_stampChallenges_argsConfName(
 func (ec *executionContext) field_Query_stampChallenges_argsProfileID(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (int, error) {
+) (int32, error) {
 	if _, ok := rawArgs["profileID"]; !ok {
-		var zeroVal int
+		var zeroVal int32
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
 	if tmp, ok := rawArgs["profileID"]; ok {
-		return ec.unmarshalNInt2int(ctx, tmp)
+		return ec.unmarshalNInt2int32(ctx, tmp)
 	}
 
-	var zeroVal int
+	var zeroVal int32
 	return zeroVal, nil
 }
 
@@ -702,18 +702,18 @@ func (ec *executionContext) field_Query_viewingSlots_argsConfName(
 func (ec *executionContext) field_Query_viewingSlots_argsProfileID(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (int, error) {
+) (int32, error) {
 	if _, ok := rawArgs["profileID"]; !ok {
-		var zeroVal int
+		var zeroVal int32
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
 	if tmp, ok := rawArgs["profileID"]; ok {
-		return ec.unmarshalNInt2int(ctx, tmp)
+		return ec.unmarshalNInt2int32(ctx, tmp)
 	}
 
-	var zeroVal int
+	var zeroVal int32
 	return zeroVal, nil
 }
 
@@ -776,18 +776,18 @@ func (ec *executionContext) field_Query_voteCounts_argsVotingTerm(
 func (ec *executionContext) field_Query_voteCounts_argsSpanSeconds(
 	ctx context.Context,
 	rawArgs map[string]any,
-) (*int, error) {
+) (*int32, error) {
 	if _, ok := rawArgs["spanSeconds"]; !ok {
-		var zeroVal *int
+		var zeroVal *int32
 		return zeroVal, nil
 	}
 
 	ctx = graphql.WithPathContext(ctx, graphql.NewPathWithField("spanSeconds"))
 	if tmp, ok := rawArgs["spanSeconds"]; ok {
-		return ec.unmarshalOInt2ᚖint(ctx, tmp)
+		return ec.unmarshalOInt2ᚖint32(ctx, tmp)
 	}
 
-	var zeroVal *int
+	var zeroVal *int32
 	return zeroVal, nil
 }
 
@@ -1185,7 +1185,7 @@ func (ec *executionContext) _Query_voteCounts(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(model.ConfName), fc.Args["votingTerm"].(*model.VotingTerm), fc.Args["spanSeconds"].(*int))
+		return ec.resolvers.Query().VoteCounts(rctx, fc.Args["confName"].(model.ConfName), fc.Args["votingTerm"].(*model.VotingTerm), fc.Args["spanSeconds"].(*int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1246,7 +1246,7 @@ func (ec *executionContext) _Query_viewingSlots(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ViewingSlots(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
+		return ec.resolvers.Query().ViewingSlots(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1307,7 +1307,7 @@ func (ec *executionContext) _Query_stampChallenges(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().StampChallenges(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int))
+		return ec.resolvers.Query().StampChallenges(rctx, fc.Args["confName"].(model.ConfName), fc.Args["profileID"].(int32))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1574,9 +1574,9 @@ func (ec *executionContext) _StampChallenge_slotID(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_StampChallenge_slotID(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1662,9 +1662,9 @@ func (ec *executionContext) _StampChallenge_updatedAt(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_StampChallenge_updatedAt(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1750,9 +1750,9 @@ func (ec *executionContext) _ViewerCount_count(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ViewerCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1794,9 +1794,9 @@ func (ec *executionContext) _ViewingSlot_slotId(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ViewingSlot_slotId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1838,9 +1838,9 @@ func (ec *executionContext) _ViewingSlot_viewingTime(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ViewingSlot_viewingTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1882,9 +1882,9 @@ func (ec *executionContext) _VoteCount_talkId(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VoteCount_talkId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1926,9 +1926,9 @@ func (ec *executionContext) _VoteCount_count(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int32)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt2int32(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_VoteCount_count(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3918,28 +3918,28 @@ func (ec *executionContext) unmarshalInputCreateViewEventInput(ctx context.Conte
 			it.ConfName = data
 		case "profileID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ProfileID = data
 		case "trackID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TrackID = data
 		case "talkID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TalkID = data
 		case "slotID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -3973,28 +3973,28 @@ func (ec *executionContext) unmarshalInputStampOnSiteInput(ctx context.Context, 
 			it.ConfName = data
 		case "profileID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ProfileID = data
 		case "trackID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("trackID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TrackID = data
 		case "talkID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.TalkID = data
 		case "slotID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4028,14 +4028,14 @@ func (ec *executionContext) unmarshalInputStampOnlineInput(ctx context.Context, 
 			it.ConfName = data
 		case "profileID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.ProfileID = data
 		case "slotID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("slotID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4062,7 +4062,7 @@ func (ec *executionContext) unmarshalInputViewTrackInput(ctx context.Context, ob
 		switch k {
 		case "profileID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4076,7 +4076,7 @@ func (ec *executionContext) unmarshalInputViewTrackInput(ctx context.Context, ob
 			it.TrackName = data
 		case "talkID":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkID"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4110,7 +4110,7 @@ func (ec *executionContext) unmarshalInputVoteInput(ctx context.Context, obj any
 			it.ConfName = data
 		case "talkId":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("talkId"))
-			data, err := ec.unmarshalNInt2int(ctx, v)
+			data, err := ec.unmarshalNInt2int32(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -4919,13 +4919,13 @@ func (ec *executionContext) unmarshalNCreateViewEventInput2dreamkastᚑweaverᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v any) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
+func (ec *executionContext) unmarshalNInt2int32(ctx context.Context, v any) (int32, error) {
+	res, err := graphql.UnmarshalInt32(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
-	res := graphql.MarshalInt(v)
+func (ec *executionContext) marshalNInt2int32(ctx context.Context, sel ast.SelectionSet, v int32) graphql.Marshaler {
+	res := graphql.MarshalInt32(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5478,19 +5478,19 @@ func (ec *executionContext) marshalODateTime2ᚖtimeᚐTime(ctx context.Context,
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v any) (*int, error) {
+func (ec *executionContext) unmarshalOInt2ᚖint32(ctx context.Context, v any) (*int32, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalInt(v)
+	res, err := graphql.UnmarshalInt32(v)
 	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+func (ec *executionContext) marshalOInt2ᚖint32(ctx context.Context, sel ast.SelectionSet, v *int32) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	res := graphql.MarshalInt(*v)
+	res := graphql.MarshalInt32(*v)
 	return res
 }
 
