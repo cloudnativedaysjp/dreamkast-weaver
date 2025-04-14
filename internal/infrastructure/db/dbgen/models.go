@@ -43,12 +43,3 @@ type ViewEvent struct {
 	ViewingSeconds int32
 	CreatedAt      time.Time
 }
-
-type ViewerCount struct {
-	ConferenceName string
-	TrackID        int32
-	ChannelArn     string
-	TrackName      string
-	Count          int64
-	UpdatedAt      time.Time
-}

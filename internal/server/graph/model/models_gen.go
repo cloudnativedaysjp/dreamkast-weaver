@@ -17,6 +17,12 @@ type CreateViewEventInput struct {
 	SlotID    int      `json:"slotID"`
 }
 
+type Mutation struct {
+}
+
+type Query struct {
+}
+
 type StampChallenge struct {
 	SlotID    int                `json:"slotID"`
 	Condition ChallengeCondition `json:"condition"`
@@ -94,7 +100,7 @@ func (e ChallengeCondition) String() string {
 	return string(e)
 }
 
-func (e *ChallengeCondition) UnmarshalGQL(v interface{}) error {
+func (e *ChallengeCondition) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -143,7 +149,7 @@ func (e ConfName) String() string {
 	return string(e)
 }
 
-func (e *ConfName) UnmarshalGQL(v interface{}) error {
+func (e *ConfName) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

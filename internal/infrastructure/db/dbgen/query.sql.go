@@ -60,7 +60,7 @@ const insertTrackViewer = `-- name: InsertTrackViewer :exec
 INSERT INTO
   track_viewer (created_at, track_name, profile_id, talk_id)
 VALUES
-  (NOW(3), ?, ?,?)
+  (NOW(3), ?, ?, ?)
 `
 
 type InsertTrackViewerParams struct {

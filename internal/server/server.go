@@ -48,6 +48,8 @@ func Run(ctx context.Context) error {
 	vcManager := application.NewViewerCountManager(sh)
 	cfpApp := application.NewCfpApp(sh)
 
+	go vcManager.Run(ctx)
+
 	srv := newServer(graph.NewExecutableSchema(graph.New(sh, stampRallyApp, cfpApp, vcManager)))
 
 	router.Handle("/", playground.Handler("GraphQL playground", "/query"))
