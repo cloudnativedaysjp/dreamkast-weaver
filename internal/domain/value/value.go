@@ -260,7 +260,7 @@ func (v *TrackName) String() string {
 func (v *TrackName) Validate() error {
 	return validation.Validate(v.value,
 		// dreamkast has a maximum of 6 tracks
-		validation.Match(regexp.MustCompile("^[A-F]$")),
+		validation.Match(regexp.MustCompile(`^[A-F\-]$`)),
 	)
 }
 
