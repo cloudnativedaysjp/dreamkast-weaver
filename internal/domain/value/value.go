@@ -259,7 +259,8 @@ func (v *TrackName) String() string {
 
 func (v *TrackName) Validate() error {
 	return validation.Validate(v.value,
-		// dreamkast has a maximum of 6 tracks
+		// dreamkast has a maximum of 6 tracks.
+		// and hyphen means archive page.
 		validation.Match(regexp.MustCompile(`^[A-F\-]$`)),
 	)
 }
@@ -269,6 +270,7 @@ func TrackNames() []TrackName {
 	for i := 0; i < 6; i++ {
 		names = append(names, TrackName{value: string(rune('A' + i))})
 	}
+	names = append(names, TrackName{value: "-"})
 	return names
 }
 

@@ -17,6 +17,7 @@
 
 # Temp directories
 tmp/
+vendor/
 
 # Built binary
 /dkw
