@@ -262,6 +262,7 @@ func (v *TrackName) Validate() error {
 		// dreamkast has a maximum of 6 tracks.
 		// and hyphen means archive page.
 		validation.Match(regexp.MustCompile(`^[A-F\-]$`)),
+		validation.Required,
 	)
 }
 
