@@ -8,8 +8,9 @@ import (
 var (
 	ViewerCount = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
-			Name: "viewer_count",
-			Help: "Number of viewer_count",
+			Namespace: "dkw",
+			Name:      "viewer_count",
+			Help:      "Number of viewer_count",
 		}, []string{"trackName"})
 )
 
