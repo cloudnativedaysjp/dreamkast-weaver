@@ -11,56 +11,62 @@ import (
 
 type CreateViewEventInput struct {
 	ConfName  ConfName `json:"confName"`
-	ProfileID int      `json:"profileID"`
-	TrackID   int      `json:"trackID"`
-	TalkID    int      `json:"talkID"`
-	SlotID    int      `json:"slotID"`
+	ProfileID int32    `json:"profileID"`
+	TrackID   int32    `json:"trackID"`
+	TalkID    int32    `json:"talkID"`
+	SlotID    int32    `json:"slotID"`
+}
+
+type Mutation struct {
+}
+
+type Query struct {
 }
 
 type StampChallenge struct {
-	SlotID    int                `json:"slotID"`
+	SlotID    int32              `json:"slotID"`
 	Condition ChallengeCondition `json:"condition"`
-	UpdatedAt int                `json:"updatedAt"`
+	UpdatedAt int32              `json:"updatedAt"`
 }
 
 type StampOnSiteInput struct {
 	ConfName  ConfName `json:"confName"`
-	ProfileID int      `json:"profileID"`
-	TrackID   int      `json:"trackID"`
-	TalkID    int      `json:"talkID"`
-	SlotID    int      `json:"slotID"`
+	ProfileID int32    `json:"profileID"`
+	TrackID   int32    `json:"trackID"`
+	TalkID    int32    `json:"talkID"`
+	SlotID    int32    `json:"slotID"`
 }
 
 type StampOnlineInput struct {
 	ConfName  ConfName `json:"confName"`
-	ProfileID int      `json:"profileID"`
-	SlotID    int      `json:"slotID"`
+	ProfileID int32    `json:"profileID"`
+	SlotID    int32    `json:"slotID"`
 }
 
 type ViewTrackInput struct {
-	ProfileID int    `json:"profileID"`
+	ProfileID int32  `json:"profileID"`
 	TrackName string `json:"trackName"`
-	TalkID    int    `json:"talkID"`
+	TalkID    int32  `json:"talkID"`
 }
 
 type ViewerCount struct {
 	TrackName string `json:"trackName"`
-	Count     int    `json:"count"`
+	Count     int32  `json:"count"`
 }
 
 type ViewingSlot struct {
-	SlotID      int `json:"slotId"`
-	ViewingTime int `json:"viewingTime"`
+	SlotID      int32 `json:"slotId"`
+	ViewingTime int32 `json:"viewingTime"`
 }
 
 type VoteCount struct {
-	TalkID int `json:"talkId"`
-	Count  int `json:"count"`
+	TalkID int32 `json:"talkId"`
+	Count  int32 `json:"count"`
 }
 
 type VoteInput struct {
 	ConfName ConfName `json:"confName"`
-	TalkID   int      `json:"talkId"`
+	TalkID   int32    `json:"talkId"`
 }
 
 type VotingTerm struct {
@@ -94,7 +100,7 @@ func (e ChallengeCondition) String() string {
 	return string(e)
 }
 
-func (e *ChallengeCondition) UnmarshalGQL(v interface{}) error {
+func (e *ChallengeCondition) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -143,7 +149,7 @@ func (e ConfName) String() string {
 	return string(e)
 }
 
-func (e *ConfName) UnmarshalGQL(v interface{}) error {
+func (e *ConfName) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
