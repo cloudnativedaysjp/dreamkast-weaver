@@ -34,3 +34,30 @@ func TestConfName(t *testing.T) {
 		})
 	}
 }
+
+func TestTrackName(t *testing.T) {
+	t.Run("ok", func(t *testing.T) {
+		given := "A"
+
+		got, err := value.NewTrackName(given)
+		assert.NoError(t, err)
+		assert.Equal(t, given, got.String())
+	})
+
+	errTests := []struct {
+		name  string
+		given string
+	}{
+		{
+			name:  "empty",
+			given: "",
+		},
+	}
+
+	for _, tt := range errTests {
+		t.Run("err: "+tt.name, func(t *testing.T) {
+			_, err := value.NewTrackName(tt.given)
+			assert.Error(t, err)
+		})
+	}
+}

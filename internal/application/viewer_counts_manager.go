@@ -79,7 +79,7 @@ func (s *ViewerCountManagerImpl) measureViewerCount(ctx context.Context) {
 
 	vc, err := s.getViewerCount(ctx)
 	if err != nil {
-		logger.Warn("failed push metrics", slog.String("err", err.Error()))
+		logger.Warn("failed get metrics", slog.String("err", err.Error()))
 	}
 
 	for _, v := range vc.Items {
