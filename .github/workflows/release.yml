@@ -1,0 +1,12 @@
+name: Release new version based on .github/release.yml
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    uses: cloudnativedaysjp/reusable-workflows/.github/workflows/wc-release-new-version.yml@main
+    permissions:
+      contents: write
