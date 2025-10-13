@@ -3,6 +3,7 @@ name: cleanup reviewapps
 on:
   schedule:
     - cron:  '*/30 * * * *'
+  workflow_dispatch:
 
 # this workflow should not work with cleanup workflow
 concurrency: reviewapps
