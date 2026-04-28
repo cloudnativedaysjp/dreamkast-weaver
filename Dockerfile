@@ -13,7 +13,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 
 # Build
 ARG GOOS=linux
-ARG GOARCH=aarch64
+ARG GOARCH=amd64
 COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
