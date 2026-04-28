@@ -205,7 +205,7 @@ func (r *queryResolver) StampChallenges(ctx context.Context, confName model.Conf
 			SlotID:    dst.SlotID.Value(),
 			Condition: model.ChallengeCondition(dst.Condition.Value()),
 			// FIXME: 2038年1月19日 03:14:07 UTC 以降オーバーフローする
-			UpdatedAt: int32(dst.UpdatedAt.Unix()),
+			UpdatedAt: int32(dst.UpdatedAt.Unix()), //nolint:gosec // G115: known Y2038 limitation tracked above
 		})
 	}
 

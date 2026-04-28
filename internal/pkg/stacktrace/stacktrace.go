@@ -17,7 +17,7 @@ func Show(err error, writer ...io.Writer) {
 		w = os.Stdout
 	}
 	if st := Get(err); st != "" {
-		fmt.Fprintf(w, "StackTrace: %s\n\n", st)
+		_, _ = fmt.Fprintf(w, "StackTrace: %s\n\n", st)
 	}
 }
 

@@ -51,7 +51,7 @@ var (
 	cndw2024 ConferenceKind = "cndw2024"
 	cnds2025 ConferenceKind = "cnds2025"
 	cndw2025 ConferenceKind = "cndw2025"
-	cnk ConferenceKind = "cnk"
+	cnk      ConferenceKind = "cnk"
 
 	CICD2023 ConfName
 	CNDF2023 ConfName
@@ -60,7 +60,7 @@ var (
 	CNDW2024 ConfName
 	CNDS2025 ConfName
 	CNDW2025 ConfName
-	CNK ConfName
+	CNK      ConfName
 )
 
 func init() {

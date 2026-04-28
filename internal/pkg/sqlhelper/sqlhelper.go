@@ -72,8 +72,7 @@ func NewSqlHelper(opt *SqlOption) (*SqlHelper, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
-	if err != nil {
+	if err := db.PingContext(context.Background()); err != nil {
 		return nil, err
 	}
 
