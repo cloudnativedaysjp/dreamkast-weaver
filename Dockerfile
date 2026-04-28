@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.4
 ### builder ###
-FROM golang:1.24-bullseye as builder
+FROM golang:1.25-bullseye as builder
 
 WORKDIR /workspace
 
