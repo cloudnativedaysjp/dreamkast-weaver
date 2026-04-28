@@ -36,7 +36,7 @@ func (v *ConfName) Validate() error {
 		validation.In(
 			cicd2023, cndf2023, cndt2023,
 			cnds2024, cndw2024,
-			cnds2025, cndw2025,
+			cnds2025, cndw2025, cnk,
 		),
 	)
 }
@@ -51,6 +51,7 @@ var (
 	cndw2024 ConferenceKind = "cndw2024"
 	cnds2025 ConferenceKind = "cnds2025"
 	cndw2025 ConferenceKind = "cndw2025"
+	cnk ConferenceKind = "cnk"
 
 	CICD2023 ConfName
 	CNDF2023 ConfName
@@ -59,6 +60,7 @@ var (
 	CNDW2024 ConfName
 	CNDS2025 ConfName
 	CNDW2025 ConfName
+	CNK ConfName
 )
 
 func init() {
@@ -69,6 +71,7 @@ func init() {
 	CNDW2024, _ = NewConfName(cndw2024)
 	CNDS2025, _ = NewConfName(cnds2025)
 	CNDW2025, _ = NewConfName(cndw2025)
+	CNK, _ = NewConfName(cnk)
 }
 
 // ProfileID represents an ID of user profile.
