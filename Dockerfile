@@ -12,10 +12,12 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go mod download
 
 # Build
-# TARGETOS/TARGETARCH are provided automatically by buildx from the target
-# platform (e.g. linux/arm64), so the binary matches the image architecture.
-ARG TARGETOS=linux
-ARG TARGETARCH=amd64
+# TARGETOS/TARGETARCH are predefined ARGs that buildx populates from the target
+# platform (e.g. linux/arm64). They MUST be redeclared without a default value,
+# otherwise the default shadows the value buildx injects and the binary is built
+# for the wrong architecture.
+ARG TARGETOS
+ARG TARGETARCH
 COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
